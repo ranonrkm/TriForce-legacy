@@ -19,7 +19,7 @@ model = model.eval()
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
-    parser.add_argument('--datalen', type=int, default=128000, help='length of data')
+    parser.add_argument('--datalen', type=int, default=64000, help='length of data')
     parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     

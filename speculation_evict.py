@@ -35,7 +35,7 @@ def parse_arguments():
     parser.add_argument('--draft', type=str, default='1.1b', help='draft model')
     parser.add_argument('--budget', type=float, default=0.1, help='budget of cache')
     parser.add_argument('--cache', type=str, default='h2o', help='cache startegy')
-    parser.add_argument('--datalen', type=int, default=20000, help='length of data')
+    parser.add_argument('--datalen', type=int, default=5000, help='length of data')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     args = parser.parse_args()
     
@@ -93,10 +93,10 @@ for input_ids in tokenized_prompts:
 
     with torch.no_grad():
 
-        iter_prefill = math.ceil(input_ids.shape[1] / 100)
+        iter_prefill = math.ceil(input_ids.shape[1] / 300)
         for i in tqdm(range(iter_prefill)):
             outputs = model(
-                input_ids=input_ids[:, i*100:(i+1)*100],
+                input_ids=input_ids[:, i*300:(i+1)*300],
                 past_key_values=past_key_values,
                 use_cache=True,
             )
@@ -108,6 +108,7 @@ for input_ids in tokenized_prompts:
                 past_key_values=past_key_values_q,
                 use_cache=True,
             )
+            past_key_values_q.print_status()
 
 
         past_key_values.print_status()
