@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 from transformers import AutoTokenizer
 import torch
@@ -19,7 +19,7 @@ model = model.eval()
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
-    parser.add_argument('--datalen', type=int, default=50000, help='length of data')
+    parser.add_argument('--datalen', type=int, default=256, help='length of data')
     parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     
@@ -35,7 +35,7 @@ tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datal
 input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
 
 T=args.T
-LEN = [2,4,8,16,32,64,128,256,512,1024]
+LEN = [1,2,4,8,16,32,64,128,256,512,1024]
 
 
 

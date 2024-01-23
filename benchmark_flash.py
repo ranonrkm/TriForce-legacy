@@ -18,7 +18,7 @@ model = model.eval()
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
-    parser.add_argument('--datalen', type=int, default=32000, help='length of data')
+    parser.add_argument('--datalen', type=int, default=128000, help='length of data')
     parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     
@@ -66,6 +66,6 @@ with torch.no_grad():
         total_time += (t2 - t1)
     
         # write to file
-        with open(f"report/benchmark_target.csv", 'a') as f:
-            f.write(f"{data_len},{l},{total_time / T},{T}\n")
+        # with open(f"report/benchmark_target.csv", 'a') as f:
+        #     f.write(f"{data_len},{l},{total_time / T},{T}\n")
 
