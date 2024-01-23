@@ -59,6 +59,7 @@ with torch.no_grad():
                 past_key_values=past_key_values,
                 use_cache=True,
             )
+            past_key_values.seq_len -= l
         torch.cuda.synchronize()
         t2 = time.time()
         total_time += (t2 - t1)

@@ -74,7 +74,7 @@ past_key_values = SimpleCache(model=model, max_budget=datalen+250)
 if args.cache == 'h2o':
     past_key_values_q = EvictH2OCache(model=model_q, start_size=kv_cache_budget//2, recent_size=kv_cache_budget-kv_cache_budget//2)
 elif args.cache == 'streamllm':
-    past_key_values_q = EvictStreamLLMCache(model=model_q, start_size=32, recent_size=kv_cache_budget-32)
+    past_key_values_q = EvictStreamLLMCache(model=model_q, start_size=100, recent_size=kv_cache_budget-100)
 elif args.cache == 'full':
     past_key_values_q = SimpleCache(model=model_q, max_budget=datalen+250)
 else:
@@ -93,10 +93,10 @@ for input_ids in tokenized_prompts:
 
     with torch.no_grad():
 
-        iter_prefill = math.ceil(input_ids.shape[1] / 300)
+        iter_prefill = math.ceil(input_ids.shape[1] / 100)
         for i in tqdm(range(iter_prefill)):
             outputs = model(
-                input_ids=input_ids[:, i*300:(i+1)*300],
+                input_ids=input_ids[:, i*100:(i+1)*100],
                 past_key_values=past_key_values,
                 use_cache=True,
             )
@@ -108,11 +108,11 @@ for input_ids in tokenized_prompts:
                 past_key_values=past_key_values_q,
                 use_cache=True,
             )
-            past_key_values_q.print_status()
-
 
         past_key_values.print_status()
         past_key_values_q.print_status()
+
+        assert past_key_values_q.seq_len == kv_cache_budget
 
         gamma = 4
         verbose = args.verbose
@@ -215,6 +215,8 @@ for input_ids in tokenized_prompts:
                     )
                 else:
                     past_key_values_q.seq_len -= (gamma - count -1)
+
+                past_key_values_q.print_status()
 
                 if isinstance(past_key_values_q, SimpleCache):
                     assert past_key_values.seq_len == past_key_values_q.seq_len, f"{past_key_values.seq_len} {past_key_values_q.seq_len}"
