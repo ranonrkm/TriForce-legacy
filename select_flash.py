@@ -1,7 +1,7 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
 
-from models.modeling_llama_cache import LlamaForCausalLM
+from models.modeling_llama_flash import LlamaForCausalLM
 from transformers import LlamaTokenizer, LlamaConfig
 import torch
 import time
@@ -11,7 +11,7 @@ from termcolor import colored
 import datetime
 from utils.sampling import norm_logits, sample, max_fn
 
-from models.cache_utils import StreamLLMCache, EfficientH2OCache, DejaVuCache
+from models.cache_utils import FlashStreamLLMCache
 
 tokenizer = LlamaTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", padding_side="left")
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
@@ -32,7 +32,7 @@ def good_stream(pred_token_idx, tokenizer, color='blue'):
     print(colored(decoded_token, color), flush=True, end=" ")
 
 from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer)
+tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
 # tokenized_prompts = get_dataset(dataset_name='THUDM/LongBench', tokenizer=tokenizer, task='gov_report', datalen='31k-32k')
 
 import argparse
@@ -41,8 +41,7 @@ def parse_arguments():
 
     parser.add_argument('--budget', type=float, default=0.1, help='budget of cache')
     parser.add_argument('--cache', type=str, default='streamllm', help='cache startegy')
-    parser.add_argument('--datalen', type=int, default=31000, help='length of data')
-    parser.add_argument('--gamma', type=int, default=4, help='gamma')
+    parser.add_argument('--datalen', type=int, default=128000, help='length of data')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     args = parser.parse_args()
     
@@ -52,14 +51,10 @@ args = parse_arguments()
 
 kv_cache_budget = int(args.budget * args.datalen + args.budget * 200)
 datalen = args.datalen
-gamma = args.gamma
+gamma = 4
 
-if args.cache == 'h2o':
-    past_key_values = EfficientH2OCache(model=model, max_budget=datalen+250, skip_start_layers=1, heavy_size=kv_cache_budget//2, recent_size=kv_cache_budget - kv_cache_budget//2)
-elif args.cache == 'streamllm':
-    past_key_values = StreamLLMCache(model=model, max_budget=datalen+250, skip_start_layers=1, start_size=16, recent_size=kv_cache_budget - 16)
-elif args.cache == 'dejavu':
-    past_key_values = DejaVuCache(model=model, max_budget=datalen+250, topk_size=kv_cache_budget, skip_start_layers=-1)
+if args.cache == 'streamllm':
+    past_key_values = FlashStreamLLMCache(model=model, max_budget=datalen+250, skip_start_layers=1, start_size=128, recent_size=kv_cache_budget - 128, gamma=gamma)
 else:
     raise NotImplementedError
 
@@ -67,7 +62,7 @@ for input_ids in tokenized_prompts:
     input_ids = input_ids.to(model.device)[:,:datalen]
     past_key_values.reset()
 
-    top_k = 1
+    top_k = -1
     top_p = 0.9
     temperature = 0.6
 
@@ -110,8 +105,7 @@ for input_ids in tokenized_prompts:
                 speculation_probs = []
                 generated_ids = []
 
-                if hasattr(past_key_values, 'update_cache'):
-                    past_key_values.update_cache()
+                past_key_values.update_cache()
 
                 for _ in range(gamma):
                     outputs = model(
@@ -183,5 +177,5 @@ for input_ids in tokenized_prompts:
                 print(max_len / (time2 - time1), "tokens/s, ", (time2 - time1) / max_len, "s/token", 'Sentence Length:', past_key_values.seq_len, f"accepted rate {accepted_rate}, avg generated tokens {(accepted_count)/ draft_count * gamma}")
 
             # write to file
-            with open(f"report/select_{args.cache}.csv", 'a') as f:
-                f.write(f"7b-128k,{datalen},{gamma},{args.budget},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")
+            with open(f"report/flash_select_{args.cache}.csv", 'a') as f:
+                f.write(f"7b-128k,{datalen},{args.budget},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")

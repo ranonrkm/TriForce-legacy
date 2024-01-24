@@ -525,7 +525,7 @@ class LlamaAttention(nn.Module):
         if has_layer_past:
             new_len = past_len+q.size(1)
             if new_len > past_kv.size(1):
-                past_kv = torch.cat([past_kv, torch.empty(bsz, 256, 2, kv.size(3), kv.size(4), dtype=kv.dtype, device=kv.device)], 1)
+                past_kv = torch.cat([past_kv, torch.empty(bsz, q.size(1), 2, kv.size(3), kv.size(4), dtype=kv.dtype, device=kv.device)], 1)
             past_kv[:, past_len:new_len] = kv
             kv = past_kv[:, :new_len]
         else:

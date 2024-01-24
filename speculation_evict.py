@@ -1,5 +1,5 @@
 import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "8,9"
+os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from models.modeling_llama_evict import LlamaForCausalLM as LlamaForCausalLM_Evict
 from models.modeling_llama_cache import LlamaForCausalLM
@@ -48,9 +48,9 @@ model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", to
 model = model.eval()
 
 if args.draft == '1.1b-32k':
-    model_q = LlamaForCausalLM_Evict.from_pretrained("Doctor-Shotgun/TinyLlama-1.1B-32k", torch_dtype=torch.float16, device_map="cuda:1")
+    model_q = LlamaForCausalLM_Evict.from_pretrained("Doctor-Shotgun/TinyLlama-1.1B-32k", torch_dtype=torch.float16, device_map="cuda:0")
 elif args.draft == '1.1b':
-    model_q = LlamaForCausalLM_Evict.from_pretrained("TinyLlama/tinyLlama-intermediate-checkpoints-after-1T-token", torch_dtype=torch.float16, device_map="cuda:1")
+    model_q = LlamaForCausalLM_Evict.from_pretrained("TinyLlama/tinyLlama-intermediate-checkpoints-after-1T-token", torch_dtype=torch.float16, device_map="cuda:0")
 elif args.draft == '7b':
     model_q = LlamaForCausalLM_Evict.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:1")
 model_q = model_q.eval()
@@ -60,7 +60,7 @@ tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer)
 
 datalen = args.datalen
 if args.budget == -1 and args.draft == '1.1b-32k':
-    kv_cache_budget = 32000
+    kv_cache_budget = 2048
 elif args.budget == -1 and args.draft == '1.1b':
     kv_cache_budget = 2048
 elif args.budget == -1 and args.draft == '7b':
@@ -86,7 +86,7 @@ for input_ids in tokenized_prompts:
     past_key_values.reset()
     past_key_values_q.reset()
 
-    top_k = -1
+    top_k = 1
     top_p = 0.9
     temperature = 0.6
     
@@ -216,7 +216,7 @@ for input_ids in tokenized_prompts:
                 else:
                     past_key_values_q.seq_len -= (gamma - count -1)
 
-                past_key_values_q.print_status()
+                # past_key_values_q.print_status()
 
                 if isinstance(past_key_values_q, SimpleCache):
                     assert past_key_values.seq_len == past_key_values_q.seq_len, f"{past_key_values.seq_len} {past_key_values_q.seq_len}"

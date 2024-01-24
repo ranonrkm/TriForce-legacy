@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
 
 from transformers import AutoTokenizer
 import torch
@@ -7,7 +7,7 @@ import math
 from tqdm import tqdm
 import time
 
-from models.cache_utils import FlashSimpleCache
+from models.cache_utils import FlashSimpleCache, FlashStreamLLMCache
 from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
@@ -19,6 +19,7 @@ import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
     parser.add_argument('--datalen', type=int, default=128000, help='length of data')
+    parser.add_argument('--ssl', type=int, default=1, help='skip_layers')
     parser.add_argument('--T', type=int, default=2000, help='repeat times')
     args = parser.parse_args()
     
@@ -28,16 +29,16 @@ args = parse_arguments()
 
 
 data_len = args.datalen
-past_key_values = FlashSimpleCache(model, data_len+1200)
+ssl = args.ssl
+past_key_values = FlashStreamLLMCache(model, data_len+1200, start_size=64, recent_size=int((data_len+1200)*0.1)-64, skip_start_layers=ssl)
+
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
 input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
 past_key_values.reset()
 
 T=args.T
-LEN = [1,2,4,8,16,32,64,128,256,512,1024]
-
-
+LEN = [1]
 
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
@@ -47,6 +48,18 @@ with torch.no_grad():
             past_key_values=past_key_values,
             use_cache=True,
         )
+    past_key_values.print_status()
+
+    total_time = 0.0
+    torch.cuda.synchronize()
+    t1 = time.time()
+    for _ in range(T):
+        past_key_values.update_cache()
+    torch.cuda.synchronize()
+    t2 = time.time()
+    total_time += (t2 - t1)
+    update_time = total_time / T
+
     past_key_values.print_status()
 
     for l in LEN:
@@ -59,15 +72,17 @@ with torch.no_grad():
                 input_ids=sentence,
                 past_key_values=past_key_values,
                 use_cache=True,
+                speculation=True,
             )
             past_key_values.seq_len -= l
+            # assert past_key_values.seq_len == data_len
         torch.cuda.synchronize()
         t2 = time.time()
         total_time += (t2 - t1)
     
-        print(total_time / T, l, data_len, T)
+        print(total_time / T, update_time, l, data_len, T)
     
         # write to file
-        with open(f"report/benchmark_flash.csv", 'a') as f:
-            f.write(f"{data_len},{l},{total_time / T},{T}\n")
+        with open(f"report/benchmark_flash_streamllm.csv", 'a') as f:
+            f.write(f"{data_len},{ssl},{total_time / T},{update_time},{T}\n")
 

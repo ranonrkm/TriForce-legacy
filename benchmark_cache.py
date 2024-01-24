@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 
 from transformers import AutoTokenizer
 import torch
@@ -7,8 +7,9 @@ import math
 from tqdm import tqdm
 import time
 
-from models.cache_utils import FlashSimpleCache
-from models.modeling_llama_flash import LlamaForCausalLM
+from models.modeling_llama_cache import LlamaForCausalLM
+# from transformers import LlamaForCausalLM
+from models.cache_utils import SimpleCache
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
@@ -18,7 +19,7 @@ model = model.eval()
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
-    parser.add_argument('--datalen', type=int, default=128000, help='length of data')
+    parser.add_argument('--datalen', type=int, default=1, help='length of data')
     parser.add_argument('--T', type=int, default=2000, help='repeat times')
     args = parser.parse_args()
     
@@ -28,11 +29,10 @@ args = parse_arguments()
 
 
 data_len = args.datalen
-past_key_values = FlashSimpleCache(model, data_len+1200)
+past_key_values = SimpleCache(model, data_len+1200)
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
 input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
-past_key_values.reset()
 
 T=args.T
 LEN = [1,2,4,8,16,32,64,128,256,512,1024]
@@ -47,7 +47,6 @@ with torch.no_grad():
             past_key_values=past_key_values,
             use_cache=True,
         )
-    past_key_values.print_status()
 
     for l in LEN:
         sentence = torch.randint(low=3, high=30000, size=(1, l)).to(model.device)
@@ -64,10 +63,10 @@ with torch.no_grad():
         torch.cuda.synchronize()
         t2 = time.time()
         total_time += (t2 - t1)
-    
+
         print(total_time / T, l, data_len, T)
     
         # write to file
-        with open(f"report/benchmark_flash.csv", 'a') as f:
+        with open(f"report/benchmark_cache.csv", 'a') as f:
             f.write(f"{data_len},{l},{total_time / T},{T}\n")
 

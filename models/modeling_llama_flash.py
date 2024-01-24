@@ -20,6 +20,7 @@
 """ PyTorch LLaMA model."""
 import math
 from typing import List, Optional, Tuple, Union
+import scipy as sp
 
 import torch
 import torch.nn.functional as F
@@ -490,6 +491,7 @@ class LlamaAttention(nn.Module):
         past_key_value: Optional[Cache] = None,
         output_attentions: bool = False,
         use_cache: bool = False,
+        speculation: bool = False,
         is_padded_inputs: Optional[bool] = False,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, h_size = hidden_states.size()
@@ -523,7 +525,13 @@ class LlamaAttention(nn.Module):
         v = v.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
 
         q, k = self.rotary_emb(q, k, past_key_value.seq_len)
-        k, v = past_key_value.update(k, v, self.layer_idx)
+        if speculation:
+            if self.layer_idx > past_key_value.skip_start_layers:
+                k, v = past_key_value.speculation_update(k, v, self.layer_idx)
+            else:
+                k, v = past_key_value.update(k, v, self.layer_idx)
+        else:
+            k, v = past_key_value.update(k, v, self.layer_idx)
 
         if is_padded_inputs:
             raise NotImplementedError("Padded inputs not supported")
@@ -570,6 +578,7 @@ class LlamaDecoderLayer(nn.Module):
         is_padded_inputs: Optional[bool] = False,
         output_attentions: Optional[bool] = False,
         use_cache: Optional[bool] = False,
+        speculation: Optional[bool] = False,
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
         """
         Args:
@@ -597,6 +606,7 @@ class LlamaDecoderLayer(nn.Module):
             past_key_value=past_key_value,
             output_attentions=output_attentions,
             use_cache=use_cache,
+            speculation=speculation,
             is_padded_inputs=is_padded_inputs,
         )
         hidden_states = residual + hidden_states
@@ -768,6 +778,7 @@ class LlamaModel(LlamaPreTrainedModel):
         past_key_values: Optional[List[torch.FloatTensor]] = None,
         inputs_embeds: Optional[torch.FloatTensor] = None,
         use_cache: Optional[bool] = None,
+        speculation: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
@@ -848,6 +859,7 @@ class LlamaModel(LlamaPreTrainedModel):
                     past_key_value=past_key_values,
                     output_attentions=output_attentions,
                     use_cache=use_cache,
+                    speculation=speculation,
                     is_padded_inputs=is_padded_inputs,
                 )
 
@@ -909,6 +921,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         inputs_embeds: Optional[torch.FloatTensor] = None,
         labels: Optional[torch.LongTensor] = None,
         use_cache: Optional[bool] = None,
+        speculation: Optional[bool] = None,
         output_attentions: Optional[bool] = None,
         output_hidden_states: Optional[bool] = None,
         return_dict: Optional[bool] = None,
@@ -956,6 +969,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             past_key_values=past_key_values,
             inputs_embeds=inputs_embeds,
             use_cache=use_cache,
+            speculation=speculation,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
             return_dict=return_dict,

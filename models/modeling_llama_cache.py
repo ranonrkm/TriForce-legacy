@@ -735,7 +735,6 @@ class LlamaAttention(nn.Module):
         kv_seq_len += past_key_value.seq_len
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
 
-        # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
 
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
@@ -751,6 +750,8 @@ class LlamaAttention(nn.Module):
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
+
+        # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
 
         attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
 

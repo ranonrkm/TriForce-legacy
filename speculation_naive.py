@@ -1,6 +1,6 @@
 
 import os
-# os.environ["CUDA_VISIBLE_DEVICES"] = "3,4,5,6,7,8,9"
+os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 from termcolor import colored
 
 from transformers import AutoTokenizer
@@ -18,7 +18,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
 
     parser.add_argument('--target', type=str, default='llama-7B-128K', help='target model')
-    parser.add_argument('--approx', type=str, default='llama-1.1B-32K', help='approx model')
+    parser.add_argument('--approx', type=str, default='llama-7B-128K', help='approx model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
     args = parser.parse_args()
@@ -33,6 +33,8 @@ print(f"Using {args.approx} to speculate {args.target}", flush=True)
 
 if args.approx == 'llama-1.1B-32K':
     model_small = LlamaForCausalLM.from_pretrained("Doctor-Shotgun/TinyLlama-1.1B-32k", torch_dtype=torch.float16, device_map="auto")
+elif args.target == 'llama-7B-128K':
+    model_small = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 else:
     raise NotImplementedError
 
