@@ -1,6 +1,6 @@
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "2,3"
-
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from transformers import AutoTokenizer
 import torch
 import math
@@ -69,7 +69,7 @@ with torch.no_grad():
 
 LEN = [1,2,4,8,16,32,64,128,256,512,1024]
 
-
+past_key_values.reset()
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in tqdm(range(iter_prefill)):

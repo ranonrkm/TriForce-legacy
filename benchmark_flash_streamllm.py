@@ -1,6 +1,6 @@
 import os
 # os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
-
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from transformers import AutoTokenizer
 import torch
 import math
