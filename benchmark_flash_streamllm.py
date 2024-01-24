@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
 
 from transformers import AutoTokenizer
 import torch
@@ -11,7 +11,7 @@ from models.cache_utils import FlashSimpleCache, FlashStreamLLMCache
 from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
+model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:1')
 model = model.eval()
 
 
