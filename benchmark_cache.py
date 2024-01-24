@@ -1,5 +1,4 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "9"
 
 from transformers import AutoTokenizer
 import torch
@@ -12,7 +11,7 @@ from models.modeling_llama_cache import LlamaForCausalLM
 from models.cache_utils import SimpleCache
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
+model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:2')
 model = model.eval()
 
 
@@ -37,7 +36,33 @@ input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
 T=args.T
 LEN = [1,2,4,8,16,32,64,128,256,512,1024]
 
+l = 1024
+with torch.no_grad():
+    iter_prefill = math.ceil(input_ids.shape[1] / 100)
+    for i in tqdm(range(iter_prefill)):
+        outputs = model(
+            input_ids=input_ids[:, i*100:(i+1)*100],
+            past_key_values=past_key_values,
+            use_cache=True,
+        )
+    past_key_values.print_status()
 
+    sentence = torch.randint(low=3, high=30000, size=(1, l)).to(model.device)
+    total_time = 0.0
+    torch.cuda.synchronize()
+    t1 = time.time()
+    for _ in range(T):
+        outputs = model(
+            input_ids=sentence,
+            past_key_values=past_key_values,
+            use_cache=True,
+        )
+        past_key_values.seq_len -= l
+    torch.cuda.synchronize()
+    t2 = time.time()
+    total_time += (t2 - t1)
+
+    print(total_time / T, l, data_len, T, "warm up done")
 
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)

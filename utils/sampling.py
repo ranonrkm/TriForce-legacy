@@ -61,15 +61,15 @@ def norm_logits(logits : torch.Tensor, temperature : float, top_k : float, top_p
     return probs
 
 
-def sample(probs : torch.Tensor):
+def sample(probs : torch.Tensor, num_samples=1):
     try:
-        idx_next = torch.multinomial(probs, num_samples=1)
+        idx_next = torch.multinomial(probs, num_samples=num_samples)
     except RuntimeError:
         print(probs)
         raise RuntimeError
 
-    if (idx_next.item() == 0):
-        raise RuntimeError
+    # if (idx_next.item() == 0):
+    #     print('<unk>')
     return idx_next
 
 

@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
 
 from models.modeling_llama_flash import LlamaForCausalLM
 from transformers import LlamaTokenizer, LlamaConfig
@@ -40,6 +40,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
 
     parser.add_argument('--budget', type=float, default=0.1, help='budget of cache')
+    parser.add_argument('--ssl', type=int, default=1, help='skip start layers')
     parser.add_argument('--cache', type=str, default='streamllm', help='cache startegy')
     parser.add_argument('--datalen', type=int, default=128000, help='length of data')
     parser.add_argument('--verbose', action='store_true', help='verbose')
@@ -53,8 +54,10 @@ kv_cache_budget = int(args.budget * args.datalen + args.budget * 200)
 datalen = args.datalen
 gamma = 4
 
+start_size = datalen // 1000
+
 if args.cache == 'streamllm':
-    past_key_values = FlashStreamLLMCache(model=model, max_budget=datalen+250, skip_start_layers=1, start_size=128, recent_size=kv_cache_budget - 128, gamma=gamma)
+    past_key_values = FlashStreamLLMCache(model=model, max_budget=datalen+250, skip_start_layers=args.ssl, start_size=start_size, recent_size=kv_cache_budget - start_size, gamma=gamma)
 else:
     raise NotImplementedError
 
@@ -177,5 +180,5 @@ for input_ids in tokenized_prompts:
                 print(max_len / (time2 - time1), "tokens/s, ", (time2 - time1) / max_len, "s/token", 'Sentence Length:', past_key_values.seq_len, f"accepted rate {accepted_rate}, avg generated tokens {(accepted_count)/ draft_count * gamma}")
 
             # write to file
-            with open(f"report/flash_select_{args.cache}.csv", 'a') as f:
+            with open(f"report/flash_select_{args.cache}_{args.ssl}.csv", 'a') as f:
                 f.write(f"7b-128k,{datalen},{args.budget},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")

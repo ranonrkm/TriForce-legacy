@@ -58,3 +58,13 @@ python benchmark_flash_streamllm.py --datalen 16000 --ssl 4
 python benchmark_flash_streamllm.py --datalen 32000 --ssl 4
 python benchmark_flash_streamllm.py --datalen 64000 --ssl 4
 python benchmark_flash_streamllm.py --datalen 128000 --ssl 4
+
+python benchmark_flash_streamllm.py --datalen 1 --ssl 5
+python benchmark_flash_streamllm.py --datalen 1000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 2000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 4000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 8000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 16000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 32000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 64000 --ssl 5
+python benchmark_flash_streamllm.py --datalen 128000 --ssl 5

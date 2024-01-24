@@ -1,8 +1,8 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "9"
+os.environ["CUDA_VISIBLE_DEVICES"] = "8,9"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 from models.modeling_llama_evict import LlamaForCausalLM as LlamaForCausalLM_Evict
-from models.modeling_llama_cache import LlamaForCausalLM
+from models.modeling_llama_flash import LlamaForCausalLM
 from transformers import LlamaTokenizer, LlamaConfig
 import torch
 import time
@@ -13,7 +13,7 @@ import datetime
 from utils.sampling import norm_logits, sample, max_fn
 import copy
 
-from models.cache_utils import SimpleCache, EvictStreamLLMCache, EvictH2OCache
+from models.cache_utils import SimpleCache, EvictStreamLLMCache, EvictH2OCache, FlashSimpleCache
 
 # print(f"Model Loaded! {model}, {model_q}")
 
@@ -44,19 +44,23 @@ def parse_arguments():
 args = parse_arguments()
 
 tokenizer = LlamaTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", padding_side="left")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:0")
+model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 model = model.eval()
 
 if args.draft == '1.1b-32k':
-    model_q = LlamaForCausalLM_Evict.from_pretrained("Doctor-Shotgun/TinyLlama-1.1B-32k", torch_dtype=torch.float16, device_map="cuda:0")
+    model_q = LlamaForCausalLM_Evict.from_pretrained("Doctor-Shotgun/TinyLlama-1.1B-32k", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == '1.1b':
-    model_q = LlamaForCausalLM_Evict.from_pretrained("TinyLlama/tinyLlama-intermediate-checkpoints-after-1T-token", torch_dtype=torch.float16, device_map="cuda:0")
+    model_q = LlamaForCausalLM_Evict.from_pretrained("TinyLlama/tinyLlama-intermediate-checkpoints-after-1T-token", torch_dtype=torch.float16, device_map="auto")
+elif args.draft == '68m':
+    model_q = LlamaForCausalLM_Evict.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
+elif args.draft == '160m':
+    model_q = LlamaForCausalLM_Evict.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == '7b':
-    model_q = LlamaForCausalLM_Evict.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:1")
+    model_q = LlamaForCausalLM_Evict.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="auto")
 model_q = model_q.eval()
 
 from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer)
+tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
 
 datalen = args.datalen
 if args.budget == -1 and args.draft == '1.1b-32k':
@@ -65,16 +69,19 @@ elif args.budget == -1 and args.draft == '1.1b':
     kv_cache_budget = 2048
 elif args.budget == -1 and args.draft == '7b':
     kv_cache_budget = 4096
+elif args.budget == -1 and args.draft == '68m':
+    kv_cache_budget = 256
+elif args.budget == -1 and args.draft == '160m':
+    kv_cache_budget = 256
 else:
     kv_cache_budget = int(args.budget * args.datalen + args.budget * 200)
 
-past_key_values = SimpleCache(model=model, max_budget=datalen+250)
-# past_key_values_q = SimpleCache(model=model_q, max_budget=datalen+250, device=model_q.device)
+past_key_values = FlashSimpleCache(model=model, max_budget=datalen+250)
 
 if args.cache == 'h2o':
     past_key_values_q = EvictH2OCache(model=model_q, start_size=kv_cache_budget//2, recent_size=kv_cache_budget-kv_cache_budget//2)
 elif args.cache == 'streamllm':
-    past_key_values_q = EvictStreamLLMCache(model=model_q, start_size=100, recent_size=kv_cache_budget-100)
+    past_key_values_q = EvictStreamLLMCache(model=model_q, start_size=16, recent_size=kv_cache_budget-16)
 elif args.cache == 'full':
     past_key_values_q = SimpleCache(model=model_q, max_budget=datalen+250)
 else:
@@ -86,7 +93,7 @@ for input_ids in tokenized_prompts:
     past_key_values.reset()
     past_key_values_q.reset()
 
-    top_k = 1
+    top_k = -1
     top_p = 0.9
     temperature = 0.6
     
@@ -112,7 +119,7 @@ for input_ids in tokenized_prompts:
         past_key_values.print_status()
         past_key_values_q.print_status()
 
-        assert past_key_values_q.seq_len == kv_cache_budget
+        # assert past_key_values_q.seq_len == kv_cache_budget
 
         gamma = 4
         verbose = args.verbose
@@ -192,7 +199,7 @@ for input_ids in tokenized_prompts:
                     else:
                         resample_count += 1
                         n += 1
-                        pred_token_idx = sample(max_fn(verify_prob[:50277]-speculation_prob.to(verify_prob.device)))
+                        pred_token_idx = sample(max_fn(verify_prob-speculation_prob.to(verify_prob.device)))
                         if verbose:
                             good_stream(pred_token_idx, tokenizer, 'red')
                         break
@@ -238,5 +245,5 @@ for input_ids in tokenized_prompts:
                 print(max_len / (time2 - time1), "tokens/s, ", (time2 - time1) / max_len, "s/token", 'Sentence Length:', past_key_values.seq_len, f"accepted rate {accepted_rate}, avg generated tokens {(accepted_count)/ draft_count * gamma}")
 
             # write to file
-            with open(f"report/evict_{args.cache}.csv", 'a') as f:
+            with open(f"report/new_evict_{args.cache}.csv", 'a') as f:
                 f.write(f"{args.draft},{datalen},{args.budget},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")
