@@ -19,7 +19,7 @@ import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
     parser.add_argument('--datalen', type=int, default=128000, help='length of data')
-    parser.add_argument('--T', type=int, default=2000, help='repeat times')
+    parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     
     return args
@@ -38,7 +38,7 @@ past_key_values.reset()
 # warm up
 
 T=args.T
-l=1024
+l=512
 
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
@@ -54,7 +54,7 @@ with torch.no_grad():
     total_time = 0.0
     torch.cuda.synchronize()
     t1 = time.time()
-    for _ in range(T):
+    for _ in range(10):
         outputs = model(
             input_ids=sentence,
             past_key_values=past_key_values,
@@ -65,9 +65,12 @@ with torch.no_grad():
     t2 = time.time()
     total_time += (t2 - t1)
 
-    print(total_time / T, l, data_len, T, "warm up done")
+    print(total_time / 10, l, data_len, 10, "warm up done")
 
-LEN = [1,2,4,8,16,32,64,128,256,512,1024]
+
+LEN = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
+
+# LEN = [24, 40, 56, 72, 88, 104, 120, 136, 152, 168, 184, 200, 216, 232, 248, 264, 280, 296, 312, 328, 344, 360, 376, 392, 408, 424, 440, 456, 472, 488, 504]
 
 past_key_values.reset()
 with torch.no_grad():
@@ -99,6 +102,6 @@ with torch.no_grad():
         print(total_time / T, l, data_len, T)
     
         # write to file
-        with open("report/benchmark_flash.csv", 'a') as f:
+        with open("report/EXP_benchmark_flash_NEW.csv", 'a') as f:
             f.write(f"{data_len},{l},{total_time / T},{T}\n")
 

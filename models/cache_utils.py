@@ -215,6 +215,8 @@ class StreamLLMCache(Cache):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         # Update the cache
 
+        # print(self.key_cache[layer_idx].shape, self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]].shape, key_states.shape)
+
         self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
 
@@ -273,6 +275,15 @@ class StreamLLMCache(Cache):
             self.spec_time += 1
 
         return self.cached_key[layer_idx][:,:,:self.cache_kv_size-self.gamma + self.spec_time+1], self.cached_value[layer_idx][:,:,:self.cache_kv_size-self.gamma + self.spec_time+1]
+
+    def tree_rollback(self, flag):
+        # flag is 1 or 2
+        if flag == 1:
+            return
+        else:
+            for layer in range(self.layers):
+                self.cached_key[layer][:,:,self.seq_len-2:self.seq_len-1] = self.cached_key[layer][:,:,self.seq_len-1:self.seq_len]
+                self.cached_value[layer][:,:,self.seq_len-2:self.seq_len-1] = self.cached_value[layer][:,:,self.seq_len-1:self.seq_len]
 
 
 # class StreamLLMCache(Cache):
@@ -437,23 +448,23 @@ class FlashStreamLLMCache(Cache):
         layer_idx: int, 
     ):
         # Update the cache
-        assert key_states.shape[-3] == 1
+        # assert key_states.shape[-3] == 1
 
         if self.seq_len <= self.start_size + self.recent_size:
             return self.update(key_states, value_states, layer_idx)
 
-        self.cached_key[layer_idx][:, self.seq_len : self.seq_len + 1] = key_states
-        self.cached_value[layer_idx][:, self.seq_len : self.seq_len + 1] = value_states
+        self.cached_key[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = key_states
+        self.cached_value[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = value_states
 
-        self.cached_key[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+1] = key_states
+        self.cached_key[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]] = key_states
 
-        self.cached_value[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+1] = value_states
+        self.cached_value[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]] = value_states
 
         if layer_idx == self.layers-1:
-            self.seq_len += 1
+            self.seq_len += key_states.shape[-3]
             self.spec_time += 1
 
-        return self.cached_key[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+1], self.cached_value[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+1]
+        return self.cached_key[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]], self.cached_value[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]]
 
 
 class EvictStreamLLMCache(Cache):

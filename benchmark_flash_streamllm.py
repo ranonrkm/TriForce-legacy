@@ -30,7 +30,7 @@ args = parse_arguments()
 
 data_len = args.datalen
 ssl = args.ssl
-past_key_values = FlashStreamLLMCache(model, data_len+1200, start_size=64, recent_size=int((data_len+1200)*0.1)-64, skip_start_layers=ssl)
+past_key_values = FlashStreamLLMCache(model, data_len+200, start_size=64, recent_size=int((data_len+200)*0.1)-64, skip_start_layers=ssl, gamma=130)
 
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
@@ -38,9 +38,10 @@ input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
 past_key_values.reset()
 
 T=args.T
-LEN = [1]
+# from 1 t 128
+LEN = [1,2,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128]
 
-l = 1024
+l = 128
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in tqdm(range(iter_prefill)):
@@ -55,11 +56,12 @@ with torch.no_grad():
     total_time = 0.0
     torch.cuda.synchronize()
     t1 = time.time()
-    for _ in range(T):
+    for _ in range(10):
         outputs = model(
             input_ids=sentence,
             past_key_values=past_key_values,
             use_cache=True,
+            speculation=True,
         )
         past_key_values.seq_len -= l
     torch.cuda.synchronize()
@@ -68,7 +70,7 @@ with torch.no_grad():
 
     print(total_time / T, l, data_len, T, "warm up done")
 
-
+past_key_values.reset()
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in tqdm(range(iter_prefill)):
@@ -112,6 +114,6 @@ with torch.no_grad():
         print(total_time / T, update_time, l, data_len, T)
     
         # write to file
-        with open(f"report/benchmark_flash_streamllm.csv", 'a') as f:
+        with open(f"report/EXP_benchmark_flash_streamllm.csv", 'a') as f:
             f.write(f"{data_len},{ssl},{total_time / T},{update_time},{T}\n")
 
