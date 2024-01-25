@@ -1,0 +1,10 @@
+SBATCH submit/submit_0k.sh
+SBATCH submit/submit_1k.sh
+SBATCH submit/submit_2k.sh
+SBATCH submit/submit_4k.sh
+SBATCH submit/submit_8k.sh
+SBATCH submit/submit_16k.sh
+SBATCH submit/submit_32k.sh
+SBATCH submit/submit_64k.sh
+SBATCH submit/submit_96k.sh
+SBATCH submit/submit_128k.sh
