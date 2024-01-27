@@ -10,7 +10,7 @@ import time
 from models.modeling_llama_ori import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
+model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
 model = model.eval()
 
 
@@ -33,7 +33,7 @@ tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datal
 input_ids = tokenized_prompts[0].to(model.device)[:,:data_len]
 
 T=args.T
-LEN = [1,2,4,8,16,32,64,128,256,512,1024]
+LEN = [1]
 
 with torch.no_grad():
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
@@ -45,23 +45,22 @@ with torch.no_grad():
         )
         past_key_values = outputs.past_key_values
 
-    for l in LEN:
-        sentence = torch.randint(low=3, high=30000, size=(1, l)).to(model.device)
-        total_time = 0.0
-        torch.cuda.synchronize()
-        t1 = time.time()
+
+    sentence = torch.randint(low=3, high=30000, size=(1, l)).to(model.device)
+    total_time = 0.0
+    torch.cuda.synchronize()
+    t1 = time.time()
+
+    T = 1
+    from torch.profiler import profile, record_function, ProfilerActivity
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True, with_stack=True) as prof:
         for _ in range(T):
             outputs = model(
                 input_ids=sentence,
                 past_key_values=past_key_values,
                 use_cache=True,
             )
-        torch.cuda.synchronize()
-        t2 = time.time()
-        total_time += (t2 - t1)
-
-        print(total_time / T, l, data_len, T)
-
-        # write to file
-        with open(f"report/benchmark_ori.csv", 'a') as f:
-            f.write(f"{data_len},{l},{total_time / T},{T}\n")
+    prof.export_chrome_trace("trace_flash.json")
+    torch.cuda.synchronize()
+    t2 = time.time()
+    total_time += (t2 - t1)

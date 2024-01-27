@@ -453,9 +453,6 @@ class FlashStreamLLMCache(Cache):
         if self.seq_len <= self.start_size + self.recent_size:
             return self.update(key_states, value_states, layer_idx)
 
-        self.cached_key[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = key_states
-        self.cached_value[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = value_states
-
         self.cached_key[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]] = key_states
 
         self.cached_value[layer_idx][:, self.cache_kv_size-self.gamma + self.spec_time:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]] = value_states
@@ -466,6 +463,69 @@ class FlashStreamLLMCache(Cache):
 
         return self.cached_key[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]], self.cached_value[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]]
 
+
+class FlashEvictStreamLLMCache(Cache):
+    def __init__(self, model, start_size=4, recent_size=256) -> None:
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.seq_len = 0
+        self.start_size = start_size
+        self.recent_size = recent_size
+
+        self.hidden_size = model.config.hidden_size
+        self.num_heads = model.config.num_key_value_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        # initialize empty kv cache using max_budget
+        for i in range(self.layers):
+            device = model.model.layers[i].self_attn.q_proj.weight.device
+            dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+            self.key_cache.append(torch.zeros([1, start_size+recent_size, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, start_size+recent_size, self.num_heads, self.head_dim], dtype=dtype).to(device))
+
+    def print_status(self):
+        print("Cached Size:", self.seq_len, "| Start Size:", self.start_size, "| Recent Size:", self.recent_size)
+
+    def reset(self):
+        self.seq_len = 0
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def evict(self, incoming):
+        # evict
+        if self.seq_len + incoming <= self.start_size + self.recent_size:
+            return
+        for layer_idx in range(self.layers):
+            size_keep = self.recent_size - incoming
+            self.key_cache[layer_idx][:, self.start_size:-incoming] = self.key_cache[layer_idx][:, self.seq_len-size_keep:self.seq_len].clone()
+            self.value_cache[layer_idx][:, self.start_size:-incoming] = self.value_cache[layer_idx][:, self.seq_len-size_keep:self.seq_len].clone()
+
+        self.seq_len = self.start_size + self.recent_size - incoming
+
+    def update(
+        self,
+        key_states: torch.Tensor,
+        value_states: torch.Tensor,
+        layer_idx: int,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        
+        # evict kv cache
+
+        incoming = key_states.shape[-3]
+
+        assert self.seq_len + incoming <= self.start_size + self.recent_size
+
+        self.key_cache[layer_idx][:, self.seq_len : self.seq_len + incoming] = key_states
+        self.value_cache[layer_idx][:, self.seq_len : self.seq_len + incoming] = value_states
+
+        key = self.key_cache[layer_idx][:, :self.seq_len + incoming]
+        value = self.value_cache[layer_idx][:, :self.seq_len + incoming]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-3]
+        return key, value
 
 class EvictStreamLLMCache(Cache):
     def __init__(self, model, start_size=4, recent_size=256) -> None:

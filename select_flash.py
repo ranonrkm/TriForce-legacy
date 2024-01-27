@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "4"
 
 from models.modeling_llama_flash import LlamaForCausalLM
 from transformers import LlamaTokenizer, LlamaConfig
@@ -12,11 +12,10 @@ import datetime
 from utils.sampling import norm_logits, sample, max_fn
 
 from models.cache_utils import FlashStreamLLMCache
+from data.dataset import get_dataset
 
 tokenizer = LlamaTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", padding_side="left")
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
-# tokenizer = LlamaTokenizer.from_pretrained("togethercomputer/LLaMA-2-7B-32K", padding_side="left")
-# model = LlamaForCausalLM.from_pretrained("togethercomputer/LLaMA-2-7B-32K", torch_dtype=torch.float16, device_map="cuda:0")
 model = model.eval()
 
 def good_stream(pred_token_idx, tokenizer, color='blue'):
@@ -31,9 +30,6 @@ def good_stream(pred_token_idx, tokenizer, color='blue'):
 
     print(colored(decoded_token, color), flush=True, end=" ")
 
-from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
-# tokenized_prompts = get_dataset(dataset_name='THUDM/LongBench', tokenizer=tokenizer, task='gov_report', datalen='31k-32k')
 
 import argparse
 def parse_arguments():
@@ -41,6 +37,7 @@ def parse_arguments():
 
     parser.add_argument('--budget', type=float, default=0.1, help='budget of cache')
     parser.add_argument('--ssl', type=int, default=1, help='skip start layers')
+    parser.add_argument('--gamma', type=int, default=4, help='gamma')
     parser.add_argument('--cache', type=str, default='streamllm', help='cache startegy')
     parser.add_argument('--datalen', type=int, default=128000, help='length of data')
     parser.add_argument('--verbose', action='store_true', help='verbose')
@@ -52,7 +49,7 @@ args = parse_arguments()
 
 kv_cache_budget = int(args.budget * args.datalen + args.budget * 200)
 datalen = args.datalen
-gamma = 4
+gamma = args.gamma
 
 start_size = datalen // 1000
 
@@ -60,6 +57,8 @@ if args.cache == 'streamllm':
     past_key_values = FlashStreamLLMCache(model=model, max_budget=datalen+250, skip_start_layers=args.ssl, start_size=start_size, recent_size=kv_cache_budget - start_size, gamma=gamma)
 else:
     raise NotImplementedError
+
+tokenized_prompts = get_dataset(dataset_name='pg-19', tokenizer=tokenizer, datalen='128k')
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(model.device)[:,:datalen]
@@ -179,6 +178,6 @@ for input_ids in tokenized_prompts:
             else:
                 print(max_len / (time2 - time1), "tokens/s, ", (time2 - time1) / max_len, "s/token", 'Sentence Length:', past_key_values.seq_len, f"accepted rate {accepted_rate}, avg generated tokens {(accepted_count)/ draft_count * gamma}")
 
-            # write to file
-            with open(f"report/flash_select_{args.cache}_{args.ssl}.csv", 'a') as f:
-                f.write(f"7b-128k,{datalen},{args.budget},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")
+            # # write to file
+            with open(f"report/GS_{datalen}.csv", 'a') as f:
+                f.write(f"{max_len / (time2 - time1)},{(time2 - time1) / max_len},{gamma},{args.budget},{args.ssl},{accepted_rate},{(accepted_count)/ draft_count * gamma}\n")

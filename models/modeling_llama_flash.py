@@ -538,6 +538,7 @@ class LlamaAttention(nn.Module):
         else:
 
             # no padding tokens, more efficient
+
             attn_outputs = flash_attn_with_kvcache(q, k, v, softmax_scale=1.0/self.norm_factor, causal=True)
 
             attn_output = attn_outputs[0] if output_attentions else attn_outputs

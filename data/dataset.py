@@ -112,8 +112,8 @@ def get_dataset(dataset_name, split="test", tokenizer=None, batch_size=1, datale
         if datalen == '128k':
             dataset = load_dataset("emozilla/pg19")
             test_valid_dict = json.load(open(f"data/pg-19-128k.json", "r"))
-            test_idx = test_valid_dict['test'][:1]
-            valid_idx = test_valid_dict['valid'][:1]
+            test_idx = test_valid_dict['test']
+            valid_idx = test_valid_dict['valid']
 
             tokenized_prompts = []
             for i in tqdm(test_idx):
@@ -130,8 +130,8 @@ def get_dataset(dataset_name, split="test", tokenizer=None, batch_size=1, datale
         else:
             dataset = load_dataset("emozilla/pg19")
             test_valid_dict = json.load(open(f"data/pg-19-32k.json", "r"))
-            test_idx = test_valid_dict['test'][:1]
-            valid_idx = test_valid_dict['valid'][:1]
+            test_idx = test_valid_dict['test']
+            valid_idx = test_valid_dict['valid']
 
             tokenized_prompts = []
             for i in tqdm(test_idx):
