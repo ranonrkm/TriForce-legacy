@@ -1,7 +1,0 @@
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:05<00:05,  5.07s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.02s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:06<00:00,  3.33s/it]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.54it/s]Resolving data files:  26%|██▌       | 6/23 [00:00<00:01, 10.00it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 29.24it/s]
-/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/datasets/table.py:1421: FutureWarning: promote has been superseded by mode='default'.
-  table = cls._concat_blocks(blocks, axis=0)
-  0%|          | 0/1 [00:00<?, ?it/s]

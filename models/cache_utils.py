@@ -1,10 +1,5 @@
-import select
 from typing import Any, Dict, List, Optional, Tuple
-
 import torch
-import copy
-
-import time
 
 class Cache:
     """
@@ -16,46 +11,8 @@ class Cache:
         key_states: torch.Tensor,
         value_states: torch.Tensor,
         layer_idx: int,
-        cache_kwargs: Optional[Dict[str, Any]] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Updates the cache with the new `key_states` and `value_states` for the layer `layer_idx`.
-
-        Parameters:
-            key_states (`torch.Tensor`):
-                The new key states to cache.
-            value_states (`torch.Tensor`):
-                The new value states to cache.
-            layer_idx (`int`):
-                The index of the layer to cache the states for.
-            cache_kwargs (`Dict[str, Any]`, `optional`):
-                Additional arguments for the cache subclass. These are specific to each subclass and allow new types of
-                cache to be created.
-
-        Return:
-            A tuple containing the updated key and value states.
-        """
         raise NotImplementedError("Make sure to implement `update` in a subclass.")
-
-    def get_seq_length(self, layer_idx: Optional[int] = 0) -> int:
-        """Returns the sequence length of the cached states. A layer index can be optionally passed."""
-        raise NotImplementedError("Make sure to implement `get_seq_length` in a subclass.")
-
-    def get_max_length(self) -> Optional[int]:
-        """Returns the maximum sequence length of the cached states, if there is any."""
-        raise NotImplementedError("Make sure to implement `get_max_length` in a subclass.")
-
-    def get_usable_length(self, new_seq_length: int, layer_idx: Optional[int] = 0) -> int:
-        """Given the sequence length of the new inputs, returns the usable length of the cache."""
-        # Cache without size limit -> all cache is usable
-        # Cache with size limit -> if the length cache plus the length of the new inputs is larger the maximum cache
-        #   length, we will need to evict part of the cache (and thus not all cache is usable)
-        max_length = self.get_max_length()
-        previous_seq_length = self.get_seq_length(layer_idx)
-        if max_length is not None and previous_seq_length + new_seq_length > max_length:
-            return max_length - new_seq_length
-        return previous_seq_length
-
 
 class SimpleCache(Cache):
     def __init__(self, model, max_budget=1024) -> None:
@@ -108,7 +65,16 @@ class SimpleCache(Cache):
             self.seq_len += key_states.shape[-2]
 
         return key, value
-    
+
+    def tree_rollback(self, flag):
+        # flag is 1 or 2
+        if flag == 1:
+            return
+        else:
+            for layer in range(self.layers):
+                self.key_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.key_cache[layer][:,:,self.seq_len-1:self.seq_len]
+                self.value_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.value_cache[layer][:,:,self.seq_len-1:self.seq_len]
+
 class FlashSimpleCache(Cache):
     def __init__(self, model, max_budget=1024) -> None:
         self.key_cache: List[torch.Tensor] = []
@@ -285,86 +251,6 @@ class StreamLLMCache(Cache):
                 self.cached_key[layer][:,:,self.seq_len-2:self.seq_len-1] = self.cached_key[layer][:,:,self.seq_len-1:self.seq_len]
                 self.cached_value[layer][:,:,self.seq_len-2:self.seq_len-1] = self.cached_value[layer][:,:,self.seq_len-1:self.seq_len]
 
-
-# class StreamLLMCache(Cache):
-#     def __init__(self, model, max_budget=1024, start_size=4, recent_size=16, skip_start_layers=-1) -> None:
-#         self.key_cache: List[torch.Tensor] = []
-#         self.value_cache: List[torch.Tensor] = []
-#         self.seq_len = 0
-#         self.start_size = start_size
-#         self.recent_size = recent_size
-#         self.max_budget = max_budget
-#         self.skip_start_layers = skip_start_layers
-
-#         self.hidden_size = model.config.hidden_size
-#         self.num_heads = model.config.num_key_value_heads
-#         self.head_dim = self.hidden_size // model.config.num_attention_heads
-#         self.layers = model.config.num_hidden_layers
-
-#         # initialize empty kv cache using max_budget
-#         for i in range(self.layers):
-#             device = model.model.layers[i].self_attn.q_proj.weight.device
-#             dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
-#             self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
-#             self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
-
-#     def print_status(self):
-#         print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| Start Size:", self.start_size, "| Recent Size:", self.recent_size)
-
-#     def reset(self):
-#         self.seq_len = 0
-#         for i in range(self.layers):
-#             self.key_cache[i].zero_()
-#             self.value_cache[i].zero_()
-
-#     def update(
-#         self,
-#         key_states: torch.Tensor,
-#         value_states: torch.Tensor,
-#         layer_idx: int,
-#     ) -> Tuple[torch.Tensor, torch.Tensor]:
-#         # Update the cache
-
-#         self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
-#         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
-
-#         key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
-#         value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
-
-#         if layer_idx == self.layers-1:
-#             self.seq_len += key_states.shape[-2]
-
-#         return key, value
-
-#     def speculation_update(self, 
-#         key_states: torch.Tensor, 
-#         value_states: torch.Tensor, 
-#         layer_idx: int, 
-#     ):
-#         # Update the cache
-#         assert key_states.shape[-2] == 1
-
-#         if self.seq_len <= self.start_size + self.recent_size:
-#             return self.update(key_states, value_states, layer_idx)
-
-#         self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states
-#         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states
-
-#         key = torch.cat([
-#             self.key_cache[layer_idx][:, :, :self.start_size], 
-#             self.key_cache[layer_idx][:, :, -self.recent_size + self.seq_len:self.seq_len + 1]
-#         ], dim=-2)
-#         value = torch.cat([
-#             self.value_cache[layer_idx][:, :, :self.start_size], 
-#             self.value_cache[layer_idx][:, :, -self.recent_size + self.seq_len:self.seq_len + 1]
-#         ], dim=-2)
-
-#         if layer_idx == self.layers-1:
-#             self.seq_len += 1
-
-#         return key, value
-
-
 class FlashStreamLLMCache(Cache):
     def __init__(self, model, max_budget=1024, start_size=4, recent_size=16, skip_start_layers=-1, gamma=4) -> None:
         self.key_cache: List[torch.Tensor] = []
@@ -462,7 +348,6 @@ class FlashStreamLLMCache(Cache):
             self.spec_time += 1
 
         return self.cached_key[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]], self.cached_value[layer_idx][:,:self.cache_kv_size-self.gamma + self.spec_time+key_states.shape[-3]]
-
 
 class FlashEvictStreamLLMCache(Cache):
     def __init__(self, model, start_size=4, recent_size=256) -> None:
@@ -687,7 +572,7 @@ class EvictH2OCache(Cache):
         for i in range(self.num_heads): # q_head 32, k_v_head 4
             self.hh_score[layer_idx][:, i, :attn_weights.shape[-1]] += torch.sum(attn_weights[:, i*cum:(i+1)*cum, :], axis=1)
 
-class EfficientH2OCache(Cache):
+class H2OCache(Cache):
     def __init__(self, model, max_budget=1024, heavy_size=16, recent_size=16, skip_start_layers=-1) -> None:
         self.key_cache: List[torch.Tensor] = []
         self.value_cache: List[torch.Tensor] = []
@@ -895,6 +780,7 @@ class DejaVuCache(Cache):
         assert attn_weights.shape[2] == 1
         attn_weights = attn_weights.squeeze(2) # (bsz, 32, kv_seq_len)
         _, topk_idx = torch.topk(attn_weights, k=self.topk_size, dim=-1)
+        # print(topk_idx)
         topk_idx = topk_idx.sort().values
 
         mask = torch.zeros(attn_weights.shape, dtype=torch.bool, device=attn_weights.device)

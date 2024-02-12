@@ -33,7 +33,7 @@ from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutpu
 from transformers.modeling_utils import PreTrainedModel
 from transformers.utils import add_start_docstrings, add_start_docstrings_to_model_forward, logging, replace_return_docstrings
 from .configuration_llama import LlamaConfig
-from models.cache_utils import StreamLLMCache, EfficientH2OCache, DejaVuCache, Cache
+from models.cache_utils import StreamLLMCache, DejaVuCache, Cache
 
 try:
     from flash_attn.flash_attn_interface import (
