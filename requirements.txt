@@ -2,3 +2,5 @@ torch==2.1
 termcolor
 transformers
 datasets
+sentencepiece
+protobuf

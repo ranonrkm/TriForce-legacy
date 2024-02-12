@@ -3,3 +3,4 @@ wandb/
 *.bin
 output/
 *.arrow
+data/c4*/
