@@ -67,6 +67,7 @@ train_loader = DataLoader(
 model = LlamaForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16, device_map='cuda:0')
 model.eval()
 
+tokenizer.pad_token = tokenizer.eos_token
 
 with torch.inference_mode():
     tqdm_bar = tqdm(train_loader, desc="Generating")
@@ -74,7 +75,7 @@ with torch.inference_mode():
     buffer = 0
     
     for batch in train_loader:
-        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = 256, do_sample = True, temperature = 0.7, top_p = 0.9)
+        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = 256, do_sample = True, temperature = 0.7, top_p = 0.9, pad_token_id=tokenizer.eos_token_id)
         # assert not torch.any(large_outputs == 2)
 
         for i in range(large_outputs.shape[0]):
@@ -89,6 +90,6 @@ with torch.inference_mode():
                 write += 1
             
             tqdm_bar.update(1)
-            tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/(buffer+write))
+            tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
 
 json_file.close()
