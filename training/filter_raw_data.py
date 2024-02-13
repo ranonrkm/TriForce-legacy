@@ -6,8 +6,7 @@ host = socket.gethostname()
 if 'lovelace' in host:
     dir_path = "/home/hanshis/workspace/LongContextInfer/data/c4_raw/downloads/"
 else:
-    dir_path = "/data/home/beidic/hanshi/LongContextInfer/data/c4_raw/downloads/"
-
+    dir_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4_raw/downloads/"
 
 files_without_extension = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f)) and '.' not in f]
 
@@ -18,9 +17,9 @@ if 'lovelace' in host:
     os.makedirs("/home/hanshis/workspace/LongContextInfer/data/c4/", exist_ok=True)
     filtered_dir = "/home/hanshis/workspace/LongContextInfer/data/c4/"
 else:
-    datasetpath = "/data/home/beidic/hanshi/LongContextInfer/data/c4_raw/downloads/"
-    os.makedirs("/data/home/beidic/hanshi/LongContextInfer/data/c4/", exist_ok=True)
-    filtered_dir = "/data/home/beidic/hanshi/LongContextInfer/data/c4/"
+    datasetpath = "/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4_raw/downloads/"
+    os.makedirs("/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4/", exist_ok=True)
+    filtered_dir = "/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4/"
 
 for i in tqdm(range(len(files_without_extension))): 
     os.system("zcat " + datasetpath + files_without_extension[i] + " > " + filtered_dir + "c4_file{}.json".format(i)) 

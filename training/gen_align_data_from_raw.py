@@ -34,8 +34,8 @@ if 'lovelace' in host:
     datasetparent = "/home/hanshis/workspace/LongContextInfer/data/c4/"
     output_dir = f"/home/hanshis/workspace/LongContextInfer/data/c4-{args.prefill}+{args.length}-{args.model.split('/')[-1]}/"
 else:
-    datasetparent = "/data/home/beidic/hanshi/LongContextInfer/data/c4/"
-    output_dir = f"/data/home/beidic/hanshi/LongContextInfer/data/c4-{args.prefill}+{args.length}-{args.model.split('/')[-1]}/"
+    datasetparent = "/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4/"
+    output_dir = f"/fsx-storygen/beidic/hanshi/LongContextInfer/data/c4-{args.prefill}+{args.length}-{args.model.split('/')[-1]}/"
 
 os.makedirs(output_dir, exist_ok=True)
 
