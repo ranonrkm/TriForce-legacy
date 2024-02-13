@@ -3,6 +3,8 @@ import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
+print(f"added {root_dir} to sys.path")
+
 import torch
 from transformers import AutoTokenizer
 from termcolor import colored
