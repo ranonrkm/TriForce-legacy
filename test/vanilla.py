@@ -1,7 +1,14 @@
 import os
 import sys
-root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-sys.path.append(root_dir)
+
+import socket
+host = socket.gethostname()
+if 'lovelace' in host:
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    sys.path.append(root_dir)
+else:
+    root_dir = "/data/home/beidic/hanshi/LongContextInfer"
+    sys.path.append(root_dir)
 
 print(f"added {root_dir} to sys.path")
 
@@ -80,7 +87,7 @@ if args.log_csv:
     if 'lovelace' in host:
         file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_vanilla.csv"
     else:
-        file_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/test/report/A100_vanilla.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_vanilla.csv"
 else:
     file_path = None
 
