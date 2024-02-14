@@ -100,6 +100,7 @@ with torch.inference_mode():
             
         tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
         tqdm_bar.update(1)
+        print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")
 
 json_file.close()
 print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")
