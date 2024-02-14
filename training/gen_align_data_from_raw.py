@@ -22,7 +22,7 @@ from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 from transformers import default_data_collator
 
-from models.modeling_llama_torch import LlamaForCausalLM
+from models.modeling_llama_ori import LlamaForCausalLM
 
 parser = argparse.ArgumentParser() 
 parser.add_argument("--file", type=str, default="c4_file0.json", help="json file name")
