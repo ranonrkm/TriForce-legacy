@@ -41,7 +41,7 @@ if args.draft == 'llama-68m-256':
     draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
     # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/legacy/output/256/step_30000", torch_dtype=torch.float16, device_map="auto")
 else:
-    raise NotImplementedError
+    draft = LlamaForCausalLM.from_pretrained(args.draft, torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
