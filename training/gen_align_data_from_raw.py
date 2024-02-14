@@ -15,11 +15,14 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 warnings.filterwarnings("ignore")
 
 from datasets import load_dataset
+from datasets.utils.logging import disable_progress_bar
+disable_progress_bar()
+
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 from transformers import default_data_collator
 
-from models.modeling_llama_ori import LlamaForCausalLM
+from models.modeling_llama_torch import LlamaForCausalLM
 
 parser = argparse.ArgumentParser() 
 parser.add_argument("--file", type=str, default="c4_file0.json", help="json file name")
@@ -93,8 +96,8 @@ with torch.inference_mode():
                 # print(example_data)
                 # print(tokenizer.decode(batch['input_ids'][i], skip_special_tokens=True))
             
-            tqdm_bar.update(1)
-            tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
+        tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
+        tqdm_bar.update(1)
 
 json_file.close()
 print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")
