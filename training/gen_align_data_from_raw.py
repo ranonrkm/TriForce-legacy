@@ -26,6 +26,7 @@ parser.add_argument("--file", type=str, default="c4_file0.json", help="json file
 parser.add_argument("--model", type=str, default="NousResearch/Yarn-Llama-2-7b-128k", help="model name")
 parser.add_argument("--prefill", type=int, default=128, help="prefill length")
 parser.add_argument("--length", type=int, default=128, help="length of the generated text")
+parser.add_argument("--bs", type=int, default=96, help="batch size")
 
 args = parser.parse_args()
 
@@ -61,7 +62,7 @@ train_loader = DataLoader(
     dataset,
     collate_fn=default_data_collator,
     shuffle=True,
-    batch_size=96
+    batch_size=args.bs,
 )
 
 model = LlamaForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16, device_map='cuda:0')
@@ -88,8 +89,12 @@ with torch.inference_mode():
                 } 
                 json_file.write(json.dumps(example_data) + "\n")
                 write += 1
+
+                # print(example_data)
+                # print(tokenizer.decode(batch['input_ids'][i], skip_special_tokens=True))
             
             tqdm_bar.update(1)
             tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
 
 json_file.close()
+print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")

@@ -46,7 +46,7 @@ else:
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 else:
-    raise NotImplementedError
+    target = LlamaForCausalLM.from_pretrained(args.target, torch_dtype=torch.float16, device_map="auto")
 
 draft = draft.eval()
 target = target.eval()
