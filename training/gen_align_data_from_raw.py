@@ -48,6 +48,8 @@ onedataset = load_dataset("json", data_files = datasetparent + json_file_name, s
 
 json_file = open(output_dir + json_file_name, "a") 
 
+print(f"loading {json_file_name} from {datasetparent} ==> aligned save to {output_dir + json_file_name}")
+
 tokenizer = AutoTokenizer.from_pretrained(args.model)
 
 def truncate(sample):
