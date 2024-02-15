@@ -4,3 +4,4 @@ wandb/
 output/
 *.arrow
 data/c4*/
+archive/

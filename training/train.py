@@ -2,14 +2,12 @@ import socket
 import os
 import warnings
 warnings.filterwarnings("ignore")
-from datasets import load_metric
 
 import argparse
 import copy
 import wandb
 import torch
-import torch.nn as nn
-from datasets import load_dataset, load_from_disk, DatasetDict
+from datasets import load_dataset
 from datetime import timedelta
 from torch.utils.data import DataLoader
 from accelerate import Accelerator
@@ -17,7 +15,10 @@ from accelerate.utils import InitProcessGroupKwargs, set_seed
 from tqdm import tqdm
 from transformers import set_seed, default_data_collator, get_cosine_schedule_with_warmup
 from transformers import LlamaForCausalLM, AutoTokenizer
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score
+
+from datasets.utils.logging import disable_progress_bar
+disable_progress_bar()
 
 def evaluate(model, dataloader, accelerator):
     model.eval()
@@ -28,7 +29,20 @@ def evaluate(model, dataloader, accelerator):
         for batch in dataloader:
             outputs = model(**batch)
             loss = outputs.loss
+            
+            logits = outputs.logits[:,:-1,:].reshape(-1, outputs.logits.shape[-1])
+            labels = batch["labels"][:, 1:].reshape(-1)
+            # print(logits.shape) # torch.Size([bs*seq_len, vocab_size])
+            # print(labels.shape) # torch.Size([bs*seq_len])
+
+            probs = torch.softmax(torch.tensor(logits), dim = -1) 
+            pred = torch.argmax(probs, dim = -1)
+            
             gathered_losses = accelerator.gather(loss)
+            gathered_pred = accelerator.gather(pred)
+            gathered_labels = accelerator.gather(labels)
+
+            acc = accuracy_score(gathered_labels.cpu(), gathered_pred.cpu())
             
             total_loss += gathered_losses.sum().item()
             total_samples += gathered_losses.numel()
@@ -37,7 +51,7 @@ def evaluate(model, dataloader, accelerator):
 
     perplexity = torch.exp(torch.tensor(avg_loss)).item()
     model.train()
-    return perplexity
+    return perplexity, acc
 
 
 def main(args):
@@ -46,7 +60,7 @@ def main(args):
     if 'lovelace' in host:
         output_dir = f"/home/hanshis/workspace/LongContextInfer/archive/ckpts/{args.outputdir}"
         datasetparent = f"/home/hanshis/workspace/Train/data/{args.datadir}/"
-        d_files = ["c4_file{}.json".format(i) for i in range(1)]
+        d_files = ["c4_file{}.json".format(i) for i in range(30)]
     else:
         output_dir = f"/fsx-storygen/beidic/hanshi/ckpts/{args.outputdir}"
         datasetparent = f"/fsx-storygen/beidic/hanshi/data/{args.datadir}/"
@@ -80,19 +94,17 @@ def main(args):
         init_kwargs={"wandb":{"name":args.outputdir}}
     )
 
-    accelerator.print(f"Total GPUS: {accelerator.num_processes}")
-
     dataset = load_dataset("json", data_files = [datasetparent + name for name in d_files], split = "train")
 
-    tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m")
+    tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m", legacy=False)
     tokenizer.pad_token = tokenizer.eos_token
 
+    accelerator.print("Tokenizing dataset...")
     def encode(sample):
         return tokenizer(sample["text"], truncation=True, return_attention_mask = True, max_length=256, padding="max_length")
     dataset = dataset.map(encode, batched=True, remove_columns=dataset.column_names, num_proc=16)
 
-    if "input_ids" not in dataset.column_names:
-        raise RuntimeError("Dataset must include an `input_ids` feature")
+    accelerator.print("Adding labels to dataset...")
     if "labels" not in dataset.column_names:
         def add_labels(sample):
             sample["labels"] = copy.deepcopy(sample["input_ids"])
@@ -118,11 +130,7 @@ def main(args):
         batch_size=args.batch_size
     )
 
-    model = LlamaForCausalLM.from_pretrained(
-        args.model,
-        torch_dtype=torch.bfloat16,
-        use_flash_attention_2=True
-    )
+    model = LlamaForCausalLM.from_pretrained(args.model, torch_dtype=torch.bfloat16)
     optim = torch.optim.AdamW(model.parameters(), lr=args.learning_rate)
 
     raw_max_train_steps = args.epochs * len(train_loader)
@@ -130,28 +138,28 @@ def main(args):
     model, optim, train_loader, test_loader = accelerator.prepare(model, optim, train_loader, test_loader)
 
     max_train_steps = args.epochs * len(train_loader)
-    scheduler = get_cosine_schedule_with_warmup(optim, num_training_steps=raw_max_train_steps, num_warmup_steps=int(0.01*raw_max_train_steps))
+    scheduler = get_cosine_schedule_with_warmup(optim, num_training_steps=raw_max_train_steps, num_warmup_steps=16+int(0.01*raw_max_train_steps))
     scheduler = accelerator.prepare(scheduler)
     accelerator.register_for_checkpointing(scheduler)
-    checkpointing_steps = max_train_steps // 5
+    checkpointing_steps = max_train_steps // 4
 
     total_batch_size = (args.batch_size * accelerator.num_processes * args.gradient_accumulate_every)
     accelerator.print("============================== Configurations ==============================")
+    accelerator.print(f"Total GPUS: {accelerator.num_processes}")
     accelerator.print("Trainset samples: ", len(train_dataset), "Testset samples: ", len(test_dataset))
     accelerator.print(f"Max train steps: {max_train_steps}, Epochs: {max_train_steps / len(train_loader)}")
     accelerator.print(f"Real batch size: {total_batch_size}, bathes per epoch: {len(train_loader)}, gradient accumulate every: {args.gradient_accumulate_every}")
-    accelerator.print(f"Init learning rate: {args.learning_rate}, Warmup steps: {int(0.01*max_train_steps)}")
+    accelerator.print(f"Init learning rate: {args.learning_rate}, Warmup steps: {16+int(0.01*max_train_steps)}")
     accelerator.print(f"Checkpointing steps: {checkpointing_steps}")
     accelerator.print(f"Input shape len (double check): {len(train_dataset[0]['input_ids'])}")
     accelerator.print("============================================================================")
 
-    progress_bar = tqdm(range(max_train_steps), disable=not accelerator.is_local_main_process)
-
-    completed_steps = 0
-
     ###### begin training eval ######
-    ppl = evaluate(model, test_loader, accelerator)
-    accelerator.print(f"Initial perplexity before Training: {ppl}")
+    ppl, acc = evaluate(model, test_loader, accelerator)
+    accelerator.print(f"Initial perplexity before Training: {ppl}, Initial accuracy before Training: {acc}")
+
+    progress_bar = tqdm(range(max_train_steps), disable=not accelerator.is_local_main_process)
+    completed_steps = 0
 
     for epoch in range(args.epochs):
 
@@ -167,17 +175,20 @@ def main(args):
                 optim.zero_grad()
 
                 if accelerator.sync_gradients:
-                    progress_bar.update(1)
                     
-                    ppl = evaluate(model, test_loader, accelerator)
+                    ppl, acc = evaluate(model, test_loader, accelerator)
                     
                     loss_log = {
                         "loss": loss.item(),
                         "lr": optim.param_groups[0]["lr"],
                         "ppl": ppl,
+                        "acc": acc,
                     }
                     accelerator.log(loss_log, step=completed_steps)
-                    progress_bar.set_postfix(loss_log)
+                    
+                    if completed_steps % 10 == 0:
+                        progress_bar.update(10)
+                        progress_bar.set_postfix(loss_log)
                     completed_steps += 1
 
                 if isinstance(checkpointing_steps, int) and completed_steps > 0:
@@ -187,7 +198,7 @@ def main(args):
             if completed_steps >= max_train_steps:
                 break
 
-        accelerator.print(f"Epoch {epoch+1} / {args.epochs} finished")
+        accelerator.print(f"Epoch {epoch+1} / {args.epochs} finished, ppl: {ppl}, acc: {acc}")
 
     accelerator.print(f"Training Finished, final ppl: {ppl}")
     accelerator.end_training()
@@ -211,7 +222,7 @@ if __name__ == "__main__":
     args.add_argument("--batch-size", type=int, default=256)
     args.add_argument("--epochs", type=int, default=1)
     args.add_argument("--gradient-accumulate-every", type=int, default=8)
-    args.add_argument("--wandb", type=str, default='68M-7B-128K-Base')
+    args.add_argument("--wandb", type=str, default=None)
     args.add_argument("--outputdir", type=str, default=None)
     args.add_argument("--datadir", type=str, default=None)
     args.add_argument("--seed", type=int, default=42)

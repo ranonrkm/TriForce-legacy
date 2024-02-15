@@ -50,7 +50,7 @@ json_file = open(output_dir + json_file_name, "a")
 
 print(f"loading {json_file_name} from {datasetparent} ==> aligned save to {output_dir + json_file_name}")
 
-tokenizer = AutoTokenizer.from_pretrained(args.model)
+tokenizer = AutoTokenizer.from_pretrained(args.model, legacy=False)
 
 def truncate(sample):
     encoded_inputs = tokenizer.encode(sample["text"], truncation=True, max_length=128)
