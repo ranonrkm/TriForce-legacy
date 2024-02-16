@@ -21,7 +21,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         return tokenized_prompts
 
     elif dataset_name == 'c4':
-        dataset = load_dataset("c4", 'en', split='train', streaming=True)
+        dataset = load_dataset("c4", 'en', split='train', streaming=True, trust_remote_code=True)
         dataset_head = list(dataset.take(60000))
         c4_idx = json.load(open(f"data/json/c4.json", "r"))[datalen]
         tokenized_prompts = []
