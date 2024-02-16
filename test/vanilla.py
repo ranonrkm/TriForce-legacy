@@ -51,7 +51,7 @@ else:
 draft = draft.eval()
 target = target.eval()
 
-tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m")
+tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m", legacy=False, use_fast=True)
 
 ######## sampling parameters ########
 

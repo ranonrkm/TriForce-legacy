@@ -796,3 +796,73 @@ class DejaVuCache(Cache):
             self.seq_len += 1
 
         return key, value
+
+
+class ChunkCache(Cache):
+    def __init__(self, model, max_budget=1024, chunk_size=256, select_sets=10) -> None:
+        
+        assert chunk_size * select_sets <= max_budget, f"chunk_size * select_sets should be less than max_budget, got {chunk_size} * {select_sets} > {max_budget}"
+
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.seq_len = 0
+        self.max_budget = max_budget
+
+        self.chunk_size = chunk_size
+        self.select_sets = select_sets
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        for i in range(self.layers):
+            if hasattr(model, 'gpt_neox'):
+                device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
+                dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
+            else:
+                device = model.model.layers[i].self_attn.q_proj.weight.device
+                dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+            self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
+
+
+
+    def print_status(self):
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+    
+    def reset(self):
+        self.seq_len = 0
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def update(
+        self,
+        key_states: torch.Tensor,
+        value_states: torch.Tensor,
+        layer_idx: int,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
+
+        key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+        value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-2]
+
+        return key, value
+
+    def tree_rollback(self, flag):
+        # flag is 1 or 2
+        if flag == 1:
+            return
+        else:
+            for layer in range(self.layers):
+                self.key_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.key_cache[layer][:,:,self.seq_len-1:self.seq_len]
+                self.value_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.value_cache[layer][:,:,self.seq_len-1:self.seq_len]
