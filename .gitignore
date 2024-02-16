@@ -4,4 +4,5 @@ wandb/
 output/
 *.arrow
 data/c4*/
+data/OpenOrca*/
 archive/

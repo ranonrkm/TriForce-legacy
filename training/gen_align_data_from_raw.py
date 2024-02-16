@@ -82,7 +82,7 @@ with torch.inference_mode():
     buffer = 0
     
     for batch in train_loader:
-        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = args.prefill+args.length, do_sample = True, temperature = 0.7, top_p = 0.9, pad_token_id=tokenizer.eos_token_id)
+        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = args.prefill+args.length, do_sample = True, temperature = 1, top_p = 0.9, pad_token_id=tokenizer.eos_token_id)
         # assert not torch.any(large_outputs == 2)
 
         for i in range(large_outputs.shape[0]):
