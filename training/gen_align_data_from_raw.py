@@ -21,6 +21,7 @@ disable_progress_bar()
 from transformers import AutoTokenizer
 from torch.utils.data import DataLoader
 from transformers import default_data_collator
+from datetime import datetime
 
 from models.modeling_llama_ori import LlamaForCausalLM
 
@@ -50,23 +51,23 @@ json_file = open(output_dir + json_file_name, "a")
 
 print(f"loading {json_file_name} from {datasetparent} ==> aligned save to {output_dir + json_file_name}")
 
-tokenizer = AutoTokenizer.from_pretrained(args.model, legacy=False)
+tokenizer = AutoTokenizer.from_pretrained(args.model, legacy=False, use_fast=True)
 
 def truncate(sample):
-    encoded_inputs = tokenizer.encode(sample["text"], truncation=True, max_length=128)
+    encoded_inputs = tokenizer.encode(sample["text"], truncation=True, max_length=args.prefill)
     return {"input_ids": encoded_inputs}
 
 dataset = onedataset.map(truncate, remove_columns=onedataset.column_names, num_proc=32)
 
 def filter_short_samples(example):
-    return len(example["input_ids"]) >= 128
+    return len(example["input_ids"]) >= args.prefill
 
 dataset = dataset.filter(filter_short_samples, num_proc=32)
 
 train_loader = DataLoader(
     dataset,
     collate_fn=default_data_collator,
-    shuffle=True,
+    shuffle=False,
     batch_size=args.bs,
 )
 
@@ -81,13 +82,13 @@ with torch.inference_mode():
     buffer = 0
     
     for batch in train_loader:
-        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = 256, do_sample = True, temperature = 0.7, top_p = 0.9, pad_token_id=tokenizer.eos_token_id)
+        large_outputs = model.generate(input_ids = batch['input_ids'].to(model.device), max_length = args.prefill+args.length, do_sample = True, temperature = 0.7, top_p = 0.9, pad_token_id=tokenizer.eos_token_id)
         # assert not torch.any(large_outputs == 2)
 
         for i in range(large_outputs.shape[0]):
             buffer += 1
             if not torch.any(large_outputs[i] == 2):
-                outputs = large_outputs[i] 
+                outputs = large_outputs[i]
                 new_output = tokenizer.decode(outputs, skip_special_tokens=True)
                 example_data = {
                     "text": new_output, 
@@ -100,7 +101,7 @@ with torch.inference_mode():
             
         tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
         tqdm_bar.update(1)
-        print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")
+        print(f"[{datetime.now()}] write {write} samples / {buffer} samples to {output_dir + json_file_name}", flush=True)
 
 json_file.close()
-print(f"write {write} samples / {buffer} samples to {output_dir + json_file_name}")
+print(f"[{datetime.now()}] write {write} samples / {buffer} samples to {output_dir + json_file_name}")

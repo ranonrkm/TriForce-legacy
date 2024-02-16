@@ -1,3 +1,4 @@
+import datetime
 import socket
 import os
 import warnings
@@ -8,7 +9,7 @@ import copy
 import wandb
 import torch
 from datasets import load_dataset
-from datetime import timedelta
+from datetime import timedelta, datetime
 from torch.utils.data import DataLoader
 from accelerate import Accelerator
 from accelerate.utils import InitProcessGroupKwargs, set_seed
@@ -96,15 +97,15 @@ def main(args):
 
     dataset = load_dataset("json", data_files = [datasetparent + name for name in d_files], split = "train")
 
-    tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m", legacy=False)
+    tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m", legacy=False, use_fast=True)
     tokenizer.pad_token = tokenizer.eos_token
 
-    accelerator.print("Tokenizing dataset...")
+    accelerator.print(f"[{datetime.now()}] Tokenizing dataset...")
     def encode(sample):
         return tokenizer(sample["text"], truncation=True, return_attention_mask = True, max_length=256, padding="max_length")
     dataset = dataset.map(encode, batched=True, remove_columns=dataset.column_names, num_proc=16)
 
-    accelerator.print("Adding labels to dataset...")
+    accelerator.print(f"[{datetime.now()}] Adding labels to dataset...")
     if "labels" not in dataset.column_names:
         def add_labels(sample):
             sample["labels"] = copy.deepcopy(sample["input_ids"])
@@ -156,7 +157,7 @@ def main(args):
 
     ###### begin training eval ######
     ppl, acc = evaluate(model, test_loader, accelerator)
-    accelerator.print(f"Initial perplexity before Training: {ppl}, Initial accuracy before Training: {acc}")
+    accelerator.print(f"[{datetime.now()}] Initial perplexity before Training: {ppl}, Initial accuracy before Training: {acc}")
 
     progress_bar = tqdm(range(max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
@@ -198,12 +199,12 @@ def main(args):
             if completed_steps >= max_train_steps:
                 break
 
-        accelerator.print(f"Epoch {epoch+1} / {args.epochs} finished, ppl: {ppl}, acc: {acc}")
+        accelerator.print(f"[{datetime.now()}] Epoch {epoch+1} / {args.epochs} finished, ppl: {ppl}, acc: {acc}")
 
-    accelerator.print(f"Training Finished, final ppl: {ppl}")
+    accelerator.print(f"[{datetime.now()}] Training Finished, final ppl: {ppl}")
     accelerator.end_training()
 
-    accelerator.print(f"Saving model to {args.outputdir}")
+    accelerator.print(f"[{datetime.now()}] Saving model to {args.outputdir}")
     accelerator.wait_for_everyone()
 
     state_dict = accelerator.get_state_dict(model, unwrap=False)
