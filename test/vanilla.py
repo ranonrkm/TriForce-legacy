@@ -65,9 +65,7 @@ else:
     temperature = 0.6
 
 from data.dataset import get_dataset
-
-# tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen='4k')
-tokenized_prompts = get_dataset(dataset_name='c4', tokenizer=tokenizer, datalen='4k')
+tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -84,12 +82,13 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path)
+print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", spec_args={'budget': args.budget}, dataset=args.dataset)
 
 draft_cache = SimpleCache(draft, max_budget=prefill+gen_len+16)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 
 all_acceptance_rate = []
+print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(draft.device)[:,:prefill]

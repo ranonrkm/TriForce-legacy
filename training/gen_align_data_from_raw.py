@@ -77,7 +77,7 @@ model.eval()
 tokenizer.pad_token = tokenizer.eos_token
 
 with torch.inference_mode():
-    tqdm_bar = tqdm(train_loader, desc="Generating")
+    # tqdm_bar = tqdm(train_loader, desc="Generating")
     write = 0
     buffer = 0
     
@@ -99,8 +99,8 @@ with torch.inference_mode():
                 # print(example_data)
                 # print(tokenizer.decode(batch['input_ids'][i], skip_special_tokens=True))
             
-        tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
-        tqdm_bar.update(1)
+        # tqdm_bar.set_postfix(write=write, buffer=buffer, ratio=write/buffer)
+        # tqdm_bar.update(1)
         print(f"[{datetime.now()}] write {write} samples / {buffer} samples to {output_dir + json_file_name}", flush=True)
 
 json_file.close()

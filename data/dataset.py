@@ -1,7 +1,8 @@
 from datasets import load_dataset
 from tqdm import tqdm
+import secrets
+import torch
 import json
-
 
 def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     if dataset_name == "THUDM/LongBench":
@@ -23,7 +24,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == 'c4':
         dataset = load_dataset("c4", 'en', split='train', streaming=True, trust_remote_code=True)
         dataset_head = list(dataset.take(60000))
-        c4_idx = json.load(open(f"data/json/c4.json", "r"))[datalen]
+        c4_idx = json.load(open(f"data/json/c4.json", "r"))[str(datalen)]
         tokenized_prompts = []
         for i in tqdm(c4_idx):
             prompt = dataset_head[i]['text']
@@ -34,20 +35,26 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == 'pg19':
         dataset = load_dataset("emozilla/pg19")
         test_valid_dict = json.load(open(f"data/json/pg19.json", "r"))
-        test_idx = test_valid_dict[datalen]['test']
-        valid_idx = test_valid_dict[datalen]['valid']
+        test_idx = test_valid_dict[str(datalen)]['test']
+        valid_idx = test_valid_dict[str(datalen)]['valid']
         
         tokenized_prompts = []
+
         for i in tqdm(test_idx):
-            prompt = dataset['test'][i]['text'][:840000]
-            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :128000]
-            tokenized_prompts.append(tokenized_prompt)
-            assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+            prompt = dataset['test'][i]['text'][:datalen*5]
+            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
+            if datalen == 32*1024:
+                if tokenized_prompt.shape[1] == 32*1024:
+                    tokenized_prompts.append(tokenized_prompt)
+            # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+        
         for i in tqdm(valid_idx):
-            prompt = dataset['validation'][i]['text'][:840000]
-            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :128000]
-            tokenized_prompts.append(tokenized_prompt)
-            assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+            prompt = dataset['validation'][i]['text'][:datalen*5]
+            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
+            if datalen == 32*1024:
+                if tokenized_prompt.shape[1] == 32*1024:
+                    tokenized_prompts.append(tokenized_prompt)
+            # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
         return tokenized_prompts
     
     elif dataset_name == 'benchmark':
@@ -58,6 +65,45 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :148000]
         assert tokenized_prompt.shape[1] > 128*1024, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
         return [tokenized_prompt]
-    
+
+    elif dataset_name == 'password':
+        tokenized_prompts = []
+        hope_datalen = datalen
+
+        for i in range(100):
+            n_garbage = int(3.75 * hope_datalen // 1024 * 1024)
+            n_garbage_prefix = n_garbage // 2
+            n_garbage_suffix = n_garbage - n_garbage_prefix
+
+            task_description = "There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
+            garbage = "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again."
+            garbage_inf = " ".join([garbage] * 5000)
+            assert len(garbage_inf) >= n_garbage
+            garbage_prefix = garbage_inf[:n_garbage_prefix]
+            garbage_suffix = garbage_inf[:n_garbage_suffix]
+            pass_key = secrets.token_urlsafe(256)
+            information_line = f"The pass key is {pass_key}. Remember it. {pass_key} is the pass key."
+            final_question = "What is the pass key? The pass key is"
+            lines = [
+                task_description,
+                garbage_prefix,
+                information_line,
+                garbage_suffix,
+            ]
+            prompt = "\n".join(lines)
+
+            input_ids = tokenizer.encode(prompt, return_tensors="pt")
+            input_ids = input_ids[:, :hope_datalen-10]
+
+            # extend the input_ids to the desired length (input_ids + final_question)
+            input_ids = torch.cat([input_ids, tokenizer.encode(final_question, return_tensors="pt", add_special_tokens=False)], dim=-1)
+
+            assert input_ids.shape[-1] == hope_datalen, f"Hope to get a len of {hope_datalen}, but got {input_ids.shape[-1]}"
+            # assert only one '1' in the input_ids
+            assert torch.sum(input_ids == 1) == 1, f"Expect only one '1' in the input_ids, but got {torch.sum(input_ids == 1)}"
+
+            tokenized_prompts.append(input_ids)
+        return tokenized_prompts
+
     else:
         raise Exception("Dataset not found")

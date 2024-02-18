@@ -1,0 +1,12 @@
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.1 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.1 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.08 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.08 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.05 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.05 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.03 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.03 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.02 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.02 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 32768 --budget 0.01 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 32768 --budget 0.01 --log_csv

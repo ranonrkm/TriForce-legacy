@@ -20,12 +20,14 @@ def parse_arguments():
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
 
-    parser.add_argument('--prefill', type=int, default=1024, help='prefill length')
+    parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
-    parser.add_argument('--gamma', type=int, default=4, help='gamma')
+    parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+
+    parser.add_argument('--budget', type=float, default='0.1')
     args = parser.parse_args()
     
     return args
@@ -40,7 +42,9 @@ else:
     raise NotImplementedError
 
 target = target.eval()
-tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
+tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", use_fast=True, legacy=False)
+from data.dataset import get_dataset
+tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
 
 ######## sampling parameters ########
 
@@ -52,10 +56,6 @@ else:
     top_k = -1
     top_p = 0.9
     temperature = 0.6
-
-from data.dataset import get_dataset
-
-tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer)
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -72,15 +72,20 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path)
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
 start_size = 16 + prefill // 1024
-recent_size = int(0.1 * prefill) - start_size
+recent_size = int(args.budget * prefill) - start_size
 target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=1, gamma=gamma)
 
 target_cache.print_status()
+all_acceptance_rate = []
+print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path)
+    acceptance_rate = KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    all_acceptance_rate.append(acceptance_rate)
+
+print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

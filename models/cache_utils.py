@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple
+from sympy import Q
 import torch
+import math
 
 class Cache:
     """
@@ -771,7 +773,6 @@ class DejaVuCache(Cache):
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states
 
         # fake simulation
-        import math
         attn_weights = torch.matmul(query_states, self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]].transpose(2, 3)) / math.sqrt(self.head_dim) # (bsz, 32, 1, kv_seq_len)
 
         if attention_mask is not None:
@@ -799,18 +800,25 @@ class DejaVuCache(Cache):
 
 
 class ChunkCache(Cache):
-    def __init__(self, model, max_budget=1024, chunk_size=256, select_sets=10) -> None:
+    def __init__(self, model, max_budget=1024, chunk_size=256, budget=0.1, skip_start_layers=-1, prefill=1024) -> None:
         
-        assert chunk_size * select_sets <= max_budget, f"chunk_size * select_sets should be less than max_budget, got {chunk_size} * {select_sets} > {max_budget}"
 
         self.key_cache: List[torch.Tensor] = []
         self.value_cache: List[torch.Tensor] = []
+        self.chunk_k: List[torch.Tensor] = []
+
         self.seq_len = 0
         self.max_budget = max_budget
 
+        self.prefill = prefill
+        self.skip_start_layers = skip_start_layers
         self.chunk_size = chunk_size
-        self.select_sets = select_sets
-
+        self.chunks = prefill // chunk_size
+        self.select_sets = int(budget * self.chunks)
+        # check prefill is multiple of chunk_size
+        assert prefill % chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {chunk_size}"
+        assert self.select_sets <= self.chunks, f"select_sets should be less than chunks, got {self.select_sets} > {self.chunks}"
+        assert chunk_size * self.select_sets <= max_budget, f"chunk_size * select_sets should be less than max_budget, got {chunk_size} * {self.select_sets} > {max_budget}"
         self.hidden_size = model.config.hidden_size
         if hasattr(model.config, 'num_key_value_heads'):
             self.num_heads = model.config.num_key_value_heads
@@ -829,16 +837,17 @@ class ChunkCache(Cache):
             self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
             self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
 
-
+            self.chunk_k.append(torch.zeros([1, self.num_heads, self.chunks, self.head_dim], dtype=dtype).to(device))
 
     def print_status(self):
-        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| Chunk Size:", self.chunk_size, "| Select Sets:", self.select_sets, "| Chunks:", self.chunks, "| Skip Start Layers:", self.skip_start_layers, "| PreFill:", self.prefill, " | ratio:", self.select_sets/self.chunks)
     
     def reset(self):
         self.seq_len = 0
         for i in range(self.layers):
             self.key_cache[i].zero_()
             self.value_cache[i].zero_()
+            self.chunk_k[i].zero_()
 
     def update(
         self,
@@ -858,11 +867,91 @@ class ChunkCache(Cache):
 
         return key, value
 
-    def tree_rollback(self, flag):
-        # flag is 1 or 2
-        if flag == 1:
-            return
-        else:
-            for layer in range(self.layers):
-                self.key_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.key_cache[layer][:,:,self.seq_len-1:self.seq_len]
-                self.value_cache[layer][:,:,self.seq_len-2:self.seq_len-1] = self.value_cache[layer][:,:,self.seq_len-1:self.seq_len]
+    def update_chunk_k(self):
+        for layer in range(self.layers):
+            self.chunk_k[layer] = self.key_cache[layer][:, :, :self.prefill].view(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim).mean(dim=-2)
+
+    def speculation_update(self, key_states, value_states, layer_idx, query_states):
+        # Update the cache
+        # key_states: (bsz, 32, 1, head_dim)
+        # value_states: (bsz, 32, 1, head_dim)
+        # query_states: (bsz, 32, 1, head_dim)
+        # chunk_k: (bsz, 32, chunks, head_dim)
+
+        if self.seq_len <= self.chunk_size * self.select_sets:
+            return self.update(key_states, value_states, layer_idx)
+
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states
+
+        assert key_states.shape[-2] == 1
+        assert query_states.shape[-2] == 1, "query_states should be 1 for spec update"
+
+        chunk_attn = torch.matmul(query_states, self.chunk_k[layer_idx].transpose(2, 3)) / math.sqrt(self.head_dim) # (bsz, 32, 1, chunks)
+        chunk_attn = chunk_attn.squeeze(2)
+        # select topk self.select_sets
+
+        # Not include sink cache
+        # _, topk_idx = torch.topk(chunk_attn, k=self.select_sets, dim=-1)
+        # topk_idx = topk_idx.sort().values
+
+
+        # include sink cache
+        #!!! NEED TO FIX
+        chunk_attn_sliced = chunk_attn[:, :, 1:]
+        _, topk_idx_sliced = torch.topk(chunk_attn_sliced, k=self.select_sets-1, dim=-1)
+        topk_idx_sliced_adjusted = topk_idx_sliced + 1
+        topk_idx_sorted = topk_idx_sliced_adjusted.sort().values
+        initial_idx = torch.zeros((1, self.num_heads, 1), dtype=torch.long, device=topk_idx_sorted.device)
+        topk_idx = torch.cat((initial_idx, topk_idx_sorted), dim=-1)
+
+
+        # key = torch.empty((1, self.num_heads, self.chunk_size*self.select_sets + self.seq_len + 1 - self.prefill, self.head_dim), device=key_states.device, dtype=key_states.dtype)
+        # value = torch.empty((1, self.num_heads, self.chunk_size*self.select_sets + self.seq_len + 1 - self.prefill, self.head_dim), device=value_states.device, dtype=value_states.dtype)
+        # for i in range(topk_idx.shape[1]):
+        #     for j in range(topk_idx.shape[2]):
+        #         idx = topk_idx[0, i, j]
+        #         start = idx * self.chunk_size
+        #         end = start + self.chunk_size
+        #         key[:, i, j*self.chunk_size:(j+1)*self.chunk_size] = self.key_cache[layer_idx][:, i, start:end]
+        #         value[:, i, j*self.chunk_size:(j+1)*self.chunk_size] = self.value_cache[layer_idx][:, i, start:end]
+        
+        # key[:, :, self.chunk_size*self.select_sets:] = self.key_cache[layer_idx][:, :, self.prefill:self.seq_len + 1]
+        # value[:, :, self.chunk_size*self.select_sets:] = self.value_cache[layer_idx][:, :, self.prefill:self.seq_len + 1]
+
+        key_reshape = self.key_cache[layer_idx][:, :, :self.prefill].reshape(1, self.num_heads, self.chunks, self.head_dim*self.chunk_size)
+        value_reshape = self.value_cache[layer_idx][:, :, :self.prefill].reshape(1, self.num_heads, self.chunks, self.head_dim*self.chunk_size)
+
+        index_expanded = topk_idx.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim)
+
+        # print(topk_idx)
+        # print(index_expanded)
+
+        # exit()
+
+        result_flattened = torch.gather(key_reshape, 2, index_expanded.reshape(1, self.num_heads, self.select_sets, -1))
+        key = result_flattened.view(1, self.num_heads, self.select_sets*self.chunk_size, self.head_dim)
+
+        result_flattened = torch.gather(value_reshape, 2, index_expanded.reshape(1, self.num_heads, self.select_sets, -1))
+        value = result_flattened.view(1, self.num_heads, self.select_sets*self.chunk_size, self.head_dim)
+
+        key = torch.cat([key, self.key_cache[layer_idx][:, :, self.prefill:self.seq_len + 1]], dim=-2)
+        value = torch.cat([value, self.value_cache[layer_idx][:, :, self.prefill:self.seq_len + 1]], dim=-2)
+
+
+        ##### for debug #####
+        # if layer_idx == 2:
+        #     self.fake_k = key
+        #     self.fake_v = value
+        #     self.topk_idx = topk_idx
+        #     self.query_states = query_states
+
+        # print(key.shape)
+
+        # exit()
+        #### Maybe Use Cache mechanism to update the cache (like cpu)
+
+        if layer_idx == self.layers-1:
+            self.seq_len += 1
+        
+        return key, value

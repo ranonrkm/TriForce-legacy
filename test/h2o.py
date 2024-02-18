@@ -20,12 +20,14 @@ def parse_arguments():
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
 
-    parser.add_argument('--prefill', type=int, default=1024, help='prefill length')
+    parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
-    parser.add_argument('--gamma', type=int, default=4, help='gamma')
+    parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+
+    parser.add_argument('--budget', type=float, default=0.1, help='budget')
     args = parser.parse_args()
     
     return args
@@ -55,7 +57,7 @@ else:
 
 from data.dataset import get_dataset
 
-tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer)
+tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -72,15 +74,20 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path)
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="H2O", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-heavy_size = int(0.1 * prefill // 2)
-recent_size = int(0.1 * prefill) - heavy_size
+heavy_size = int(args.budget * prefill // 2)
+recent_size = int(args.budget * prefill) - heavy_size
 target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=1)
 
 target_cache.print_status()
+all_acceptance_rate = []
+print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path)
+    acceptance_rate = KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    all_acceptance_rate.append(acceptance_rate)
+
+print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

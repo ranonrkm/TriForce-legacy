@@ -56,7 +56,7 @@ if is_flash_attn_2_available():
     from flash_attn import flash_attn_func, flash_attn_varlen_func
     from flash_attn.bert_padding import index_first_axis, pad_input, unpad_input  # noqa
 
-from models.cache_utils import StreamLLMCache, H2OCache, DejaVuCache
+from models.cache_utils import DejaVuCache, ChunkCache
 
 # This makes `_prepare_4d_causal_attention_mask` a leaf function in the FX graph.
 # It means that the function will not be traced through and simply appear as a node in the graph.
@@ -742,6 +742,8 @@ class LlamaAttention(nn.Module):
             assert kv_seq_len - past_key_value.seq_len == 1, "Speculation only works for one token at a time"
             if isinstance(past_key_value, DejaVuCache):
                 key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states, attention_mask)
+            elif isinstance(past_key_value, ChunkCache):
+                key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states)
             else:
                 key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx)
             kv_seq_len = key_states.shape[-2]
