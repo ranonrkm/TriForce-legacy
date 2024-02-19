@@ -35,7 +35,7 @@ def log_csv(file_path, header, entry):
     with open(file_path, 'a') as f:
         f.write(entry)
 
-def print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path, method, spec_args, dataset):
+def print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path, method, spec_args=None, dataset=None):
     print(colored("####################################### Config #######################################", 'blue'), flush=True)
     print(colored(f"Method: {method}", 'red'), flush=True)
     print(colored(f"Dataset: {dataset}", 'blue'), flush=True)

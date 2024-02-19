@@ -6,3 +6,5 @@ output/
 data/c4*/
 data/OpenOrca*/
 archive/
+data/__pycache__/
+utils/__pycache__/

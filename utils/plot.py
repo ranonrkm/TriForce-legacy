@@ -70,6 +70,10 @@ def plot_test(file_path, xaxis, title):
         else:
             print(f"No data for {label}")
 
+    # set y-axis limits to 0-1, interval 0.1
+    plt.ylim(0, 1)
+    plt.yticks(np.arange(0, 1.1, 0.1))
+
     plt.title(title)
     plt.xlabel(xaxis)
     plt.ylabel('Mean Acceptance Rate')

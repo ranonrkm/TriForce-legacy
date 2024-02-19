@@ -28,7 +28,7 @@ def parse_arguments():
     parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
-    parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--dataset', type=str, default='c4', help='dataset')
     args = parser.parse_args()
     
     return args
@@ -82,7 +82,7 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", spec_args={'budget': args.budget}, dataset=args.dataset)
+print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", dataset=args.dataset)
 
 draft_cache = SimpleCache(draft, max_budget=prefill+gen_len+16)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
