@@ -40,13 +40,19 @@ if not contents:
     with open(file_path, 'a') as f:
         f.write("model,prefill,len,latency,repeat_time,flash\n")
 
-model_name = args.model_name
-config = LlamaConfig.from_pretrained(model_name)
-# if args.flash:
-config.flash = True
-if config.max_position_embeddings < 4096:
-    config.max_position_embeddings = PREFIX_LEN + 1
-model = LlamaForCausalLM.from_pretrained(model_name, config=config, torch_dtype=torch.float16, device_map="auto")
+if args.model_name != "4bit":
+    model_name = args.model_name
+    config = LlamaConfig.from_pretrained(model_name)
+    # if args.flash:
+    config.flash = True
+    if config.max_position_embeddings < 4096:
+        config.max_position_embeddings = PREFIX_LEN + 1
+    model = LlamaForCausalLM.from_pretrained(model_name, config=config, torch_dtype=torch.float16, device_map="auto")
+else:
+    model_name="TheBloke/Yarn-Llama-2-7B-128K-GPTQ"
+    model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
+
+# print(model)
 
 # DEC_LEN_LIST = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
 
@@ -75,7 +81,7 @@ for DEC_LEN in DEC_LEN_LIST:
     # graph_cache.print_status()
     # exit()
 
-    print("Warming up...")
+    # print("Warming up...")
     input_ids = torch.randint(low=3, high=30000, size=(1, DEC_LEN), device=model.device)
     storage_ids = torch.arange(DEC_LEN, device=model.device) + PREFIX_LEN
     position_ids = storage_ids.clone().unsqueeze(0)
@@ -85,7 +91,7 @@ for DEC_LEN in DEC_LEN_LIST:
     # cache.print_status()
     # graph_cache.print_status()
 
-    print("Start benchmark...")
+    # print("Start benchmark...")
     torch.cuda.synchronize()
     t1 = time.time()
 

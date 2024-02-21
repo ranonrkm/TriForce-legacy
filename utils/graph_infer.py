@@ -1,7 +1,5 @@
 import os
 import sys
-from turtle import position
-from py import log
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 

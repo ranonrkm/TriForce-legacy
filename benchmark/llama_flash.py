@@ -18,7 +18,8 @@ from models.cache_utils import FlashSimpleCache
 from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
+# model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
+model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
 model = model.eval()
 
 
@@ -92,6 +93,8 @@ with torch.no_grad():
 
 
 LEN = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
+
+LEN = [1]
 
 past_key_values.reset()
 with torch.no_grad():

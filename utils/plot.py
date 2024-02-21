@@ -66,7 +66,8 @@ def plot_test(file_path, xaxis, title):
             if not subset.empty:
                 y_list.append(subset['acceptance_rate'].mean())
         if len(y_list) > 0:
-            plt.plot([str(x) for x in x_list], y_list, 'o-', label=label)
+            print([str(x) for x in x_list], y_list)
+            # plt.plot([str(x) for x in x_list], y_list, 'o-', label=label)
         else:
             print(f"No data for {label}")
 
