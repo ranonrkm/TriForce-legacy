@@ -163,7 +163,6 @@ def KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=4, max_len=2
         outputs = target(
             input_ids=input_ids[:, i*100:(i+1)*100],
             past_key_values=target_cache,
-            use_cache=True,
             speculation=False,
         )
 
@@ -199,7 +198,6 @@ def KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=4, max_len=2
             outputs = target(
                 input_ids=pred_token_idx,
                 past_key_values=target_cache,
-                use_cache=True,
                 speculation=True,
             )
             probs = norm_logits(outputs.logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p)
@@ -217,7 +215,6 @@ def KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=4, max_len=2
         outputs = target(
             input_ids=verify_tokens,
             past_key_values=target_cache,
-            use_cache=True,
             speculation=False,
         )
 
@@ -292,14 +289,12 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
         outputs = target(
             input_ids=input_ids[:, i*100:(i+1)*100],
             past_key_values=target_cache,
-            use_cache=True,
         )
 
         draft_cache.evict(100)
         outputs_draft = draft(
             input_ids=input_ids[:, i*100:(i+1)*100],
             past_key_values=draft_cache,
-            use_cache=True,
         )
 
     resample_count = 0
@@ -331,7 +326,6 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
             outputs = draft(
                 input_ids=pred_token_idx,
                 past_key_values=draft_cache,
-                use_cache=True,
             )
 
             probs = norm_logits(outputs.logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p)
@@ -348,7 +342,6 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
             outputs = target(
                 input_ids=verify_tokens,
                 past_key_values=target_cache,
-                use_cache=True,
             )
 
         count = 0
@@ -403,7 +396,6 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
                 outputs = draft(
                     input_ids=torch.tensor([[generated_ids[-1]]]).to(draft.device),
                     past_key_values=draft_cache,
-                    use_cache=True,
                 )
 
         target_cache.seq_len -= (gamma - count)

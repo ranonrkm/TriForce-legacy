@@ -35,9 +35,14 @@ def parse_arguments():
 args = parse_arguments()
 
 ######## model initialization ########
-
-if args.target == 'llama-7B-128K':
+if args.target == 'llama-7B':
+    target = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="auto")
+elif args.target == 'llama-7B-32K':
+    target = LlamaForCausalLM.from_pretrained("togethercomputer/LLaMA-2-7B-32K", torch_dtype=torch.float16, device_map="auto")
+elif args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
+elif args.target == 'llama-7B-1M':
+    target = LlamaForCausalLM.from_pretrained("LargeWorldModel/LWM-Text-1M", torch_dtype=torch.float16, device_map="auto")
 else:
     raise NotImplementedError
 
@@ -49,7 +54,7 @@ tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, 
 ######## sampling parameters ########
 
 if args.greedy:
-    top_k = -1
+    top_k = 1
     top_p = 1
     temperature = 1
 else:
@@ -76,7 +81,9 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 start_size = 16 + prefill // 1024
 recent_size = int(args.budget * prefill) - start_size
-target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=1, gamma=gamma)
+# 3200 prefill 32K model ssl=-1 will fail
+target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=-1, gamma=gamma)
+print(target_cache.skip_start_layers)
 
 target_cache.print_status()
 all_acceptance_rate = []

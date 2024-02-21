@@ -39,6 +39,8 @@ args = parse_arguments()
 
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
+elif args.target == 'llama-7B-1M':
+    target = LlamaForCausalLM.from_pretrained("LargeWorldModel/LWM-Text-1M", torch_dtype=torch.float16, device_map="auto")
 else:
     raise NotImplementedError
 
@@ -87,6 +89,10 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
+
+    # spec_stream(input_ids[0], tokenizer)
+
+    assert prefill - input_ids.shape[1] < 1024 , f"input_ids.shape[1] = {input_ids.shape[1]}, prefill = {prefill}"
 
     acceptance_rate = KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'chunk_size': chunk_size, 'budget': budget})
     all_acceptance_rate.append(acceptance_rate)

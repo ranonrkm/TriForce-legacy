@@ -1,5 +1,4 @@
 from typing import Any, Dict, List, Optional, Tuple
-from sympy import Q
 import torch
 import math
 
@@ -798,7 +797,6 @@ class DejaVuCache(Cache):
 
         return key, value
 
-
 class ChunkCache(Cache):
     def __init__(self, model, max_budget=1024, chunk_size=256, budget=0.1, skip_start_layers=-1, prefill=1024) -> None:
         
@@ -955,3 +953,53 @@ class ChunkCache(Cache):
             self.seq_len += 1
         
         return key, value
+
+
+########################### CUDA Graph Cache ###########################
+    
+class GraphFlashSimpleCache(Cache):
+
+    def __init__(self, model, max_budget=1024) -> None:
+
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.max_budget = max_budget
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        for i in range(self.layers):
+            if hasattr(model, 'gpt_neox'):
+                device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
+                dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
+            else:
+                device = model.model.layers[i].self_attn.q_proj.weight.device
+                dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+    
+    def print_status(self):
+        print("Max Budget:", self.max_budget)
+
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor):
+
+        input_length = len(storage_ids)
+
+        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        
+        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
+        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
+
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+        self.seq_len = 0

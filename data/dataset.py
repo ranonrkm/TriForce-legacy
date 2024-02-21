@@ -1,6 +1,7 @@
 from datasets import load_dataset
 from tqdm import tqdm
 import secrets
+import random
 import torch
 import json
 
@@ -35,8 +36,13 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == 'pg19':
         dataset = load_dataset("emozilla/pg19")
         test_valid_dict = json.load(open(f"data/json/pg19.json", "r"))
-        test_idx = test_valid_dict[str(datalen)]['test']
-        valid_idx = test_valid_dict[str(datalen)]['valid']
+
+        if datalen <= 32*1024:
+            test_idx = test_valid_dict[str(32*1024)]['test']
+            valid_idx = test_valid_dict[str(32*1024)]['valid']
+        else:
+            test_idx = test_valid_dict[str(128*1024)]['test']
+            valid_idx = test_valid_dict[str(128*1024)]['valid']
         
         tokenized_prompts = []
 
@@ -46,6 +52,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             if datalen == 32*1024:
                 if tokenized_prompt.shape[1] == 32*1024:
                     tokenized_prompts.append(tokenized_prompt)
+            else:
+                tokenized_prompts.append(tokenized_prompt)
             # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
         
         for i in tqdm(valid_idx):
@@ -55,6 +63,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
                 if tokenized_prompt.shape[1] == 32*1024:
                     tokenized_prompts.append(tokenized_prompt)
             # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+            else:
+                tokenized_prompts.append(tokenized_prompt)
         return tokenized_prompts
     
     elif dataset_name == 'benchmark':
@@ -75,15 +85,17 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             n_garbage_prefix = n_garbage // 2
             n_garbage_suffix = n_garbage - n_garbage_prefix
 
-            task_description = "There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
+            task_description = "You are a helpful assistant. USER: There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
             garbage = "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again."
             garbage_inf = " ".join([garbage] * 5000)
             assert len(garbage_inf) >= n_garbage
             garbage_prefix = garbage_inf[:n_garbage_prefix]
             garbage_suffix = garbage_inf[:n_garbage_suffix]
-            pass_key = secrets.token_urlsafe(256)
+            # pass_key = secrets.token_urlsafe(256)
+            pass_key = ''.join([str(random.randint(0, 9)) for _ in range(256)])
+            # print(f"pass_key = {pass_key}")
             information_line = f"The pass key is {pass_key}. Remember it. {pass_key} is the pass key."
-            final_question = "What is the pass key? The pass key is"
+            final_question = "What is the pass key? Don't give information outside the document or repeat your findings. Keep your response short and direct. ASSISTANT: The pass key is"
             lines = [
                 task_description,
                 garbage_prefix,
@@ -93,7 +105,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             prompt = "\n".join(lines)
 
             input_ids = tokenizer.encode(prompt, return_tensors="pt")
-            input_ids = input_ids[:, :hope_datalen-10]
+            input_ids = input_ids[:, :hope_datalen-tokenizer.encode(final_question, return_tensors="pt", add_special_tokens=False).shape[-1]]
 
             # extend the input_ids to the desired length (input_ids + final_question)
             input_ids = torch.cat([input_ids, tokenizer.encode(final_question, return_tensors="pt", add_special_tokens=False)], dim=-1)

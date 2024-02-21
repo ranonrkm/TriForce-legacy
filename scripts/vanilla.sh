@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=8,9 python test/vanilla.py
