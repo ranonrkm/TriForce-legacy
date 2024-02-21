@@ -18,8 +18,8 @@ from models.cache_utils import FlashSimpleCache
 from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-# model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='auto')
-model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
+model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
+# model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
 model = model.eval()
 
 
@@ -27,7 +27,7 @@ import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
     parser.add_argument('--datalen', type=int, default=1024, help='length of data')
-    parser.add_argument('--T', type=int, default=2000, help='repeat times')
+    parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     
     return args
@@ -36,7 +36,7 @@ args = parse_arguments()
 
 
 data_len = args.datalen
-past_key_values = FlashSimpleCache(model, data_len+600)
+past_key_values = FlashSimpleCache(model, data_len+1)
 tokenized_prompt = get_dataset(dataset_name='benchmark', tokenizer=tokenizer)[0]
 input_ids = tokenized_prompt.to(model.device)[:,:data_len]
 past_key_values.reset()
@@ -45,7 +45,7 @@ past_key_values.reset()
 # warm up
 
 T=args.T
-l=512
+l=1
 
 host = socket.gethostname()
 
@@ -92,7 +92,7 @@ with torch.no_grad():
     print(total_time / 100, l, data_len, 100, "warm up done")
 
 
-LEN = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
+# LEN = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
 
 LEN = [1]
 

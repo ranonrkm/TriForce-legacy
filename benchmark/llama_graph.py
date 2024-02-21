@@ -28,7 +28,7 @@ host = socket.gethostname()
 if 'lovelace' in host:
     file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_llama_7B_128K_graph.csv"
 else:
-    file_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/benchmark/report/A100_llama_7B_128K_graph.csv"
+    file_path = "/data/home/beidic/hanshi/LongContextInfer/benchmark/report/A100_llama_7B_128K_graph.csv"
 
 try:
     with open(file_path, 'r') as f:
