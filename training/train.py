@@ -102,7 +102,7 @@ def main(args):
 
     accelerator.print(f"[{datetime.now()}] Tokenizing dataset...")
     def encode(sample):
-        return tokenizer(sample["text"], truncation=True, return_attention_mask = True, max_length=256, padding="max_length")
+        return tokenizer(sample["text"], truncation=True, return_attention_mask = True, max_length=args.datalen, padding="max_length")
     dataset = dataset.map(encode, batched=True, remove_columns=dataset.column_names, num_proc=16)
 
     accelerator.print(f"[{datetime.now()}] Adding labels to dataset...")
@@ -226,6 +226,7 @@ if __name__ == "__main__":
     args.add_argument("--wandb", type=str, default=None)
     args.add_argument("--outputdir", type=str, default=None)
     args.add_argument("--datadir", type=str, default=None)
+    args.add_argument("--datalen", type=int, default=256)
     args.add_argument("--seed", type=int, default=42)
     args.add_argument("--learning-rate", type=float, default=3e-4)
     args.add_argument("--model", type=str, default="JackFram/llama-68m")

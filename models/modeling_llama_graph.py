@@ -30,7 +30,7 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 from flash_attn import flash_attn_with_kvcache
 
 from .configuration_llama import LlamaConfig
-from models.cache_utils import Cache, FlashSimpleCache, GraphFlashSimpleCache
+from models.cache_utils import DejaVuCache, ChunkCache, Cache, FlashSimpleCache, GraphFlashSimpleCache
 
 
 class LlamaRMSNorm(nn.Module):
@@ -133,12 +133,10 @@ class LlamaAttention(nn.Module):
 
         query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
 
-        cos, sin = self.rotary_emb(value_states)
+        cos, sin = self.rotary_emb(value_states, seq_len=graph_cache.key_cache[0].shape[2])
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
-        query_states = query_states.transpose(1, 2)
-        key_states = key_states.transpose(1, 2)
 
         if graph_cache is not None:
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states)
@@ -148,10 +146,15 @@ class LlamaAttention(nn.Module):
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        # bsz, 1, q_len, kv_seq_len
+        attention_mask = torch.ones(bsz, 32, q_len, key_states.shape[-2], device=hidden_states.device, dtype=hidden_states.dtype)
+        # print(attention_mask.shape, query_states.shape, key_states.shape, value_states.shape, graph_cache.key_cache[0].shape[2])
+        with torch.backends.cuda.sdp_kernel(enable_math=False):
+            attn_output = F.scaled_dot_product_attention(query_states, key_states, value_states, attn_mask=attention_mask)
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
+
         return attn_output
 
 class LlamaDecoderLayer(nn.Module):
@@ -246,8 +249,9 @@ class LlamaModel(LlamaPreTrainedModel):
     ):
         batch_size, seq_length = input_ids.shape[:2]
         kv_cache_length = kv_cache.seq_len
+
         if position_ids is None:
-            # for verification
+            print("position_ids is None")
             device = input_ids.device if input_ids is not None else inputs_embeds.device
             position_ids = torch.arange(kv_cache_length, seq_length + kv_cache_length, dtype=torch.long, device=device)
             position_ids = position_ids.unsqueeze(0)

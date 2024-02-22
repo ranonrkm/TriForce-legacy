@@ -35,6 +35,17 @@ from transformers.utils import add_start_docstrings, add_start_docstrings_to_mod
 from .configuration_llama import LlamaConfig
 from models.cache_utils import StreamLLMCache, DejaVuCache, Cache
 
+from transformers.models.llama.modeling_llama import(
+    LlamaRMSNorm,
+    LlamaRotaryEmbedding,
+    PreTrainedModel,
+    apply_rotary_pos_emb,
+    repeat_kv,
+    ACT2FN
+)
+
+from .modeling_llama import LlamaYaRNRotaryEmbedding
+
 try:
     from flash_attn.flash_attn_interface import (
         flash_attn_func, 
@@ -428,57 +439,57 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     hidden_states = hidden_states[:, :, None, :, :].expand(batch, num_key_value_heads, n_rep, slen, head_dim)
     return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
 
+
 class LlamaAttention(nn.Module):
     """Multi-headed attention from 'Attention Is All You Need' paper"""
 
-    def __init__(self, config: LlamaConfig, layer_idx: Optional[int] = None):
+    def __init__(self, config: LlamaConfig, layer_idx: Optional[int] = None, flash=False):
         super().__init__()
         self.config = config
+        self.layer_idx = layer_idx
         self.hidden_size = config.hidden_size
         self.num_heads = config.num_attention_heads
         self.head_dim = self.hidden_size // self.num_heads
         self.num_key_value_heads = config.num_key_value_heads
         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
         self.max_position_embeddings = config.max_position_embeddings
-        self.layer_idx = layer_idx
+        self.rope_theta = config.rope_theta
+        self.is_causal = True
 
         if (self.head_dim * self.num_heads) != self.hidden_size:
             raise ValueError(
                 f"hidden_size must be divisible by num_heads (got `hidden_size`: {self.hidden_size}"
                 f" and `num_heads`: {self.num_heads})."
             )
-        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
-        self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
-        self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
-        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
 
-        self.register_buffer(
-            "norm_factor",
-            torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float32)).to(torch.get_default_dtype()),
-            persistent=False,
-        )
+        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias)
+        self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
+        self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
+        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias)
+        self._init_rope()
+
+    def _init_rope(self):
+
 
         if self.config.rope_scaling is None:
-            scaling_type = "linear"
-            scaling_factor = 1.0
+            self.rotary_emb = LlamaRotaryEmbedding(
+                self.head_dim,
+                max_position_embeddings=self.max_position_embeddings,
+                base=self.rope_theta,
+            )
         else:
             scaling_type = self.config.rope_scaling["type"]
             scaling_factor = self.config.rope_scaling["factor"]
-        if scaling_type == "yarn" or scaling_type == "dynamic-yarn":
-            original_max_position_embeddings = self.config.rope_scaling["original_max_position_embeddings"]
-
-            self.rotary_emb = FlashYaRNRotaryEmbedding(
-                self.head_dim, base=10000, interleaved=False, scaling_factor=scaling_factor,
-                max_position_embeddings=self.max_position_embeddings,
-                original_max_position_embeddings=original_max_position_embeddings,
-                dynamic=scaling_type.startswith("dynamic"), finetuned=self.config.rope_scaling.get("finetuned", False)
-            )
-        elif scaling_type == "linear":
-            self.rotary_emb = FlashRotaryEmbedding(
-                self.head_dim, base=10000, interleaved=False, scaling_factor=scaling_factor,
-            )
-        else:
-            raise RuntimeError(f"Unknown scaling type {scaling_type}")
+            if scaling_type == "yarn":
+                original_max_position_embeddings = self.config.rope_scaling["original_max_position_embeddings"]
+                self.rotary_emb = FlashYaRNRotaryEmbedding(
+                    self.head_dim, base=10000, interleaved=False, scaling_factor=scaling_factor,
+                    max_position_embeddings=self.max_position_embeddings,
+                    original_max_position_embeddings=original_max_position_embeddings,
+                    dynamic=scaling_type.startswith("dynamic"), finetuned=self.config.rope_scaling.get("finetuned", False)
+                )
+            else:
+                raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
 
     def _shape(self, tensor: torch.Tensor, seq_len: int, bsz: int):
         return tensor.view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2).contiguous()
@@ -494,68 +505,189 @@ class LlamaAttention(nn.Module):
         speculation: bool = False,
         is_padded_inputs: Optional[bool] = False,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
-        bsz, q_len, h_size = hidden_states.size()
+        bsz, q_len, _ = hidden_states.size()
 
-        has_layer_past = past_key_value is not None
+        query_states = self.q_proj(hidden_states)
+        key_states = self.k_proj(hidden_states)
+        value_states = self.v_proj(hidden_states)
 
-        if self.config.pretraining_tp > 1:
-            key_value_slicing = (self.num_key_value_heads * self.head_dim) // self.config.pretraining_tp
-            query_slices = self.q_proj.weight.split(
-                (self.num_heads * self.head_dim) // self.config.pretraining_tp, dim=0
-            )
-            key_slices = self.k_proj.weight.split(key_value_slicing, dim=0)
-            value_slices = self.v_proj.weight.split(key_value_slicing, dim=0)
+        # query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim)
+        # key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        # value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        # # print(position_ids)
+        # query_states, key_states = self.rotary_emb(query_states, key_states, position_ids.shape[-1])
 
-            q = [F.linear(hidden_states, query_slices[i]) for i in range(self.config.pretraining_tp)]
-            q = torch.cat(q, dim=-1)
+        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
+        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        # print(position_ids)
+        # print(graph_cache.key_cache[0].shape[1])
+        cos, sin = self.rotary_emb(value_states, seq_len=100)
+        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+        query_states = query_states.transpose(1, 2)
+        key_states = key_states.transpose(1, 2)
 
-            k = [F.linear(hidden_states, key_slices[i]) for i in range(self.config.pretraining_tp)]
-            k = torch.cat(k, dim=-1)
 
-            v = [F.linear(hidden_states, value_slices[i]) for i in range(self.config.pretraining_tp)]
-            v = torch.cat(v, dim=-1)
+        key_states, value_states = past_key_value.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx)
+        # print(self.rotary_emb)
+        # if graph_cache is not None:
+        #     # if self.layer_idx <= 1:
+        #     #     key_states, value_states = kv_cache.update(key_states, value_states, self.layer_idx)
+        #     # else:
+        #     key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids)
+        # else:
+        #     key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
 
-        else:
-            q = self.q_proj(hidden_states)
-            k = self.k_proj(hidden_states)
-            v = self.v_proj(hidden_states) 
+        key_states = repeat_kv(key_states, self.num_key_value_groups)
+        value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        q = q.view(bsz, q_len, self.num_heads, self.head_dim)
-        k = k.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
-        v = v.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+        # print(query_states.shape, key_states.shape, value_states.shape)
+        
+        # if isinstance(past_key_value, FlashSimpleCache) or isinstance(past_key_value, GraphFlashSimpleCache):
+            # print(query_states.shape, key_states.shape, value_states.shape)
+        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        # else:
+        #     with torch.backends.cuda.sdp_kernel(enable_math=False):
+        #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask)
+        #         # (bsz, num_heads, q_len, head_dim) -> (bsz, q_len, num_heads, head_dim)
+        #         attn_output = attn_output.transpose(1, 2).contiguous()
 
-        q, k = self.rotary_emb(q, k, past_key_value.seq_len)
-        if speculation:
-            if self.layer_idx > past_key_value.skip_start_layers:
-                k, v = past_key_value.speculation_update(k, v, self.layer_idx)
-            else:
-                k, v = past_key_value.update(k, v, self.layer_idx)
-        else:
-            k, v = past_key_value.update(k, v, self.layer_idx)
+        # attn_outputs = flash_attn_with_kvcache(q, k, v, softmax_scale=1.0/self.norm_factor, causal=True)
 
-        if is_padded_inputs:
-            raise NotImplementedError("Padded inputs not supported")
-        else:
+        attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
+        attn_output = self.o_proj(attn_output)
 
-            # no padding tokens, more efficient
+        return attn_output
 
-            attn_outputs = flash_attn_with_kvcache(q, k, v, softmax_scale=1.0/self.norm_factor, causal=True)
 
-            attn_output = attn_outputs[0] if output_attentions else attn_outputs
-            attn_output = attn_output.reshape(bsz, q_len, h_size)
-            attn_weights = attn_outputs[2] if output_attentions else None
+# class LlamaAttention(nn.Module):
+#     """Multi-headed attention from 'Attention Is All You Need' paper"""
 
-        if self.config.pretraining_tp > 1:
-            attn_output = attn_output.split(self.hidden_size // self.config.pretraining_tp, dim=2)
-            o_proj_slices = self.o_proj.weight.split(self.hidden_size // self.config.pretraining_tp, dim=1)
-            attn_output = sum([F.linear(attn_output[i], o_proj_slices[i]) for i in range(self.config.pretraining_tp)])
-        else:
-            attn_output = self.o_proj(attn_output)
+#     def __init__(self, config: LlamaConfig, layer_idx: Optional[int] = None):
+#         super().__init__()
+#         self.config = config
+#         self.hidden_size = config.hidden_size
+#         self.num_heads = config.num_attention_heads
+#         self.head_dim = self.hidden_size // self.num_heads
+#         self.num_key_value_heads = config.num_key_value_heads
+#         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
+#         self.max_position_embeddings = config.max_position_embeddings
+#         self.layer_idx = layer_idx
 
-        if not output_attentions:
-            attn_weights = None
+#         if (self.head_dim * self.num_heads) != self.hidden_size:
+#             raise ValueError(
+#                 f"hidden_size must be divisible by num_heads (got `hidden_size`: {self.hidden_size}"
+#                 f" and `num_heads`: {self.num_heads})."
+#             )
+#         self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim, bias=False)
+#         self.k_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
+#         self.v_proj = nn.Linear(self.hidden_size, self.num_key_value_heads * self.head_dim, bias=False)
+#         self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size, bias=False)
 
-        return attn_output, attn_weights, past_key_value
+#         self.register_buffer(
+#             "norm_factor",
+#             torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float32)).to(torch.get_default_dtype()),
+#             persistent=False,
+#         )
+
+#         if self.config.rope_scaling is None:
+#             scaling_type = "linear"
+#             scaling_factor = 1.0
+#         else:
+#             scaling_type = self.config.rope_scaling["type"]
+#             scaling_factor = self.config.rope_scaling["factor"]
+#         if scaling_type == "yarn" or scaling_type == "dynamic-yarn":
+#             original_max_position_embeddings = self.config.rope_scaling["original_max_position_embeddings"]
+
+#             self.rotary_emb = FlashYaRNRotaryEmbedding(
+#                 self.head_dim, base=10000, interleaved=False, scaling_factor=scaling_factor,
+#                 max_position_embeddings=self.max_position_embeddings,
+#                 original_max_position_embeddings=original_max_position_embeddings,
+#                 dynamic=scaling_type.startswith("dynamic"), finetuned=self.config.rope_scaling.get("finetuned", False)
+#             )
+#         elif scaling_type == "linear":
+#             self.rotary_emb = FlashRotaryEmbedding(
+#                 self.head_dim, base=10000, interleaved=False, scaling_factor=scaling_factor,
+#             )
+#         else:
+#             raise RuntimeError(f"Unknown scaling type {scaling_type}")
+
+#     def _shape(self, tensor: torch.Tensor, seq_len: int, bsz: int):
+#         return tensor.view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2).contiguous()
+
+#     def forward(
+#         self,
+#         hidden_states: torch.Tensor,
+#         attention_mask: Optional[torch.Tensor] = None,
+#         position_ids: Optional[torch.LongTensor] = None,
+#         past_key_value: Optional[Cache] = None,
+#         output_attentions: bool = False,
+#         use_cache: bool = False,
+#         speculation: bool = False,
+#         is_padded_inputs: Optional[bool] = False,
+#     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
+#         bsz, q_len, h_size = hidden_states.size()
+
+#         has_layer_past = past_key_value is not None
+
+#         if self.config.pretraining_tp > 1:
+#             key_value_slicing = (self.num_key_value_heads * self.head_dim) // self.config.pretraining_tp
+#             query_slices = self.q_proj.weight.split(
+#                 (self.num_heads * self.head_dim) // self.config.pretraining_tp, dim=0
+#             )
+#             key_slices = self.k_proj.weight.split(key_value_slicing, dim=0)
+#             value_slices = self.v_proj.weight.split(key_value_slicing, dim=0)
+
+#             q = [F.linear(hidden_states, query_slices[i]) for i in range(self.config.pretraining_tp)]
+#             q = torch.cat(q, dim=-1)
+
+#             k = [F.linear(hidden_states, key_slices[i]) for i in range(self.config.pretraining_tp)]
+#             k = torch.cat(k, dim=-1)
+
+#             v = [F.linear(hidden_states, value_slices[i]) for i in range(self.config.pretraining_tp)]
+#             v = torch.cat(v, dim=-1)
+
+#         else:
+#             q = self.q_proj(hidden_states)
+#             k = self.k_proj(hidden_states)
+#             v = self.v_proj(hidden_states) 
+
+#         q = q.view(bsz, q_len, self.num_heads, self.head_dim)
+#         k = k.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+#         v = v.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
+
+#         q, k = self.rotary_emb(q, k, past_key_value.seq_len)
+#         if speculation:
+#             if self.layer_idx > past_key_value.skip_start_layers:
+#                 k, v = past_key_value.speculation_update(k, v, self.layer_idx)
+#             else:
+#                 k, v = past_key_value.update(k, v, self.layer_idx)
+#         else:
+#             k, v = past_key_value.update(k, v, self.layer_idx)
+
+#         if is_padded_inputs:
+#             raise NotImplementedError("Padded inputs not supported")
+#         else:
+
+#             # no padding tokens, more efficient
+
+#             attn_outputs = flash_attn_with_kvcache(q, k, v, softmax_scale=1.0/self.norm_factor, causal=True)
+
+#             attn_output = attn_outputs[0] if output_attentions else attn_outputs
+#             attn_output = attn_output.reshape(bsz, q_len, h_size)
+#             attn_weights = attn_outputs[2] if output_attentions else None
+
+#         if self.config.pretraining_tp > 1:
+#             attn_output = attn_output.split(self.hidden_size // self.config.pretraining_tp, dim=2)
+#             o_proj_slices = self.o_proj.weight.split(self.hidden_size // self.config.pretraining_tp, dim=1)
+#             attn_output = sum([F.linear(attn_output[i], o_proj_slices[i]) for i in range(self.config.pretraining_tp)])
+#         else:
+#             attn_output = self.o_proj(attn_output)
+
+#         if not output_attentions:
+#             attn_weights = None
+
+#         return attn_output, attn_weights, past_key_value
 
 
 class LlamaDecoderLayer(nn.Module):

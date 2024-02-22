@@ -7,7 +7,7 @@ sys.path.append(root_dir)
 
 import socket
 
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, GPTQConfig
 import torch
 import math
 from tqdm import tqdm
@@ -19,7 +19,8 @@ from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
-# model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
+
+# model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", device_map="auto")
 model = model.eval()
 
 

@@ -514,17 +514,22 @@ class LlamaYaRNRotaryEmbedding(nn.Module):
 
     def forward(self, x, seq_len=None):
         # x: [bs, num_attention_heads, seq_len, head_size]
-        if seq_len > self.max_seq_len_cached:
-            print('update RoPE...', seq_len, self.max_seq_len_cached)
-            if seq_len < 32000:
-                self._set_cos_sin_cache(seq_len=32000, device=x.device)#, dtype=x.dtype)
-            else:
-                self._set_cos_sin_cache(seq_len=128000, device=x.device)
+        # if seq_len > self.max_seq_len_cached:
+        #     print('update RoPE...', seq_len, self.max_seq_len_cached)
+        #     if seq_len < 32000:
+        #         self._set_cos_sin_cache(seq_len=32000, device=x.device)#, dtype=x.dtype)
+        #     else:
+        #         self._set_cos_sin_cache(seq_len=128000, device=x.device)
 
         return (
-            self.cos_cached[:seq_len].to(dtype=x.dtype),
-            self.sin_cached[:seq_len].to(dtype=x.dtype),
+            self.cos_cached.to(dtype=x.dtype),
+            self.sin_cached.to(dtype=x.dtype),
         )
+
+        # return (
+        #     self.cos_cached[:seq_len].to(dtype=x.dtype),
+        #     self.sin_cached[:seq_len].to(dtype=x.dtype),
+        # )
 
 def rotate_half(x):
     """Rotates half the hidden dims of the input."""

@@ -8,9 +8,10 @@ import argparse
 import math
 from tqdm import tqdm
 import socket
-
+from time import sleep
+from torch.profiler import profile, record_function, ProfilerActivity
 from models.modeling_llama import LlamaForCausalLM, LlamaConfig
-from models.cache_utils import SimpleCache, FlashSimpleCache, GraphFlashSimpleCache
+from models.cache_utils import SimpleCache, FlashSimpleCache, GraphFlashSimpleCache, GraphSimpleCache
 from utils.graph_infer import GraphInferenceEngine
 
 parser = argparse.ArgumentParser()
@@ -50,21 +51,19 @@ if args.model_name != "4bit":
     model = LlamaForCausalLM.from_pretrained(model_name, config=config, torch_dtype=torch.float16, device_map="auto")
 else:
     model_name="TheBloke/Yarn-Llama-2-7B-128K-GPTQ"
-    model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", torch_dtype=torch.float16, device_map="auto")
+    model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-128g-actorder_True", device_map="auto")
 
 # print(model)
+# sleep(1000)
 
 # DEC_LEN_LIST = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
 
 DEC_LEN_LIST = [1]
 
 MAX_LEN = PREFIX_LEN + 1
-# if args.flash:
-cache = FlashSimpleCache(model, 1)
+
+cache = FlashSimpleCache(model, MAX_LEN)
 graph_cache = GraphFlashSimpleCache(model, MAX_LEN)
-# else:
-#     raise NotImplementedError
-#     cache = SimpleCache(model, MAX_LEN)
 
 for DEC_LEN in DEC_LEN_LIST:
     cache.reset()
@@ -85,15 +84,21 @@ for DEC_LEN in DEC_LEN_LIST:
     input_ids = torch.randint(low=3, high=30000, size=(1, DEC_LEN), device=model.device)
     storage_ids = torch.arange(DEC_LEN, device=model.device) + PREFIX_LEN
     position_ids = storage_ids.clone().unsqueeze(0)
+    # print(input_ids, storage_ids, position_ids)
     for _ in range(WARM_UP):
         graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
-    
-    # cache.print_status()
-    # graph_cache.print_status()
 
-    # print("Start benchmark...")
+    print("Start benchmark...")
     torch.cuda.synchronize()
     t1 = time.time()
+
+    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True, with_stack=True) as prof:
+    #     with record_function("model_inference"):
+    #         graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+    # torch.cuda.synchronize()
+    # prof.export_chrome_trace("trace_flash.json")
+
+    # exit()
 
     for _ in range(T):
         graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
@@ -103,5 +108,5 @@ for DEC_LEN in DEC_LEN_LIST:
 
     print("Prefix Length :{}, Decode Length :{}, inference time:{}s".format(PREFIX_LEN, DEC_LEN, (t2 - t1)/ T))
 
-    with open(file_path, 'a') as f:
-        f.write(f"{model_name},{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")
+    # with open(file_path, 'a') as f:
+    #     f.write(f"{model_name},{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")

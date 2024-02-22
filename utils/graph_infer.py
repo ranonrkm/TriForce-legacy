@@ -28,9 +28,9 @@ class InferenceEngine:
                         kv_cache=self.kv_cache,
                         graph_cache=None,
                     ).logits
-            else:
+            else: # verification
                 logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=None).logits
-        else: # graph
+        else: # graph decoding (used for cuda graph capture)
             logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
         return logits
     

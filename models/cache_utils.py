@@ -35,8 +35,10 @@ class SimpleCache(Cache):
                 device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
                 dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
             else:
-                device = model.model.layers[i].self_attn.q_proj.weight.device
-                dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+                device = model.device
+                dtype = torch.float16
+                # device = model.model.layers[i].self_attn.q_proj.weight.device
+                # dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
             self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
             self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
 
@@ -958,8 +960,115 @@ class ChunkCache(Cache):
 
 
 ########################### CUDA Graph Cache ###########################
-    
+
 class GraphFlashSimpleCache(Cache):
+
+    def __init__(self, model, max_budget=1024) -> None:
+
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.max_budget = max_budget
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        for i in range(self.layers):
+            device=model.device
+            dtype=torch.float16
+            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+    
+    def print_status(self):
+        print("Max Budget:", self.max_budget)
+
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None):
+
+        input_length = len(storage_ids)
+
+        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        
+        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
+        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
+
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+
+class GraphFlashStreamLLMCache(Cache):
+
+    def __init__(self, model, max_budget=1024, prefill=2048, gen_len=256, start_size=16) -> None:
+
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.max_budget = max_budget
+        self.gen_len = gen_len
+
+        self.real_buget = self.max_budget + gen_len
+
+        self.prefill = prefill
+        self.gen_len = gen_len
+        self.start_size = start_size
+        self.recent_size = self.max_budget - self.start_size
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        for i in range(self.layers):
+            device=model.device
+            dtype=torch.float16
+            self.key_cache.append(torch.zeros([1, self.real_buget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.real_buget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+    
+    def print_status(self):
+        print("Max Budget:", self.max_budget, " | Gen Len:", self.gen_len, " | Real Budget:", self.real_buget, " | PreFill:", self.prefill, " | Start Size:", self.start_size, " | Recent Size:", self.recent_size)
+
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None):
+
+        input_length = len(storage_ids)
+
+        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        
+        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
+        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
+
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def init_stream_cache(self, kv_cache):
+        assert self.prefill == kv_cache.seq_len, f"expected prefill {self.prefill}, got {kv_cache.seq_len}"
+
+        for layer in range(self.layers):
+            self.key_cache[layer][:, :self.start_size] = kv_cache.key_cache[layer][:, :self.start_size]
+            self.key_cache[layer][:, self.start_size:-self.gen_len] = kv_cache.key_cache[layer][:, -self.recent_size + self.prefill:self.prefill]
+            self.value_cache[layer][:, :self.start_size] = kv_cache.value_cache[layer][:, :self.start_size]
+            self.value_cache[layer][:, self.start_size:-self.gen_len] = kv_cache.value_cache[layer][:, -self.recent_size + self.prefill:self.prefill]
+
+    def update_stream_cache(self, kv_cache):
+        for layer in range(self.layers):
+            self.key_cache[layer][-self.gen_len:] = kv_cache.key_cache[layer][self.prefill:]
+            self.value_cache[layer][-self.gen_len:] = kv_cache.value_cache[layer][self.prefill:]
+
+class GraphSimpleCache(Cache):
 
     def __init__(self, model, max_budget=1024) -> None:
 
@@ -984,21 +1093,22 @@ class GraphFlashSimpleCache(Cache):
                 # dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
                 device=model.device
                 dtype=torch.float16
-            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
-            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
     
     def print_status(self):
         print("Max Budget:", self.max_budget)
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor):
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None):
 
         input_length = len(storage_ids)
 
-        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
-        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        assert input_length == new_k_cache.shape[-2], (input_length, new_k_cache.shape[-2])
+        assert input_length == new_v_cache.shape[-2], (input_length, new_v_cache.shape[-2])
         
-        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
-        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
+        # print(storage_ids)
+        # self.key_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_k_cache)
+        # self.value_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_v_cache)
 
         return self.key_cache[layer_idx], self.value_cache[layer_idx]
 
@@ -1006,4 +1116,71 @@ class GraphFlashSimpleCache(Cache):
         for i in range(self.layers):
             self.key_cache[i].zero_()
             self.value_cache[i].zero_()
-        self.seq_len = 0
+
+class GraphFlashChunkCache(Cache):
+    def __init__(self, model, prefill=1024, chunk_size=128, gamma=6, budget=0.1) -> None:
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.chunk_k: List[torch.Tensor] = []
+    
+        self.chunk_size = chunk_size
+        self.prefill = prefill
+        self.chunks = prefill // self.chunk_size
+        self.select_sets = int(budget * self.chunks)
+        assert prefill % self.chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {self.chunk_size}"
+
+        self.max_budget = self.chunk_size * self.select_sets + gamma # max budget should be self.chunk_size * select sets + gamma
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        for i in range(self.layers):
+            device=model.device
+            dtype=torch.float16
+            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+
+            self.chunk_k.append(torch.zeros([1, self.chunks, self.num_heads, self.head_dim], dtype=dtype).to(device))
+    
+    def print_status(self):
+        print("Max Budget:", self.max_budget)
+
+    def update_chunk_k(self):
+        for layer in range(self.layers):
+            self.chunk_k[layer] = self.key_cache[layer][:, :, :self.prefill].view(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim).mean(dim=-2)
+
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None):
+
+        assert kv_cache is not None, "kv_cache should not be None"
+        assert query_states is not None, "query_states should not be None"
+        input_length = len(storage_ids)
+
+        assert input_length == new_k_cache.shape[-2], (input_length, new_k_cache.shape[-2])
+        assert input_length == new_v_cache.shape[-2], (input_length, new_v_cache.shape[-2])
+        
+        self.key_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_k_cache)
+        self.value_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_v_cache)
+
+        # query_states: (bsz, 1, 32, head_dim) --> (bsz, 32, 1, head_dim)
+        # chunk_k: (bsz, chunks, 32, head_dim) --> (bsz, 32, head_dim, chunks)
+        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), self.chunk_k[layer_idx].permute(0, 2, 3, 1)).squeeze(2) # (bsz, 32, chunks)
+        _, topk_idx = torch.topk(chunk_attn, k=self.select_sets, dim=-1).permute(0, 2, 1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
+
+        # (bsz, prefill, 32, head_dim) --> (bsz, chunks, chunk_size, 32, head_dim) --> (bsz, chunks, 32, chunk_size, head_dim)
+        key_ = kv_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim)
+        key_ = key_.permute(0, 1, 3, 2, 4)
+
+    
+
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+            self.chunk_k[i].zero_()
