@@ -72,9 +72,9 @@ if args.log_csv:
     import socket
     host = socket.gethostname()
     if 'lovelace' in host:
-        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_streamllm.csv"
+        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_streamllm.csv"
     else:
-        file_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/test/report/A100_streamllm.csv"
+        file_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/test/report/A100_graph_streamllm.csv"
 else:
     file_path = None
 
