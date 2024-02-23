@@ -41,7 +41,7 @@ for DEC_LEN in DEC_LEN_LIST:
     assert prefix.shape[-1] == PREFIX_LEN
     
     graph_engine = GraphInferenceEngine(model, cache, graph_cache)
-    graph_engine.initialize_cuda_graph([DEC_LEN])
+    graph_engine.initialize_cuda_graph(1)
 
     input_ids = torch.randint(low=3, high=30000, size=(1, DEC_LEN), device=model.device)
     storage_ids = torch.arange(DEC_LEN, device=model.device) + PREFIX_LEN
@@ -62,6 +62,6 @@ for DEC_LEN in DEC_LEN_LIST:
 
     print("Prefix Length :{}, Decode Length :{}, inference time:{}s".format(PREFIX_LEN, DEC_LEN, (t2 - t1)/ T))
 
-    file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_torch_vanilla.csv"
+    file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_torch_new.csv"
     with open(file_path, 'a') as f:
         f.write(f"{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")

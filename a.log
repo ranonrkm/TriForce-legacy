@@ -1,342 +1,0 @@
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :1, Decode Length :1, inference time:0.020414661049842835s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.34s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :1024, Decode Length :1, inference time:0.02151445984840393s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.28s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.54s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :2048, Decode Length :1, inference time:0.02241282343864441s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.40s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.62s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :3072, Decode Length :1, inference time:0.02340502595901489s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.32s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :4096, Decode Length :1, inference time:0.024454512000083924s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.28s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.54s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :5120, Decode Length :1, inference time:0.02541013240814209s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.32s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :6144, Decode Length :1, inference time:0.026648327231407167s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.32s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.43s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :7168, Decode Length :1, inference time:0.027707554221153258s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :8192, Decode Length :1, inference time:0.028950821876525878s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.50s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.64s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :9216, Decode Length :1, inference time:0.03022491419315338s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.31s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.50s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :10240, Decode Length :1, inference time:0.03128664457798004s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.33s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.43s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.56s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :11264, Decode Length :1, inference time:0.03232329392433166s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :12288, Decode Length :1, inference time:0.0338145592212677s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.54s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.72s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :13312, Decode Length :1, inference time:0.034530406713485715s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.60s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.62s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.77s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :14336, Decode Length :1, inference time:0.03592014026641846s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.51s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :15360, Decode Length :1, inference time:0.03688221371173859s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.51s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.65s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :16384, Decode Length :1, inference time:0.03848838019371033s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.36s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :17408, Decode Length :1, inference time:0.03927796328067779s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.34s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.57s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :18432, Decode Length :1, inference time:0.040959575057029726s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.62s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :19456, Decode Length :1, inference time:0.041790897011756895s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.54s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :20480, Decode Length :1, inference time:0.04315561306476593s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.40s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.51s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.64s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :21504, Decode Length :1, inference time:0.04443773818016052s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.47s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.60s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :22528, Decode Length :1, inference time:0.04582216799259186s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.37s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :23552, Decode Length :1, inference time:0.04700519073009491s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.54s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.67s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :24576, Decode Length :1, inference time:0.048199057221412656s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.60s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.75s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :25600, Decode Length :1, inference time:0.04877466988563538s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.53s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.56s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :26624, Decode Length :1, inference time:0.05045763850212097s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.36s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.60s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :27648, Decode Length :1, inference time:0.05128458917140961s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.39s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.63s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :28672, Decode Length :1, inference time:0.05287715470790863s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.53s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.68s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :29696, Decode Length :1, inference time:0.053601478695869446s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.54s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.56s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.71s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :30720, Decode Length :1, inference time:0.05578136157989502s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.55s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.69s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.82s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :31744, Decode Length :1, inference time:0.05596340394020081s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.55s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.69s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :32768, Decode Length :1, inference time:0.05780121612548828s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.02s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.36s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :33792, Decode Length :1, inference time:0.05910688376426697s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.35s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.46s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.60s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :34816, Decode Length :1, inference time:0.06047291719913483s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.63s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :35840, Decode Length :1, inference time:0.061055551290512086s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.39s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.62s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :36864, Decode Length :1, inference time:0.06277254283428192s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.39s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.58s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :37888, Decode Length :1, inference time:0.0637549146413803s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.40s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.53s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :38912, Decode Length :1, inference time:0.06538572347164154s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.32s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.39s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.53s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :39936, Decode Length :1, inference time:0.0660648775100708s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.48s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.55s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.69s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :40960, Decode Length :1, inference time:0.06775224423408509s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.29s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.41s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.55s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :41984, Decode Length :1, inference time:0.06861260497570038s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.42s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.47s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.61s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :43008, Decode Length :1, inference time:0.07056354534626007s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.52s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.66s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :44032, Decode Length :1, inference time:0.07089166927337646s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.37s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.45s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.59s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :45056, Decode Length :1, inference time:0.0734904054403305s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.20s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.30s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.44s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :46080, Decode Length :1, inference time:0.07376071107387543s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.44s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:03<00:00,  1.63s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :47104, Decode Length :1, inference time:0.075996133685112s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.03s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.36s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :48128, Decode Length :1, inference time:0.07612654256820679s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.94s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.19s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.30s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :49152, Decode Length :1, inference time:0.0782237309217453s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.94s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.18s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.29s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :50176, Decode Length :1, inference time:0.07899803292751312s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.99s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.23s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :51200, Decode Length :1, inference time:0.08035914957523346s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.03s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :52224, Decode Length :1, inference time:0.08128386533260346s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.07s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.27s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.39s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :53248, Decode Length :1, inference time:0.08312548995018006s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.99s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.22s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.34s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :54272, Decode Length :1, inference time:0.08416381072998047s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.05s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.25s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.37s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :55296, Decode Length :1, inference time:0.08539431047439575s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.01s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.36s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :56320, Decode Length :1, inference time:0.08684801876544952s
->>>> Flash Attention installed
->>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.96s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.20s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.32s/it]
-capturing graph...
-Start benchmark...
-Prefix Length :57344, Decode Length :1, inference time:0.08792041671276092s

@@ -446,7 +446,8 @@ def Graph_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-
         speculation_probs = []
         generated_ids = []
 
-        graph_engine.update_graph_cache()
+        if hasattr(graph_engine.engine.graph_cache, 'update_graph_cache'):
+            graph_engine.update_graph_cache()
 
         for gamma_offset in range(gamma):
             storage_ids = torch.tensor([graph_engine.engine.graph_cache.max_budget + gamma_offset], device=graph_engine.engine.model.device)

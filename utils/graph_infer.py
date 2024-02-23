@@ -29,7 +29,7 @@ class InferenceEngine:
                         graph_cache=None,
                     ).logits
             else: # verification
-                logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=None).logits
+                logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache).logits
         else: # graph decoding (used for cuda graph capture)
             logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
         return logits
