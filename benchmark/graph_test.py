@@ -61,6 +61,7 @@ graph_cache = GraphFlashStreamLLMCache(model, max_budget=MAX_LEN, prefill=PREFIX
 
 cache.reset()
 graph_cache.reset()
+
 prefix = torch.randint(low=3, high=30000, size=(1, PREFIX_LEN), device=model.device)
 assert prefix.shape[-1] == PREFIX_LEN
 
@@ -69,12 +70,16 @@ graph_engine.initialize_cuda_graph([DEC_LEN])
 
 graph_engine.inference(input_ids=prefix)
 
+graph_cache.init_stream_cache(kv_cache=cache)
+
 input_ids = torch.randint(low=3, high=30000, size=(1, DEC_LEN), device=model.device)
 storage_ids = torch.arange(DEC_LEN, device=model.device) + PREFIX_LEN
 position_ids = storage_ids.clone().unsqueeze(0)
 
 for _ in range(WARM_UP):
     graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+
+graph_cache.update_stream_cache(kv_cache=cache)
 
 print("Start benchmark...")
 torch.cuda.synchronize()

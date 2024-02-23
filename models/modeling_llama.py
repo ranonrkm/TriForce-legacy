@@ -124,6 +124,7 @@ class LlamaAttention(nn.Module):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = 0,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, _ = hidden_states.size()
 
@@ -141,7 +142,7 @@ class LlamaAttention(nn.Module):
         key_states = key_states.transpose(1, 2)
 
         if graph_cache is not None:
-            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states)
+            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
         else:
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
 
@@ -175,6 +176,7 @@ class LlamaDecoderLayer(nn.Module):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = 0,
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
 
         residual = hidden_states
@@ -188,6 +190,7 @@ class LlamaDecoderLayer(nn.Module):
             kv_cache=kv_cache,
             graph_cache=graph_cache,
             storage_ids=storage_ids,
+            gamma_offset=gamma_offset,
         )
         hidden_states = residual + hidden_states
 
@@ -243,6 +246,7 @@ class LlamaModel(LlamaPreTrainedModel):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = 0,
     ):
         batch_size, seq_length = input_ids.shape[:2]
         kv_cache_length = kv_cache.seq_len
@@ -267,6 +271,7 @@ class LlamaModel(LlamaPreTrainedModel):
                 kv_cache=kv_cache,
                 graph_cache=graph_cache,
                 storage_ids=storage_ids,
+                gamma_offset=gamma_offset,
             )
 
             hidden_states = layer_outputs
@@ -295,6 +300,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = 0,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
         outputs = self.model(
@@ -304,6 +310,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             kv_cache=kv_cache,
             graph_cache=graph_cache,
             storage_ids=storage_ids,
+            gamma_offset=gamma_offset,
         )
 
         hidden_states = outputs

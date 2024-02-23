@@ -3,7 +3,7 @@ from typing import List, Optional, Tuple, Union
 import torch
 import torch.nn.functional as F
 from torch import nn
-
+import math
 from transformers.activations import ACT2FN
 from models.cache_utils import Cache
 from transformers.modeling_attn_mask_utils import (
@@ -149,8 +149,27 @@ class LlamaAttention(nn.Module):
         # bsz, 1, q_len, kv_seq_len
         attention_mask = torch.ones(bsz, 32, q_len, key_states.shape[-2], device=hidden_states.device, dtype=hidden_states.dtype)
         # print(attention_mask.shape, query_states.shape, key_states.shape, value_states.shape, graph_cache.key_cache[0].shape[2])
-        with torch.backends.cuda.sdp_kernel(enable_math=False):
-            attn_output = F.scaled_dot_product_attention(query_states, key_states, value_states, attn_mask=attention_mask)
+        
+        # with torch.backends.cuda.sdp_kernel(enable_math=False):
+        #     attn_output = F.scaled_dot_product_attention(query_states, key_states, value_states, attn_mask=attention_mask)
+
+        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+
+        attn_weights = attn_weights + attention_mask
+
+        # upcast attention to fp32
+        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+
+        attn_output = torch.matmul(attn_weights, value_states)
+
+        if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
+            raise ValueError(
+                f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
+                f" {attn_output.size()}"
+            )
+
+        attn_output = attn_output.transpose(1, 2).contiguous()
+
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
