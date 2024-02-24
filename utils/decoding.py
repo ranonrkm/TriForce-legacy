@@ -881,8 +881,9 @@ def Spec_Tiny_for_streamllm(next_token, graph_engine, gamma, temperature, top_k,
 
         # assert len(generated_ids) == len(speculation_probs) == len(verify_probs)-1, f"{len(generated_ids)} != {len(speculation_probs)} != {len(verify_probs)-1}"
         for i, speculation_prob, verify_prob in zip(generated_ids, speculation_probs, verify_probs):
-            r = torch.rand(1, device = graph_engine.engine.model.device)
-            if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[i] / speculation_prob[i])):
+            # r = torch.rand(1, device = graph_engine.engine.model.device)
+            # if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[i] / speculation_prob[i])):
+            if verify_prob[i] > speculation_prob[i]:
                 count += 1
                 accepted_count += 1
                 n += 1
@@ -894,7 +895,8 @@ def Spec_Tiny_for_streamllm(next_token, graph_engine, gamma, temperature, top_k,
             else:
                 resample_count += 1
                 n += 1
-                pred_token_idx = sample(max_fn(verify_prob-speculation_prob))
+                # pred_token_idx = sample(max_fn(verify_prob-speculation_prob))
+                pred_token_idx = sample(verify_prob)
                 
                 return_speculation_probs.append(verify_prob)
                 return_generated_ids.append(pred_token_idx.item())
