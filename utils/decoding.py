@@ -291,13 +291,13 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in (range(iter_prefill)):
         outputs = target(
-            input_ids=input_ids[:, i*100:(i+1)*100],
+            input_ids=input_ids[:, i*100:(i+1)*100].to(target.device),
             past_key_values=target_cache,
         )
 
         draft_cache.evict(100)
         outputs_draft = draft(
-            input_ids=input_ids[:, i*100:(i+1)*100],
+            input_ids=input_ids[:, i*100:(i+1)*100].to(draft.device),
             past_key_values=draft_cache,
         )
 
@@ -328,7 +328,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
 
         for _ in range(gamma):
             outputs = draft(
-                input_ids=pred_token_idx,
+                input_ids=pred_token_idx.to(draft.device),
                 past_key_values=draft_cache,
             )
 
@@ -340,7 +340,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
             draft_count += 1
 
         # verification
-        verify_tokens = torch.cat([next_token, torch.LongTensor([generated_ids]).to(draft.device)], dim=1)
+        verify_tokens = torch.cat([next_token.to(target.device), torch.LongTensor([generated_ids]).to(target.device)], dim=1)
 
         with torch.no_grad():
             outputs = target(
@@ -360,7 +360,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
         for i, speculation_prob, verify_prob in zip(generated_ids, speculation_probs, verify_probs[:-1]):
             r = torch.rand(1, device = draft.device)
 
-            if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[i] / speculation_prob[i])):
+            if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[i].to(draft.device) / speculation_prob[i])):
                 count += 1
                 accepted_count += 1
                 n += 1
@@ -377,7 +377,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
             else:
                 resample_count += 1
                 n += 1
-                pred_token_idx = sample(max_fn(verify_prob-speculation_prob))
+                pred_token_idx = sample(max_fn(verify_prob.to(draft.device)-speculation_prob))
                 if verbose:
                     spec_stream(pred_token_idx, tokenizer, 'red')
                 break
@@ -576,16 +576,15 @@ def Graph_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-
     
     logits = graph_engine.inference(input_ids=input_ids[:,-1:]) # it can init the graph cache for GraphFlashTopKCache
 
-    if isinstance(graph_engine.engine.graph_cache, GraphFlashChunkCache):
-        from utils.misc import rerange_kv_cache
-        rerange_kv_cache(graph_engine.engine.kv_cache, graph_engine.engine.graph_cache.chunk_size)
+    # if isinstance(graph_engine.engine.graph_cache, GraphFlashChunkCache):
+    #     from utils.misc import rerange_kv_cache
+    #     rerange_kv_cache(graph_engine.engine.kv_cache, graph_engine.engine.graph_cache.chunk_size)
 
 
     if not (isinstance(graph_engine.engine.graph_cache, GraphFlashTopKCache) or isinstance(graph_engine.engine.graph_cache, GraphFlashChunkTopKCache)):
         # graph_cache == GraphFlashStreamLLMCache, GraphFlashChunkCache
         graph_engine.init_graph_cache()
 
-        
 
     resample_count = 0
     accepted_count = 0

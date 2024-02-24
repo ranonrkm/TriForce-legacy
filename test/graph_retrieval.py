@@ -78,10 +78,11 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Retrieval", spec_args={'budget': args.budget}, dataset=args.dataset)
 
+budget = int(args.budget * prefill) // 128 * 128
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashChunkCache(target, max_budget=2048, prefill=prefill, gamma=gamma, chunk_size=128)
+graph_cache = GraphFlashChunkCache(target, max_budget=budget, prefill=prefill, gamma=gamma, chunk_size=128)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
 graph_engine.initialize_cuda_graph(gamma)
 

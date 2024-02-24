@@ -42,11 +42,14 @@ if args.draft == 'llama-68m-256':
     draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-160m':
     draft = LlamaForCausalLM.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
+elif args.draft == 'llama-7B':
+    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:1")
+    draft = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:1")
 else:
     draft = LlamaForCausalLM.from_pretrained(args.draft, torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
-    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
+    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:0")
 else:
     target = LlamaForCausalLM.from_pretrained(args.target, torch_dtype=torch.float16, device_map="auto")
 
@@ -84,9 +87,12 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
 
-draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=512-16)
+
+# print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
+
+
+draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=256-16)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 # target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
 
