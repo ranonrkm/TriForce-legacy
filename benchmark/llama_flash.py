@@ -18,7 +18,8 @@ from models.cache_utils import FlashSimpleCache
 from models.modeling_llama_flash import LlamaForCausalLM
 
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k")
-model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
+# model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
+model = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map='cuda:0')
 
 # model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-32g-actorder_True", device_map="auto")
 model = model.eval()
@@ -46,7 +47,7 @@ past_key_values.reset()
 # warm up
 
 T=args.T
-l=1
+l=512
 
 host = socket.gethostname()
 

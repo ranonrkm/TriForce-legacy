@@ -1,0 +1,194 @@
+import os
+import sys
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
+
+import torch
+from typing import List, Optional, Tuple, Union
+import gc
+import math
+from tqdm import tqdm
+
+class InferenceEngine:
+    def __init__(self, model, cache, graph_cache, draft, draft_cache) -> None:
+
+        ###### 7B ######
+        self.model = model
+        self.model.eval()
+        self.kv_cache = cache
+        self.graph_cache = graph_cache
+
+        ###### 68 MB ######
+        self.draft = draft
+        self.draft.eval()
+        self.draft_cache = draft_cache
+
+    @torch.inference_mode()
+    def model_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0):
+        if input_ids.shape[-1] > 1024: # prefill
+            iter_prefill = math.ceil(input_ids.shape[1] / 100)
+            for i in tqdm(range(iter_prefill)):
+                logits = self.model(
+                    input_ids=input_ids[:, i*100:(i+1)*100],
+                    kv_cache=self.kv_cache,
+                    graph_cache=None,
+                ).logits
+        else: # verification
+            logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache).logits
+        return logits
+
+    @torch.inference_mode()
+    def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0):
+        if input_ids.shape[-1] > 1024: # prefill
+            iter_prefill = math.ceil(input_ids.shape[1] / 64)
+            for i in tqdm(range(iter_prefill)):
+                self.draft_cache.evict_prefill(64)
+                logits = self.draft(
+                    input_ids=input_ids[:, i*64:(i+1)*64],
+                    kv_cache=self.draft_cache,
+                    graph_cache=None,
+                ).logits
+        else: # decoding
+            logits = self.draft(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
+        return logits
+
+    @torch.inference_mode()
+    def model_verify(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None):
+        # graph verification (used for cuda graph capture)
+        logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
+        return logits
+
+    def clear_kv(self):
+        self.kv_cache.reset()
+        self.graph_cache.reset()
+        self.draft_cache.reset()
+
+def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3):
+    device = engine.draft.device
+    
+    # draft run is incremental decoding
+    static_input_ids = torch.full((1, 1), 0, dtype=torch.long, device=device)
+    static_storage_ids = torch.arange(1, device=device)
+    static_position_ids = torch.tensor([[gamma_offset + engine.draft_cache.start_size + engine.draft_cache.recent_size]], device=device)
+    
+    s = torch.cuda.Stream()
+    s.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(s):
+        for _ in range(n_warmups):
+            static_logits = engine.draft_run(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, gamma_offset=gamma_offset)
+        s.synchronize()
+    torch.cuda.current_stream().wait_stream(s)
+
+    print(f"[draft run] capturing graph for {gamma_offset}...")
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph, pool=mempool):
+        static_logits = engine.draft_run(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, gamma_offset=gamma_offset)
+    
+    def run(input_ids, storage_ids, position_ids):
+        static_input_ids.copy_(input_ids)
+        static_storage_ids.copy_(storage_ids)
+        static_position_ids.copy_(position_ids)
+        graph.replay()
+        return static_logits.clone()
+
+    return run
+
+def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups :int=3, gamma:int=6):
+    device = engine.model.device
+    
+    # model_verify is verifying gamma tokens
+    static_input_ids = torch.full((1, gamma+1), 0, dtype=torch.long, device=device)
+    static_storage_ids = torch.arange(gamma+1, device=device)
+    static_position_ids = static_storage_ids.clone().unsqueeze(0)
+    
+    s = torch.cuda.Stream()
+    s.wait_stream(torch.cuda.current_stream())
+    with torch.cuda.stream(s):
+        for _ in range(n_warmups):
+            static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids)
+        s.synchronize()
+    torch.cuda.current_stream().wait_stream(s)
+
+    print(f"[model verify] capturing graph for spec len {gamma}...")
+    graph = torch.cuda.CUDAGraph()
+    with torch.cuda.graph(graph, pool=mempool):
+        static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids)
+    
+    def run(input_ids, storage_ids, position_ids):
+        static_input_ids.copy_(input_ids)
+        static_storage_ids.copy_(storage_ids)
+        static_position_ids.copy_(position_ids)
+        graph.replay()
+        return static_logits.clone()
+
+    return run
+
+class GraphInferenceEngine:
+    def __init__(self, model, cache, graph_cache, draft, draft_cache) -> None:
+
+        self.engine = InferenceEngine(model, cache, graph_cache, draft, draft_cache)
+        self.callables = {}
+        self.mempool = None
+
+    @torch.inference_mode()
+    def initialize_cuda_graph(self, gamma=6):
+        gc.collect()
+        self.mempool = torch.cuda.graphs.graph_pool_handle()
+        
+        for gamma_offset in range(gamma+1):
+            self.callables[gamma_offset] = draft_run_capture_graph(
+                                                engine=self.engine,
+                                                gamma_offset=gamma_offset,
+                                                mempool=self.mempool,
+                                                n_warmups=3
+                                            )
+            
+        self.callable_model_verify = model_verify_capture_graph(
+                                        engine=self.engine,
+                                        mempool=self.mempool,
+                                        n_warmups=3,
+                                        gamma=gamma
+                                    )
+
+        self.engine.clear_kv()
+
+    def clear_kv(self):
+        self.engine.clear_kv()
+
+    @torch.inference_mode()
+    def graph_draft_inference(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, gamma_offset: int=0):
+        # draft run
+        logits = self.callables[gamma_offset](input_ids, storage_ids, position_ids)
+        return logits
+    
+    @torch.inference_mode()
+    def graph_draft_prefill(self, input_ids: torch.LongTensor):
+        # draft run
+        logits = self.engine.draft_run(input_ids=input_ids)
+        return logits
+
+    @torch.inference_mode()
+    def inference(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None):
+        # model run
+        return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids)
+
+    @torch.inference_mode()
+    def graph_verify(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor):
+        # model verify
+        logits = self.callable_model_verify(input_ids, storage_ids, position_ids)
+        return logits
+
+    @torch.inference_mode()
+    def graph_inference_without_capture(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, gamma_offset: int=0):
+        return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset)
+
+    def init_graph_cache(self):
+        self.engine.graph_cache.init_graph_cache(kv_cache=self.engine.kv_cache)
+
+    def update_graph_cache(self):
+        self.engine.graph_cache.update_graph_cache(kv_cache=self.engine.kv_cache)
+
+
+
+
+

@@ -101,6 +101,11 @@ class GraphInferenceEngine:
     @torch.inference_mode()
     def inference(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None):
         return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids)
+    
+
+    @torch.inference_mode()
+    def graph_inference_without_capture(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, gamma_offset: int=0):
+        return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset)
 
     def init_graph_cache(self):
         self.engine.graph_cache.init_graph_cache(kv_cache=self.engine.kv_cache)

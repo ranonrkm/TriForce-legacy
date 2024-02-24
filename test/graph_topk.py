@@ -8,7 +8,7 @@ from transformers import AutoTokenizer
 from termcolor import colored
 
 from models.modeling_llama import LlamaForCausalLM
-from models.cache_utils import FlashSimpleCache, GraphFlashStreamLLMCache, GraphFlashChunkCache
+from models.cache_utils import FlashSimpleCache, GraphFlashTopKCache
 from utils.decoding import Graph_Spec
 from utils.misc import print_config
 from utils.graph_infer import GraphInferenceEngine
@@ -81,7 +81,7 @@ else:
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashChunkCache(target, max_budget=2048, prefill=prefill, gamma=gamma, chunk_size=128)
+graph_cache = GraphFlashTopKCache(target, max_budget=2048, prefill=prefill, gamma=gamma)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
 graph_engine.initialize_cuda_graph(gamma)
 

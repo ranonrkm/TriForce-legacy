@@ -8,10 +8,11 @@ from transformers import AutoTokenizer
 from termcolor import colored
 
 from models.modeling_llama import LlamaForCausalLM
-from models.cache_utils import FlashSimpleCache, GraphFlashStreamLLMCache, GraphFlashChunkCache
-from utils.decoding import Graph_Spec
+from models.modeling_llama_68m import LlamaForCausalLM as LlamaForCausalLM_68M
+from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache, GraphFlashStreamLLMVerificationCache
+from utils.decoding import Graph_Chain_Spec
 from utils.misc import print_config
-from utils.graph_infer import GraphInferenceEngine
+from utils.chain_graph_infer import GraphInferenceEngine
 
 import argparse
 def parse_arguments():
@@ -23,7 +24,7 @@ def parse_arguments():
 
     parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
-    parser.add_argument('--gamma', type=int, default=1, help='gamma')
+    parser.add_argument('--gamma', type=int, default=6, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
@@ -74,19 +75,28 @@ if args.log_csv:
     if 'lovelace' in host:
         file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_streamllm.csv"
     else:
-        file_path = "/fsx-storygen/beidic/hanshi/LongContextInfer/test/report/A100_graph_streamllm.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_graph_streamllm.csv"
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
+# print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
+start_size = 16 + prefill // 1024
+recent_size = int(args.budget * prefill) - start_size
+
+draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
+
+####### cache init #######
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashChunkCache(target, max_budget=2048, prefill=prefill, gamma=gamma, chunk_size=128)
-graph_engine = GraphInferenceEngine(target, cache, graph_cache)
+graph_cache = GraphFlashStreamLLMVerificationCache(target, max_budget=start_size+recent_size, prefill=prefill, gamma=gamma, start_size=start_size)
+draft_cache = GraphFlashStreamEvictionCache(draft, start_size=16, recent_size=500-16, gamma=gamma)
+
+graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(gamma)
 
 cache.print_status()
 graph_cache.print_status()
+draft_cache.print_status()
 
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
@@ -94,7 +104,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate = Graph_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    acceptance_rate = Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

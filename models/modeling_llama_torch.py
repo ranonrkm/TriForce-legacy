@@ -51,6 +51,8 @@ from .configuration_llama import LlamaConfig
 
 import time
 
+from models.cache_utils import EvictStreamLLMCache
+
 
 if is_flash_attn_2_available():
     from flash_attn import flash_attn_func, flash_attn_varlen_func
@@ -601,6 +603,14 @@ class LlamaMLP(nn.Module):
 
         return down_proj
 
+def apply_rotary_pos_emb_single(x, cos, sin, position_ids):
+    # The first two dimensions of cos and sin are always 1, so we can `squeeze` them.
+    cos = cos.squeeze(1).squeeze(0)  # [seq_len, dim]
+    sin = sin.squeeze(1).squeeze(0)  # [seq_len, dim]
+    cos = cos[position_ids].unsqueeze(1)  # [bs, 1, seq_len, dim]
+    sin = sin[position_ids].unsqueeze(1)  # [bs, 1, seq_len, dim]
+    x_embed = (x * cos) + (rotate_half(x) * sin)
+    return x_embed
 
 def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     """
@@ -731,24 +741,33 @@ class LlamaAttention(nn.Module):
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
         
+        
         kv_seq_len = key_states.shape[-2]
         kv_seq_len += past_key_value.seq_len
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
 
-
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
-
-        if speculation and self.layer_idx > past_key_value.skip_start_layers:
-            assert kv_seq_len - past_key_value.seq_len == 1, "Speculation only works for one token at a time"
-            if isinstance(past_key_value, DejaVuCache):
-                key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states, attention_mask)
-            elif isinstance(past_key_value, ChunkCache):
-                key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states)
-            else:
-                key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx)
-            kv_seq_len = key_states.shape[-2]
-        else:
+        # for evict streamllm....
+        if isinstance(past_key_value, EvictStreamLLMCache):
             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx)
+            query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids)
+            key_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)
+            key_states = apply_rotary_pos_emb_single(key_states, cos, sin, key_position_ids)
+        else:
+            query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+
+
+        if not isinstance(past_key_value, EvictStreamLLMCache):
+            if speculation and self.layer_idx > past_key_value.skip_start_layers:
+                # assert kv_seq_len - past_key_value.seq_len == 1, "Speculation only works for one token at a time"
+                if isinstance(past_key_value, DejaVuCache):
+                    key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states, attention_mask)
+                elif isinstance(past_key_value, ChunkCache):
+                    key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states)
+                else:
+                    key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx)
+                kv_seq_len = key_states.shape[-2]
+            else:
+                key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx)
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)

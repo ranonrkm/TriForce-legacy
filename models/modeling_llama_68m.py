@@ -12,9 +12,6 @@ from transformers.modeling_attn_mask_utils import (
     #_prepare_4d_causal_attention_mask_for_sdpa,
 )
 
-from .modeling_llama_flash import FlashRotaryEmbedding, FlashYaRNRotaryEmbedding
-from .modeling_llama_cache import LlamaYaRNRotaryEmbedding, LlamaRotaryEmbedding
-
 from transformers.models.llama.modeling_llama import(
     LlamaRMSNorm,
     LlamaConfig,
@@ -31,6 +28,51 @@ from flash_attn import flash_attn_with_kvcache
 from .configuration_llama import LlamaConfig
 from models.cache_utils import Cache, FlashSimpleCache, GraphFlashSimpleCache, GraphFlashChunkCache, GraphFlashTopKCache, GraphFlashChunkTopKCache
 
+def rotate_half(x):
+    """Rotates half the hidden dims of the input."""
+    x1 = x[..., : x.shape[-1] // 2]
+    x2 = x[..., x.shape[-1] // 2 :]
+    return torch.cat((-x2, x1), dim=-1)
+
+def apply_rotary_pos_emb_single(x, cos, sin, position_ids, unsqueeze_dim=1):
+    # The first two dimensions of cos and sin are always 1, so we can `squeeze` them.
+
+    # print(f"x: {x.shape}, cos: {cos.shape}, sin: {sin.shape}, position_ids: {position_ids.shape}")
+    cos = cos[position_ids].unsqueeze(unsqueeze_dim)
+    sin = sin[position_ids].unsqueeze(unsqueeze_dim)
+    # print(f"cos: {cos.shape}, sin: {sin.shape}")
+    x_embed = (x * cos) + (rotate_half(x) * sin)
+    return x_embed
+
+class LlamaRotaryEmbedding(nn.Module):
+    def __init__(self, dim, max_position_embeddings=2048, base=10000, device=None):
+        super().__init__()
+        self.dim = dim
+        self.max_position_embeddings = max_position_embeddings
+        self.base = base
+        inv_freq = 1.0 / (self.base ** (torch.arange(0, self.dim, 2).float().to(device) / self.dim))
+        self.register_buffer("inv_freq", inv_freq, persistent=False)
+
+        # Build here to make `torch.jit.trace` work.
+        self._set_cos_sin_cache(
+            seq_len=max_position_embeddings, device=self.inv_freq.device, dtype=torch.get_default_dtype()
+        )
+
+    def _set_cos_sin_cache(self, seq_len, device, dtype):
+        self.max_seq_len_cached = seq_len
+        t = torch.arange(self.max_seq_len_cached, device=device, dtype=self.inv_freq.dtype)
+
+        freqs = torch.outer(t, self.inv_freq)
+        # Different from paper, but it uses a different permutation in order to obtain the same calculation
+        emb = torch.cat((freqs, freqs), dim=-1)
+        self.register_buffer("cos_cached", emb.cos().to(dtype), persistent=False)
+        self.register_buffer("sin_cached", emb.sin().to(dtype), persistent=False)
+
+    def forward(self, x,):
+        return (
+            self.cos_cached.to(dtype=x.dtype),
+            self.sin_cached.to(dtype=x.dtype),
+        )
 
 class LlamaRMSNorm(nn.Module):
     def __init__(self, hidden_size, eps=1e-6):
@@ -93,24 +135,11 @@ class LlamaAttention(nn.Module):
         self._init_rope()
 
     def _init_rope(self):
-        if self.config.rope_scaling is None:
-            self.rotary_emb = LlamaRotaryEmbedding(
-                self.head_dim,
-                max_position_embeddings=self.max_position_embeddings,
-                base=self.rope_theta,
-            )
-        else:
-            scaling_type = self.config.rope_scaling["type"]
-            scaling_factor = self.config.rope_scaling["factor"]
-            if scaling_type == "yarn":
-                original_max_position_embeddings = self.config.rope_scaling["original_max_position_embeddings"]
-                self.rotary_emb = LlamaYaRNRotaryEmbedding(
-                    self.head_dim, base=10000, scaling_factor=scaling_factor,
-                    max_position_embeddings=self.max_position_embeddings,
-                    original_max_position_embeddings=original_max_position_embeddings,
-                )
-            else:
-                raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
+        self.rotary_emb = LlamaRotaryEmbedding(
+            self.head_dim,
+            max_position_embeddings=self.max_position_embeddings,
+            base=self.rope_theta,
+        )
 
     def _shape(self, tensor: torch.Tensor, seq_len: int, bsz: int):
         return tensor.view(bsz, seq_len, self.num_heads, self.head_dim).transpose(1, 2).contiguous()
@@ -131,24 +160,46 @@ class LlamaAttention(nn.Module):
         key_states = self.k_proj(hidden_states)
         value_states = self.v_proj(hidden_states)
 
-        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
-        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim)
+        key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
 
         cos, sin = self.rotary_emb(value_states)
-        query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+
+        if storage_ids is not None: # graph spec
+            assert position_ids.shape[0] == 1
+            assert position_ids.shape[1] == 1
+
+            key_states, value_states = graph_cache.spec_update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, gamma_offset=gamma_offset)
+            
+            kv_seq_len = gamma_offset + graph_cache.start_size + graph_cache.recent_size + 1
+            # assert kv_seq_len-1 == position_ids[0,0], f"kv_seq_len: {kv_seq_len}, position_ids: {position_ids[0,0]}"
+
+            query_states = query_states.transpose(1, 2)
+            key_states = key_states.transpose(1, 2)
+
+            query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids)
+            key_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)
+            key_states = apply_rotary_pos_emb_single(key_states, cos, sin, key_position_ids)
+        
+        else: # prefill
+            kv_seq_len = key_states.shape[-3]
+            kv_seq_len += kv_cache.seq_len
+            
+            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
+            # print(f"query_states: {query_states.shape}, key_states: {key_states.shape}, value_states: {cos.shape}, seq_len: {kv_cache.seq_len}")
+
+            query_states = query_states.transpose(1, 2)
+            key_states = key_states.transpose(1, 2)
+
+            # print(f"query_states: {query_states.shape}, key_states: {key_states.shape}, value_states: {cos.shape}, position_ids: {position_ids}")
+
+            query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids)
+            key_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)
+            key_states = apply_rotary_pos_emb_single(key_states, cos, sin, key_position_ids)
+
         query_states = query_states.transpose(1, 2)
         key_states = key_states.transpose(1, 2)
-
-        if storage_ids is not None:
-            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
-        else:
-            if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashTopKCache) or isinstance(graph_cache, GraphFlashChunkTopKCache)):
-                graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
-
-            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
-            # if isinstance(graph_cache, GraphFlashChunkCache):
-            #     graph_cache.update_graph_cache(layer_idx=self.layer_idx, kv_cache=kv_cache, query_states=query_states[:,-1:])
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)

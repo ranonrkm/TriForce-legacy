@@ -72,7 +72,7 @@ for DEC_LEN in DEC_LEN_LIST:
     assert prefix.shape[-1] == PREFIX_LEN
     
     graph_engine = GraphInferenceEngine(model, cache, graph_cache)
-    graph_engine.initialize_cuda_graph([DEC_LEN])
+    graph_engine.initialize_cuda_graph(1)
 
     # graph_engine.inference(input_ids=prefix)
 

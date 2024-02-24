@@ -11,7 +11,7 @@ from termcolor import colored
 
 from models.modeling_llama_torch import LlamaForCausalLM
 from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache
-from utils.decoding import Evict_Spec_cache
+from utils.decoding import Evict_Spec_Stream
 from utils.misc import print_config
 
 import argparse
@@ -87,8 +87,7 @@ else:
 print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
 
 draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=512-16)
-target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
-# target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
+target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
 
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
@@ -96,7 +95,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(draft.device)[:,:prefill]
 
-    acceptance_rate = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
+    acceptance_rate = Evict_Spec_Stream(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

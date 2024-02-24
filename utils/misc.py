@@ -48,3 +48,31 @@ def print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperatu
     print(colored(f"Sampling Method: top_k = {top_k}, top_p = {top_p}, temperature = {temperature}", 'blue'), flush=True)
     print(colored(f"Log CSV: {file_path}", 'blue'), flush=True)
     print(colored("######################################################################################\n", 'blue'), flush=True)
+
+
+import torch
+import numpy as np
+from sklearn.cluster import KMeans
+from tqdm import tqdm
+
+def rerange_kv_cache(kv_cache, chunk_size):
+
+    num_clusters = kv_cache.seq_len // chunk_size
+    assert num_clusters * chunk_size == kv_cache.seq_len, "max_budget should be divisible by chunk_size"
+    for layer in tqdm(range(kv_cache.layers)):
+        for head_index in range(kv_cache.num_heads):
+            # (bsz, max_budget, head_dim) --> (bsz * max_budget, head_dim)
+            head_key_cache = kv_cache.key_cache[layer][:, :kv_cache.seq_len, head_index, :].reshape(-1, kv_cache.head_dim).cpu().numpy()
+            head_value_cache = kv_cache.value_cache[layer][:, :kv_cache.seq_len, head_index, :].reshape(-1, kv_cache.head_dim).cpu().numpy()
+            
+            kmeans = KMeans(n_clusters=num_clusters, random_state=head_index).fit(head_key_cache)
+            
+            labels = kmeans.labels_
+            sorted_indices = np.argsort(labels)
+            sorted_head_key = head_key_cache[sorted_indices]
+            sorted_head_value = head_value_cache[sorted_indices]
+
+        
+            kv_cache.key_cache[layer][:, :kv_cache.seq_len, head_index, :] = torch.tensor(sorted_head_key, device=kv_cache.key_cache.device).reshape(1, kv_cache.seq_len, kv_cache.head_dim)
+            kv_cache.value_cache[layer][:, :kv_cache.seq_len, head_index, :] = torch.tensor(sorted_head_value, device=kv_cache.key_cache.device).reshape(1, kv_cache.seq_len, kv_cache.head_dim)
+    print(f"Rerange KV cache complete, Seq_len: {kv_cache.seq_len}, Chunk_size: {chunk_size}, Clusters: {num_clusters}")
