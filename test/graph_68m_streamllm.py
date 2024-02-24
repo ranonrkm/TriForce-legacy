@@ -84,12 +84,14 @@ else:
 start_size = 16 + prefill // 1024
 recent_size = int(args.budget * prefill) - start_size
 
-draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
+# draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
+
+draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 
 ####### cache init #######
 cache = FlashSimpleCache(target, prefill+gen_len+16)
 graph_cache = GraphFlashStreamLLMVerificationCache(target, max_budget=start_size+recent_size, prefill=prefill, gamma=gamma, start_size=start_size)
-draft_cache = GraphFlashStreamEvictionCache(draft, start_size=16, recent_size=500-16, gamma=gamma)
+draft_cache = GraphFlashStreamEvictionCache(draft, start_size=16, recent_size=250-16, gamma=gamma)
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(gamma)
