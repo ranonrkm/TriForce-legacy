@@ -1524,8 +1524,7 @@ class GraphFlashChunkTopKVerificationCache(Cache):
 
         self.key_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
         self.value_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
-        self.chunk_k = torch.zeros([self.layers, 1, self.chunks, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
-    
+
     def print_status(self):
         print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets)
 
@@ -1537,10 +1536,9 @@ class GraphFlashChunkTopKVerificationCache(Cache):
 
         assert 1 == query_states.shape[1], "query_states should be 1 for init"
 
-        self.chunk_k = kv_cache.key_cache[:,:,:self.prefill].view(-1, 1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
+        chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].view(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
         
-        
-        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), self.chunk_k[layer_idx].permute(0, 2, 3, 1)).squeeze(2) # (bsz, 32, chunks)
+        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 2, 3, 1)).squeeze(2) # (bsz, 32, chunks)
         _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
         topk_idx_rest += 1
         topk_idx_first = torch.zeros((topk_idx_rest.shape[0], topk_idx_rest.shape[1], 1), device=topk_idx_rest.device, dtype=topk_idx_rest.dtype)
@@ -1583,7 +1581,6 @@ class GraphFlashChunkTopKVerificationCache(Cache):
     def reset(self):
         self.key_cache.zero_()
         self.value_cache.zero_()
-        self.chunk_k.zero_()
 
 class GraphFlashStreamEvictionCache(Cache):
 
