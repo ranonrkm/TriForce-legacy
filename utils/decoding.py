@@ -888,6 +888,9 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
         for i in range(gamma2 + 1):
             verify_probs.append(norm_logits(logits[:, i, :], temperature=temperature ,top_k=top_k, top_p=top_p)[0])
 
+        # for i in range(gamma2 + 1):
+        #     verify_probs.append(torch.nn.functional.softmax(logits[:, i, :], dim=-1)[0])
+
         # print(generated_ids, len(speculation_probs), len(verify_probs))
         for i, speculation_prob, verify_prob in zip(generated_ids, speculation_probs, verify_probs):
             r = torch.rand(1, device = graph_engine.engine.model.device)
