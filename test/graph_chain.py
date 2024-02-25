@@ -13,12 +13,14 @@ from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache_V
 from utils.decoding import Graph_Chain_V2
 from utils.misc import print_config
 from utils.chain_infer import GraphInferenceEngine
-
+import socket
+host = socket.gethostname()
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
 
     parser.add_argument('--target', type=str, default='llama-7B-128K', help='target model')
+    parser.add_argument('--draft', type=str, default='llama-68M', help='draft model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
 
@@ -70,8 +72,6 @@ gamma = args.gamma
 verbose = args.verbose
 
 if args.log_csv:
-    import socket
-    host = socket.gethostname()
     if 'lovelace' in host:
         file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_streamllm.csv"
     else:
@@ -79,14 +79,23 @@ if args.log_csv:
 else:
     file_path = None
 
-# print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
+if 'lovelace' in host:
+    align_ckpt = "/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125"
+else:
+    align_ckpt = "/fsx-storygen/beidic/hanshi/ckpts/Base-128K-256/step_11696"
+
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Graph Chain Spec", spec_args={'budget': args.budget, 'draft': args.draft}, dataset=args.dataset)
 
 start_size = 16 + prefill // 1024
 recent_size = int(args.budget * prefill) - start_size
 
 # draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
-
-draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
+if args.draft == 'llama-68M':
+    draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
+elif args.draft == 'llama-68M-align':
+    draft = LlamaForCausalLM_68M.from_pretrained(align_ckpt, torch_dtype=torch.float16, device_map="auto")
+else:
+    raise NotImplementedError
 
 ####### cache init #######
 cache = FlashSimpleCache(target, prefill+gen_len+16)

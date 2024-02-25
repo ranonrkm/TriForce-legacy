@@ -54,8 +54,8 @@ class InferenceEngine:
             logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
 
         if probs: # without top_p
-            return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
-            # return norm_logits(logits[0])[-1]
+            # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
+            return norm_logits(logits[0], temperature=0.6, top_k=-1, top_p=0.9)[-1]
         return logits
 
     @torch.inference_mode()
