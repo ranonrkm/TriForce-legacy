@@ -1572,3 +1572,73 @@ class GraphFlashStreamEvictionCache(Cache):
         self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
         self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
 
+class GraphFlashStreamEvictionCache_V2(Cache):
+
+    def __init__(self, model, gamma=6, start_size=16, recent_size=496) -> None:
+
+        self.gamma = gamma
+        self.start_size = start_size
+        self.recent_size = recent_size
+        self.real_budget = self.start_size + self.recent_size + self.gamma + 1 # (gamma+1 is for spec and bonus sample)
+
+        self.seq_len = 0 # just for prefill usage
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        self.key_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
+        self.value_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
+    
+    def print_status(self):
+        print("Start Size:", self.start_size, "| Recent Size:", self.recent_size, "| Gamma:", self.gamma, "| Real Budget:", self.real_budget, "| Cached:", self.seq_len)
+
+    def update(self, key_states: torch.Tensor, value_states: torch.Tensor, layer_idx: int):
+        
+        incoming = key_states.shape[-3]
+
+        assert self.seq_len + incoming <= self.start_size + self.recent_size
+        self.key_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = key_states
+        self.value_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = value_states
+
+        key = self.key_cache[layer_idx][:, :self.seq_len + incoming]
+        value = self.value_cache[layer_idx][:, :self.seq_len + incoming]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += incoming
+        return key, value
+
+    def spec_update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, gamma_offset=0):
+
+        start = self.real_budget-self.gamma-1
+        end = self.real_budget-self.gamma-1+new_k_cache.shape[-3]
+
+        self.key_cache[layer_idx][:, start:end] = new_k_cache
+        self.value_cache[layer_idx][:, start:end] = new_v_cache
+
+        return self.key_cache[layer_idx][:,:end], self.value_cache[layer_idx][:,:end]
+
+    def reset(self):
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def evict_prefill(self, incoming):
+        # evict
+        if self.seq_len + incoming <= self.start_size + self.recent_size:
+            return
+        for layer_idx in range(self.layers):
+            size_keep = self.recent_size - incoming
+            self.key_cache[layer_idx][:, self.start_size:self.start_size+size_keep] = self.key_cache[layer_idx][:, self.seq_len-size_keep:self.seq_len].clone()
+            self.value_cache[layer_idx][:, self.start_size:self.start_size+size_keep] = self.value_cache[layer_idx][:, self.seq_len-size_keep:self.seq_len].clone()
+
+        self.seq_len = self.start_size + self.recent_size - incoming
+
+    def evict_for_spec(self, current_seq_len):
+        self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
+        self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
+

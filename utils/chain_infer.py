@@ -9,6 +9,8 @@ import gc
 import math
 from tqdm import tqdm
 
+from .sampling import norm_logits
+
 class InferenceEngine:
     def __init__(self, model, cache, graph_cache, draft, draft_cache) -> None:
 
@@ -24,7 +26,7 @@ class InferenceEngine:
         self.draft_cache = draft_cache
 
     @torch.inference_mode()
-    def model_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0):
+    def model_run(self, input_ids: torch.LongTensor):
         if input_ids.shape[-1] > 1024: # prefill
             iter_prefill = math.ceil(input_ids.shape[1] / 100)
             for i in tqdm(range(iter_prefill)):
@@ -49,10 +51,11 @@ class InferenceEngine:
                     graph_cache=None,
                 ).logits
         else: # decoding
-            logits = self.draft(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
+            logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
 
         if probs: # without top_p
-            return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
+            return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
+            # return norm_logits(logits[0])[-1]
         return logits
 
     @torch.inference_mode()
@@ -60,7 +63,8 @@ class InferenceEngine:
         # graph verification (used for cuda graph capture)
         logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
         if probs: # without top_p
-            return torch.nn.functional.softmax(logits/0.6, dim=-1)
+            return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
+            # return norm_logits(logits[0], temperature=0.6, top_k=1, top_p=-1)
         return logits
 
     def clear_kv(self):
@@ -72,27 +76,22 @@ def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempo
     device = engine.draft.device
     
     # draft run is incremental decoding
-    static_input_ids = torch.full((1, 1), 0, dtype=torch.long, device=device)
-    static_storage_ids = torch.arange(1, device=device)
-    static_position_ids = torch.tensor([[gamma_offset + engine.draft_cache.start_size + engine.draft_cache.recent_size]], device=device)
-    
+    static_input_ids = torch.full((1, gamma_offset+1), 0, dtype=torch.long, device=device)
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_logits = engine.draft_run(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, gamma_offset=gamma_offset, probs=probs)
+            static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
 
     print(f"[draft run] capturing graph for {gamma_offset}...")
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_logits = engine.draft_run(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, gamma_offset=gamma_offset, probs=probs)
+        static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
     
-    def run(input_ids, storage_ids, position_ids):
+    def run(input_ids):
         static_input_ids.copy_(input_ids)
-        static_storage_ids.copy_(storage_ids)
-        static_position_ids.copy_(position_ids)
         graph.replay()
         return static_logits.clone()
 
@@ -150,7 +149,7 @@ class GraphInferenceEngine:
                                                 n_warmups=3,
                                                 probs=probs
                                             )
-            
+
         self.callable_model_verify = model_verify_capture_graph(
                                         engine=self.engine,
                                         mempool=self.mempool,
@@ -165,10 +164,9 @@ class GraphInferenceEngine:
         self.engine.clear_kv()
 
     @torch.inference_mode()
-    def graph_draft_inference(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, gamma_offset: int=0):
+    def graph_draft_inference(self, input_ids: torch.LongTensor, gamma_offset: int=0):
         # draft run
-        logits = self.callables[gamma_offset](input_ids, storage_ids, position_ids)
-        return logits
+        return self.callables[gamma_offset](input_ids)
     
     @torch.inference_mode()
     def graph_draft_prefill(self, input_ids: torch.LongTensor):
@@ -177,21 +175,14 @@ class GraphInferenceEngine:
         return logits
 
     @torch.inference_mode()
-    def inference(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None):
+    def inference(self, input_ids: torch.LongTensor):
         # model run
-        return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids)
+        return self.engine.model_run(input_ids=input_ids)
 
     @torch.inference_mode()
-    def graph_verify(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, probs=False):
+    def graph_verify(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor):
         # model verify
-        logits = self.callable_model_verify(input_ids, storage_ids, position_ids)
-        if probs:
-            return torch.nn.functional.softmax(logits/0.6, dim=-1)
-        return logits
-
-    @torch.inference_mode()
-    def graph_inference_without_capture(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor, gamma_offset: int=0):
-        return self.engine.model_run(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset)
+        return self.callable_model_verify(input_ids, storage_ids, position_ids)
 
     def init_graph_cache(self):
         self.engine.graph_cache.init_graph_cache(kv_cache=self.engine.kv_cache)
