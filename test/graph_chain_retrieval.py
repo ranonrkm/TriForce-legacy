@@ -10,7 +10,7 @@ from termcolor import colored
 from models.modeling_llama import LlamaForCausalLM
 from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
 from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache_V2, GraphFlashStreamLLMVerificationCache, GraphFlashChunkTopKVerificationCache
-from utils.decoding import Graph_Chain_V2
+from utils.decoding import Graph_Chain_V2, Graph_Chain_Retrieval_Spec
 from utils.misc import print_config
 from utils.chain_infer import GraphInferenceEngine
 import socket
@@ -84,10 +84,10 @@ if 'lovelace' in host:
 else:
     align_ckpt = "/fsx-storygen/beidic/hanshi/ckpts/Base-128K-256/step_11696"
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Graph Chain Spec", spec_args={'budget': args.budget, 'draft': args.draft}, dataset=args.dataset)
+chunk_size = 8
+max_budget = int(args.budget * prefill) // chunk_size * chunk_size
 
-start_size = 16 + prefill // 1024
-recent_size = int(args.budget * prefill) - start_size
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Graph Chain Spec (Retrieval)", spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size}, dataset=args.dataset)
 
 # draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
 if args.draft == 'llama-68M':
@@ -99,7 +99,7 @@ else:
 
 ####### cache init #######
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashStreamLLMVerificationCache(target, max_budget=start_size+recent_size, prefill=prefill, gamma=gamma, start_size=start_size)
+graph_cache = GraphFlashChunkTopKVerificationCache(target, max_budget=max_budget, prefill=prefill, gamma=gamma, chunk_size=chunk_size)
 draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=250-16, gamma=gamma)
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
@@ -115,7 +115,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate = Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    acceptance_rate = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

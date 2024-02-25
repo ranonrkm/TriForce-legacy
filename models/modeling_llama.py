@@ -29,7 +29,7 @@ from transformers.modeling_outputs import CausalLMOutputWithPast
 from flash_attn import flash_attn_with_kvcache
 
 from .configuration_llama import LlamaConfig
-from models.cache_utils import Cache, FlashSimpleCache, GraphFlashSimpleCache, GraphFlashChunkCache, GraphFlashTopKCache, GraphFlashChunkTopKCache
+from models.cache_utils import Cache, FlashSimpleCache, GraphFlashSimpleCache, GraphFlashChunkCache, GraphFlashTopKCache, GraphFlashChunkTopKCache, GraphFlashChunkTopKVerificationCache
 
 
 class LlamaRMSNorm(nn.Module):
@@ -143,7 +143,7 @@ class LlamaAttention(nn.Module):
         if storage_ids is not None:
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
         else:
-            if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashTopKCache) or isinstance(graph_cache, GraphFlashChunkTopKCache)):
+            if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashTopKCache) or isinstance(graph_cache, GraphFlashChunkTopKCache)  or isinstance(graph_cache, GraphFlashChunkTopKVerificationCache)):
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
