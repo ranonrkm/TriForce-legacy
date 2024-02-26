@@ -35,10 +35,10 @@ class SimpleCache(Cache):
                 device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
                 dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
             else:
-                device = model.device
-                dtype = torch.float16
-                # device = model.model.layers[i].self_attn.q_proj.weight.device
-                # dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+                # device = model.device
+                # dtype = torch.float16
+                device = model.model.layers[i].self_attn.q_proj.weight.device
+                dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
             self.key_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
             self.value_cache.append(torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device))
 

@@ -38,8 +38,8 @@ args = parse_arguments()
 ######## model initialization ########
 
 if args.draft == 'llama-68m-256':
-    # draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
-    draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
+    draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
+    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-160m':
     draft = LlamaForCausalLM.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-7B':
@@ -49,7 +49,7 @@ else:
     draft = LlamaForCausalLM.from_pretrained(args.draft, torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
-    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:0")
+    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 else:
     target = LlamaForCausalLM.from_pretrained(args.target, torch_dtype=torch.float16, device_map="auto")
 
@@ -61,7 +61,7 @@ tokenizer = AutoTokenizer.from_pretrained("JackFram/llama-68m", legacy=False, us
 ######## sampling parameters ########
 
 if args.greedy:
-    top_k = -1
+    top_k = 1
     top_p = 1
     temperature = 1
 else:
@@ -100,7 +100,10 @@ all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
-    input_ids = input_ids.to(draft.device)[:,:prefill]
+    if prefill < 4096:
+        input_ids = input_ids.to(draft.device)[:,2048:prefill+2048]
+    else:
+        input_ids = input_ids.to(draft.device)[:,:prefill]
 
     acceptance_rate = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
     all_acceptance_rate.append(acceptance_rate)

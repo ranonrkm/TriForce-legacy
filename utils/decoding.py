@@ -1,8 +1,7 @@
 import torch
 import math
 import time
-
-
+import numpy as np
 import os
 import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -849,7 +848,7 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
     if verbose:
         spec_stream(next_token[0], tokenizer, 'cyan')
 
-
+    acc_rate_middle_list = []
     n = 0
     time1 = time.time()
     while n < max_len:
@@ -858,7 +857,8 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
         
         # speculative decoding for draft (68m) and streamllm 7b model
         pred_token_idx = next_token
-        verify_tokens, speculation_probs = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
         # print(next_token, verify_tokens)
@@ -944,8 +944,8 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset\n"
-    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset}\n"
+    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
+    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
     # add sepc_args
     if spec_args is not None:
         for k, v in spec_args.items():
@@ -1134,11 +1134,11 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
     #     assert torch.allclose(return_speculation_probs[i], verify_prob[i]), i
     # exit()
     # time2 = time.time()
-    # acceptance_rate = accepted_count / draft_count
+    acceptance_rate = accepted_count / draft_count
     # avg_tokens = accepted_count / draft_count * gamma
     # print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
-    return return_generated_ids, return_speculation_probs
+    return return_generated_ids, return_speculation_probs, acceptance_rate
 
 @torch.inference_mode()
 def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
@@ -1168,7 +1168,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
     if verbose:
         spec_stream(next_token[0], tokenizer, 'cyan')
 
-
+    acc_rate_middle_list = []
     n = 0
     time1 = time.time()
     while n < max_len:
@@ -1177,7 +1177,8 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         
         # speculative decoding for draft (68m) and streamllm 7b model
         pred_token_idx = next_token
-        verify_tokens, speculation_probs = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
         # print(next_token, verify_tokens)
@@ -1263,8 +1264,8 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset\n"
-    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset}\n"
+    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
+    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
     # add sepc_args
     if spec_args is not None:
         for k, v in spec_args.items():

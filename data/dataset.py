@@ -23,7 +23,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         return tokenized_prompts
 
     elif dataset_name == 'c4':
-        dataset = load_dataset("c4", 'en', split='train', streaming=True, trust_remote_code=True)
+        dataset = load_dataset("c4", 'en', split='train', streaming=True)
         dataset_head = list(dataset.take(60000))
         c4_idx = json.load(open(f"data/json/c4.json", "r"))['4096']
         tokenized_prompts = []
@@ -46,26 +46,39 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         
         tokenized_prompts = []
 
-        for i in tqdm(test_idx):
-            prompt = dataset['test'][i]['text'][:datalen*5]
-            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
-            if datalen == 32*1024:
-                if tokenized_prompt.shape[1] == 32*1024:
-                    tokenized_prompts.append(tokenized_prompt)
-            else:
+        if datalen < 4096:
+            for i in tqdm(test_idx):
+                prompt = dataset['test'][i]['text'][:4096*5]
+                tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :4096]
                 tokenized_prompts.append(tokenized_prompt)
-            # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
-        
-        for i in tqdm(valid_idx):
-            prompt = dataset['validation'][i]['text'][:datalen*5]
-            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
-            if datalen == 32*1024:
-                if tokenized_prompt.shape[1] == 32*1024:
-                    tokenized_prompts.append(tokenized_prompt)
-            # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
-            else:
+                # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+            
+            for i in tqdm(valid_idx):
+                prompt = dataset['validation'][i]['text'][:4096*5]
+                tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :4096]
                 tokenized_prompts.append(tokenized_prompt)
-        return tokenized_prompts
+            return tokenized_prompts
+        else:
+            for i in tqdm(test_idx):
+                prompt = dataset['test'][i]['text'][:datalen*5]
+                tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
+                if datalen == 32*1024:
+                    if tokenized_prompt.shape[1] == 32*1024:
+                        tokenized_prompts.append(tokenized_prompt)
+                else:
+                    tokenized_prompts.append(tokenized_prompt)
+                # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+            
+            for i in tqdm(valid_idx):
+                prompt = dataset['validation'][i]['text'][:datalen*5]
+                tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :datalen]
+                if datalen == 32*1024:
+                    if tokenized_prompt.shape[1] == 32*1024:
+                        tokenized_prompts.append(tokenized_prompt)
+                # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
+                else:
+                    tokenized_prompts.append(tokenized_prompt)
+            return tokenized_prompts
     
     elif dataset_name == 'benchmark':
         dataset = load_dataset("emozilla/pg19")
