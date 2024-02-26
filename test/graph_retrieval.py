@@ -72,9 +72,9 @@ if args.log_csv:
     import socket
     host = socket.gethostname()
     if 'lovelace' in host:
-        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_chain_retrieval.csv"
+        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_retrieval.csv"
     else:
-        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_graph_chain_retrieval.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_graph_retrieval.csv"
 else:
     file_path = None
 
