@@ -1,4 +1,8 @@
-# CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 4096 --budget 0.1 --log_csv
+CUDA_VISIBLE_DEVICES=4 nohup python test/streamllm.py --dataset pg19 --prefill 2048 --budget 0.1 --log_csv > archive/log/evict_0.log &
+CUDA_VISIBLE_DEVICES=5 nohup python test/streamllm.py --dataset pg19 --prefill 4096 --budget 0.1 --log_csv > archive/log/evict_0.log &
+CUDA_VISIBLE_DEVICES=6 nohup python test/streamllm.py --dataset pg19 --prefill 8192 --budget 0.1 --log_csv > archive/log/evict_0.log &
+
+CUDA_VISIBLE_DEVICES=7 nohup python test/streamllm.py --dataset pg19 --prefill 49152 --budget 0.1 --log_csv > archive/log/evict_0.log &
 # CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 4096 --budget 0.1 --log_csv
 # CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset pg19 --prefill 4096 --budget 0.08 --log_csv
 # CUDA_VISIBLE_DEVICES=1 python test/streamllm.py --dataset password --prefill 4096 --budget 0.08 --log_csv

@@ -748,6 +748,7 @@ class LlamaAttention(nn.Module):
 
         # for evict streamllm....
         if isinstance(past_key_value, EvictStreamLLMCache):
+            # print(position_ids,kv_seq_len)
             key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx)
             query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids)
             key_position_ids = torch.arange(kv_seq_len, device=position_ids.device).unsqueeze(0)

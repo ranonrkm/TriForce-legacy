@@ -1,4 +1,6 @@
-# CUDA_VISIBLE_DEVICES=7 python test/retrieval.py --dataset pg19 --prefill 4096 --budget 0.1 --log_csv --chunk_size 256
+
+CUDA_VISIBLE_DEVICES=6 python test/retrieval.py --dataset pg19 --prefill 2048 --budget 0.1 --log_csv --chunk_size 128
+
 # CUDA_VISIBLE_DEVICES=7 python test/retrieval.py --dataset password --prefill 4096 --budget 0.1 --log_csv --chunk_size 256
 # CUDA_VISIBLE_DEVICES=7 python test/retrieval.py --dataset pg19 --prefill 4096 --budget 0.08 --log_csv --chunk_size 256
 # CUDA_VISIBLE_DEVICES=7 python test/retrieval.py --dataset password --prefill 4096 --budget 0.08 --log_csv --chunk_size 256

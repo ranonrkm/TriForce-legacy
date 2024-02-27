@@ -462,13 +462,11 @@ class EvictStreamLLMCache(Cache):
         # print(self.seq_len, incoming, self.start_size, self.recent_size)
         if self.seq_len + incoming <= self.start_size + self.recent_size:
             return
+        # print(self.seq_len, incoming, self.start_size, self.recent_size, self.seq_len-(self.recent_size - incoming))
         for layer_idx in range(self.layers):
             size_keep = self.recent_size - incoming
-            self.key_cache[layer_idx][:, :, self.start_size:-incoming] = self.key_cache[layer_idx][:, :, self.seq_len-size_keep:self.seq_len]
-            self.value_cache[layer_idx][:, :, self.start_size:-incoming] = self.value_cache[layer_idx][:, :, self.seq_len-size_keep:self.seq_len]
-
-        # print(self.value_cache[layer_idx][:, :, self.start_size:-incoming].shape)
-
+            self.key_cache[layer_idx][:, :, self.start_size:-incoming] = self.key_cache[layer_idx][:, :, self.seq_len-size_keep:self.seq_len].clone()
+            self.value_cache[layer_idx][:, :, self.start_size:-incoming] = self.value_cache[layer_idx][:, :, self.seq_len-size_keep:self.seq_len].clone()
 
         self.seq_len = self.start_size + self.recent_size - incoming
 
@@ -1421,8 +1419,8 @@ class GraphFlashChunkTopKCache(Cache):
 
 
     def update_graph_cache(self, kv_cache=None):
-        self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len]
-        self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len]
+        self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len].clone()
+        self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len].clone()
 
     def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None, gamma_offset=0):
 
@@ -1431,8 +1429,8 @@ class GraphFlashChunkTopKCache(Cache):
         assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
         assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_k_cache
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_v_cache
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1]
 
@@ -1476,8 +1474,8 @@ class GraphFlashStreamLLMVerificationCache(Cache):
         assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
         assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_k_cache
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_v_cache
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:self.real_budget], self.value_cache[layer_idx][:,:self.real_budget]
 
@@ -1490,15 +1488,15 @@ class GraphFlashStreamLLMVerificationCache(Cache):
         assert self.prefill == kv_cache.seq_len, f"expected prefill {self.prefill}, got {kv_cache.seq_len}"
 
         for layer in range(self.layers):
-            self.key_cache[layer][:, :self.start_size] = kv_cache.key_cache[layer][:, :self.start_size]
-            self.key_cache[layer][:, self.start_size:-self.gamma-1] = kv_cache.key_cache[layer][:, -self.recent_size + self.prefill:self.prefill]
-            self.value_cache[layer][:, :self.start_size] = kv_cache.value_cache[layer][:, :self.start_size]
-            self.value_cache[layer][:, self.start_size:-self.gamma-1] = kv_cache.value_cache[layer][:, -self.recent_size + self.prefill:self.prefill]
+            self.key_cache[layer][:, :self.start_size] = kv_cache.key_cache[layer][:, :self.start_size].clone()
+            self.key_cache[layer][:, self.start_size:-self.gamma-1] = kv_cache.key_cache[layer][:, -self.recent_size + self.prefill:self.prefill].clone()
+            self.value_cache[layer][:, :self.start_size] = kv_cache.value_cache[layer][:, :self.start_size].clone()
+            self.value_cache[layer][:, self.start_size:-self.gamma-1] = kv_cache.value_cache[layer][:, -self.recent_size + self.prefill:self.prefill].clone()
 
     def update_graph_cache(self, kv_cache):
         # !!! can be optimized (we can only replace one part of it!)
-        self.key_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.key_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len]
-        self.value_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.value_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len]
+        self.key_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.key_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len].clone()
+        self.value_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.value_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len].clone()
 
 class GraphFlashChunkTopKVerificationCache(Cache):
     def __init__(self, model, max_budget=1024, prefill=1024, chunk_size=8, gamma=6) -> None:
@@ -1553,17 +1551,17 @@ class GraphFlashChunkTopKVerificationCache(Cache):
         key_ = key_.permute(0, 1, 3, 2, 4)
         result_tensor = torch.gather(key_, 1, expanded_index_tensor) # (bsz, select_sets, 32, chunk_size, head_dim)
         # (bsz, select_sets, 32, chunk_size, head_dim) --> (bsz, select_sets*chunk_size, 32, head_dim)
-        self.key_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim)
+        self.key_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
 
         value_ = kv_cache.value_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim)
         value_ = value_.permute(0, 1, 3, 2, 4)
         result_tensor = torch.gather(value_, 1, expanded_index_tensor)
-        self.value_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim)
+        self.value_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
 
 
     def update_graph_cache(self, kv_cache=None):
-        self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len]
-        self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len]
+        self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len].clone()
+        self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len].clone()
 
     def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None, gamma_offset=0):
 
@@ -1573,8 +1571,8 @@ class GraphFlashChunkTopKVerificationCache(Cache):
         assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
         assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_k_cache
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_v_cache
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:self.real_budget], self.value_cache[layer_idx][:,:self.real_budget]
 
@@ -1612,8 +1610,8 @@ class GraphFlashStreamEvictionCache(Cache):
         incoming = key_states.shape[-3]
 
         assert self.seq_len + incoming <= self.start_size + self.recent_size
-        self.key_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = key_states
-        self.value_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = value_states
+        self.key_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = key_states.clone()
+        self.value_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :self.seq_len + incoming]
         value = self.value_cache[layer_idx][:, :self.seq_len + incoming]
@@ -1629,8 +1627,8 @@ class GraphFlashStreamEvictionCache(Cache):
         assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
         assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1+gamma_offset] = new_k_cache
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1+gamma_offset] = new_v_cache
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma-1+gamma_offset] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma-1+gamma_offset] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset]
 
@@ -1651,8 +1649,8 @@ class GraphFlashStreamEvictionCache(Cache):
         self.seq_len = self.start_size + self.recent_size - incoming
 
     def evict_for_spec(self, current_seq_len):
-        self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
-        self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
+        self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
+        self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
 
 class GraphFlashStreamEvictionCache_V2(Cache):
 
@@ -1684,8 +1682,8 @@ class GraphFlashStreamEvictionCache_V2(Cache):
         incoming = key_states.shape[-3]
 
         assert self.seq_len + incoming <= self.start_size + self.recent_size
-        self.key_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = key_states
-        self.value_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = value_states
+        self.key_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = key_states.clone()
+        self.value_cache[layer_idx][:, self.seq_len:self.seq_len + incoming] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :self.seq_len + incoming]
         value = self.value_cache[layer_idx][:, :self.seq_len + incoming]
@@ -1699,8 +1697,8 @@ class GraphFlashStreamEvictionCache_V2(Cache):
         start = self.real_budget-self.gamma-1
         end = self.real_budget-self.gamma-1+new_k_cache.shape[-3]
 
-        self.key_cache[layer_idx][:, start:end] = new_k_cache
-        self.value_cache[layer_idx][:, start:end] = new_v_cache
+        self.key_cache[layer_idx][:, start:end] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, start:end] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:end], self.value_cache[layer_idx][:,:end]
 
@@ -1721,6 +1719,6 @@ class GraphFlashStreamEvictionCache_V2(Cache):
         self.seq_len = self.start_size + self.recent_size - incoming
 
     def evict_for_spec(self, current_seq_len):
-        self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
-        self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len]
+        self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
+        self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
 
