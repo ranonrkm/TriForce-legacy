@@ -10,8 +10,9 @@ from transformers import AutoTokenizer
 from termcolor import colored
 
 from models.modeling_llama_torch import LlamaForCausalLM
-from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache
-from utils.decoding import Evict_Spec_Evict
+from models.modeling_llama_68m_forward import LlamaForCausalLM as LlamaForCausalLM_68m
+from models.cache_utils import SimpleCache, StreamLLMCache
+from utils.decoding import Recomp_Spec
 from utils.misc import print_config
 
 import argparse
@@ -37,16 +38,7 @@ args = parse_arguments()
 
 ######## model initialization ########
 
-if args.draft == 'llama-68m-256':
-    draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
-    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-160m':
-    draft = LlamaForCausalLM.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-7B':
-    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:1")
-    draft = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:1")
-else:
-    draft = LlamaForCausalLM.from_pretrained(args.draft, torch_dtype=torch.float16, device_map="auto")
+draft = LlamaForCausalLM_68m.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
@@ -81,19 +73,14 @@ if args.log_csv:
     import socket
     host = socket.gethostname()
     if 'lovelace' in host:
-        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_evict4evict.csv"
+        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_recomp.csv"
     else:
-        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_evict4evict.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_recomp.csv"
 else:
     file_path = None
 
-
-
-# print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
-
-
-draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=256-16)
-target_cache = EvictStreamLLMCache(target, start_size=16, recent_size=4096-16)
+target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
+# target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
 
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
@@ -104,7 +91,7 @@ for input_ids in tokenized_prompts:
     else:
         input_ids = input_ids.to(draft.device)[:,:prefill]
 
-    acceptance_rate = Evict_Spec_Evict(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
+    acceptance_rate = Recomp_Spec(tokenizer, target, target_cache, draft, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

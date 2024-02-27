@@ -1,0 +1,9 @@
+CUDA_VISIBLE_DEVICES=1 python test/recomp_7b.py  --verbose --prefill 1 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=6 python test/recomp_7b.py  --verbose --prefill 256 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=7 python test/recomp_7b.py  --verbose --prefill 512 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=1 python test/recomp_7b.py  --verbose --prefill 2048 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=2 python test/recomp_7b.py  --verbose --prefill 4096 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=3 python test/recomp_7b.py  --verbose --prefill 8192 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=4 python test/recomp_7b.py  --verbose --prefill 16384 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=5 python test/recomp_7b.py  --verbose --prefill 32768 --dataset pg19 --log_csv
+CUDA_VISIBLE_DEVICES=8 python test/recomp_7b.py  --verbose --prefill 49152 --dataset pg19 --log_csv

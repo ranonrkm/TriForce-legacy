@@ -64,7 +64,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.6
+    temperature = 0.8
 
 prefill = args.prefill
 gen_len = args.gen_len

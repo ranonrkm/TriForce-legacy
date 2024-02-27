@@ -1439,7 +1439,6 @@ class GraphFlashChunkTopKCache(Cache):
         self.value_cache.zero_()
         self.chunk_k.zero_()
 
-
 class GraphFlashStreamLLMVerificationCache(Cache):
 
     def __init__(self, model, max_budget=1024, prefill=2048, gamma=6, start_size=16) -> None:

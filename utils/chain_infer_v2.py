@@ -41,21 +41,11 @@ class InferenceEngine:
 
     @torch.inference_mode()
     def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0, probs=False):
-        if input_ids.shape[-1] > 64: # prefill
-            iter_prefill = math.ceil(input_ids.shape[1] / 64)
-            for i in tqdm(range(iter_prefill)):
-                self.draft_cache.evict_prefill(64)
-                logits = self.draft(
-                    input_ids=input_ids[:, i*64:(i+1)*64],
-                    kv_cache=self.draft_cache,
-                    graph_cache=None,
-                ).logits
-        else: # decoding
-            logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
+        logits = self.draft(input_ids=input_ids).logits
 
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
-            return norm_logits(logits[0], temperature=0.8, top_k=-1, top_p=0.9)[-1]
+            return norm_logits(logits[0], temperature=0.6, top_k=-1, top_p=0.9)[-1]
         return logits
 
     @torch.inference_mode()
@@ -64,7 +54,7 @@ class InferenceEngine:
         logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
-            return norm_logits(logits[0], temperature=0.8, top_k=-1, top_p=0.9)
+            return norm_logits(logits[0], temperature=0.6, top_k=-1, top_p=0.9)
         return logits
 
     def clear_kv(self):
@@ -72,23 +62,23 @@ class InferenceEngine:
         self.graph_cache.reset()
         self.draft_cache.reset()
 
-def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3, probs=False):
+def draft_run_capture_graph(engine :InferenceEngine, mempool=None, n_warmups :int=3, probs=False):
     device = engine.draft.device
     
     # draft run is incremental decoding
-    static_input_ids = torch.full((1, gamma_offset+1), 0, dtype=torch.long, device=device)
+    static_input_ids = torch.full((1, 256), 0, dtype=torch.long, device=device)
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
+            static_logits = engine.draft_run(input_ids=static_input_ids, probs=probs)
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
 
-    print(f"[draft run] capturing graph for {gamma_offset}...")
+    print(f"[draft run] capturing graph...")
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
+        static_logits = engine.draft_run(input_ids=static_input_ids, probs=probs)
     
     def run(input_ids):
         static_input_ids.copy_(input_ids)
@@ -141,14 +131,12 @@ class GraphInferenceEngine:
         
 
 
-        for gamma_offset in range(gamma+1):
-            self.callables[gamma_offset] = draft_run_capture_graph(
-                                                engine=self.engine,
-                                                gamma_offset=gamma_offset,
-                                                mempool=self.mempool,
-                                                n_warmups=3,
-                                                probs=probs
-                                            )
+        self.callable_draft_infer = draft_run_capture_graph(
+                                        engine=self.engine,
+                                        mempool=self.mempool,
+                                        n_warmups=3,
+                                        probs=probs
+                                    )
 
         self.callable_model_verify = model_verify_capture_graph(
                                         engine=self.engine,
@@ -166,13 +154,7 @@ class GraphInferenceEngine:
     @torch.inference_mode()
     def graph_draft_inference(self, input_ids: torch.LongTensor, gamma_offset: int=0):
         # draft run
-        return self.callables[gamma_offset](input_ids)
-    
-    @torch.inference_mode()
-    def graph_draft_prefill(self, input_ids: torch.LongTensor):
-        # draft run
-        logits = self.engine.draft_run(input_ids=input_ids)
-        return logits
+        return self.callable_draft_infer(input_ids)
 
     @torch.inference_mode()
     def inference(self, input_ids: torch.LongTensor):

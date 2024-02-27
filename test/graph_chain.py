@@ -64,7 +64,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.6
+    temperature = 0.8
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -88,6 +88,10 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 start_size = 16 + prefill // 1024
 recent_size = int(args.budget * prefill) - start_size
+
+if recent_size + start_size < 4096:
+    start_size = 20
+    recent_size = 4096 - start_size
 
 # draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
 if args.draft == 'llama-68M':
