@@ -1,4 +1,3 @@
-from pytools import shift
 import torch
 import math
 import time

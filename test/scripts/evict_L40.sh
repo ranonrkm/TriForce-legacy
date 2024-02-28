@@ -42,5 +42,5 @@
 # CUDA_VISIBLE_DEVICES=2 nohup python test/evict4evict.py --prefill 32768 --dataset pg19 --temp 0.8 --log_csv > a.log &
 
 
-CUDA_VISIBLE_DEVICES=5 nohup python test/evict_streamllm.py --prefill 49152 --dataset pg19 --draft llama-1.1b --log_csv --draft_cache_budget 2048 > a.log &
+CUDA_VISIBLE_DEVICES=6,7 nohup python test/evict_streamllm.py --prefill 122880 --dataset pg19 --draft llama-1.1b --log_csv --draft_cache_budget 2048 > a.log &
 CUDA_VISIBLE_DEVICES=4 nohup python test/evict_streamllm.py --prefill 1024 --dataset pg19 --draft llama-1.1b --log_csv --draft_cache_budget 2048 --temp 0.8 > a.log &
