@@ -33,6 +33,7 @@ def parse_arguments():
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--budget', type=float, default='0.1')
     parser.add_argument('--draft_cache_budget', type=int, default=256, help='draft cache budget')
+    parser.add_argument('--chunk_size', type=int, default=8, help='chunk size')
     args = parser.parse_args()
     
     return args
@@ -85,7 +86,7 @@ if 'lovelace' in host:
 else:
     align_ckpt = "/fsx-storygen/beidic/hanshi/ckpts/Base-128K-256/step_11696"
 
-chunk_size = 8
+chunk_size = args.chunk_size
 max_budget = int(args.budget * prefill) // chunk_size * chunk_size
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Graph Chain Spec (Retrieval)", spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size}, dataset=args.dataset)

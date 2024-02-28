@@ -1626,7 +1626,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
             if verbose:
                 spec_stream(next_token[0], tokenizer, 'yellow')
             n += 1
-    
+
     time2 = time.time()
     acceptance_rate = accepted_count / draft_count
     avg_tokens = accepted_count / draft_count * gamma
