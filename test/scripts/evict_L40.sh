@@ -49,5 +49,5 @@ CUDA_VISIBLE_DEVICES=4,5 nohup python test/evict_streamllm.py --prefill 98304 --
 CUDA_VISIBLE_DEVICES=0 nohup python test/evict_streamllm.py --prefill 8192 --dataset pg19 --draft llama-160m --log_csv > a.log &
 CUDA_VISIBLE_DEVICES=0 nohup python test/evict_streamllm.py --prefill 8192 --dataset pg19 --draft llama-160m --log_csv --temp 0.8 > a.log &
 
-CUDA_VISIBLE_DEVICES=0 nohup python test/evict_streamllm.py --prefill 512 --dataset pg19 --draft llama-160m --log_csv > a.log &
-CUDA_VISIBLE_DEVICES=5 nohup python test/evict_streamllm.py --prefill 512 --dataset pg19 --draft llama-160m --log_csv --temp 0.8 > a.log &
+CUDA_VISIBLE_DEVICES=2 nohup python test/evict_streamllm.py --prefill 49152 --dataset pg19 --draft llama-160m --log_csv > a.log &
+CUDA_VISIBLE_DEVICES=0 nohup python test/evict_streamllm.py --prefill 512 --dataset pg19 --draft llama-160m --log_csv --temp 0.8 > a.log &

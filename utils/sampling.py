@@ -52,13 +52,13 @@ def norm_logits(logits : torch.Tensor, temperature=0.6, top_k=-1, top_p=0.9) -> 
     Returns:
         torch.Tensor: next token with shape as (batch,  1)
     """
-    # assert logits.dim() == 2
-    # logits = logits / temperature
-    # logits = top_k_top_p_filter(logits, top_k=top_k, top_p=top_p)
+    assert logits.dim() == 2
+    logits = logits / temperature
+    logits = top_k_top_p_filter(logits, top_k=top_k, top_p=top_p)
 
-    # probs = F.softmax(logits, dim=-1)
-    logits = get_sampling_logits(logits=logits, top_p=top_p, T=temperature)
-    probs = F.softmax(logits / temperature, dim=-1)
+    probs = F.softmax(logits, dim=-1)
+    # logits = get_sampling_logits(logits=logits, top_p=top_p, T=temperature)
+    # probs = F.softmax(logits / temperature, dim=-1)
     return probs
 
     
