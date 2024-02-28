@@ -100,7 +100,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
 
             task_description = "You are a helpful assistant. USER: There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
             garbage = "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again."
-            garbage_inf = " ".join([garbage] * 5000)
+            garbage_inf = " ".join([garbage] * 15000)
             assert len(garbage_inf) >= n_garbage
             garbage_prefix = garbage_inf[:n_garbage_prefix]
             garbage_suffix = garbage_inf[:n_garbage_suffix]
