@@ -1662,7 +1662,7 @@ class GraphFlashStreamEvictionCache_V2(Cache):
         self.gamma = gamma
         self.start_size = start_size
         self.recent_size = recent_size
-        self.real_budget = self.start_size + self.recent_size + self.gamma + 1 # (gamma+1 is for spec and bonus sample)
+        self.real_budget = self.start_size + self.recent_size + self.gamma + 1 + 1 # (gamma+1 is for spec and bonus sample, another 1 for hint)
 
         self.seq_len = 0 # just for prefill usage
 
@@ -1697,8 +1697,8 @@ class GraphFlashStreamEvictionCache_V2(Cache):
 
     def spec_update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, gamma_offset=0):
 
-        start = self.real_budget-self.gamma-1
-        end = self.real_budget-self.gamma-1+new_k_cache.shape[-3]
+        start = self.real_budget-self.gamma-1 - 1
+        end = self.real_budget-self.gamma-1- 1+new_k_cache.shape[-3]
 
         self.key_cache[layer_idx][:, start:end] = new_k_cache.clone()
         self.value_cache[layer_idx][:, start:end] = new_v_cache.clone()

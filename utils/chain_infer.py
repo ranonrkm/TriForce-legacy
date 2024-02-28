@@ -141,7 +141,7 @@ class GraphInferenceEngine:
         
 
 
-        for gamma_offset in range(gamma+1):
+        for gamma_offset in range(gamma+2):
             self.callables[gamma_offset] = draft_run_capture_graph(
                                                 engine=self.engine,
                                                 gamma_offset=gamma_offset,
