@@ -26,6 +26,19 @@ def top_k_top_p_filter(logits: torch.Tensor, top_k: int = 0, top_p: float = 0.0)
         logits[indices_to_remove] = float('-inf')
     return logits
 
+def get_sampling_logits(logits :torch.Tensor, top_p:float, T: float, replicate = False):
+    if replicate:
+        logits = logits.clone()
+    if top_p < 1.0:
+                sorted_logits, sorted_indices = torch.sort(logits, descending=True)
+                cumulative_probs = torch.cumsum(
+                torch.nn.functional.softmax(sorted_logits / T, dim=-1), dim=-1)
+                filter = cumulative_probs > top_p
+                filter[..., 1:] = filter[..., :-1].clone()
+                filter[..., 0] = 0
+                indices_to_remove = filter.scatter(-1, sorted_indices, filter)
+                logits[indices_to_remove] = float('-inf')
+    return logits
 
 def norm_logits(logits : torch.Tensor, temperature=0.6, top_k=-1, top_p=0.9) -> torch.Tensor:
     """
@@ -39,37 +52,20 @@ def norm_logits(logits : torch.Tensor, temperature=0.6, top_k=-1, top_p=0.9) -> 
     Returns:
         torch.Tensor: next token with shape as (batch,  1)
     """
-    assert logits.dim() == 2
-    logits = logits / temperature
-    logits = top_k_top_p_filter(logits, top_k=top_k, top_p=top_p)
+    # assert logits.dim() == 2
+    # logits = logits / temperature
+    # logits = top_k_top_p_filter(logits, top_k=top_k, top_p=top_p)
 
-    # check if all zero
-    # if torch.sum(logits) == 0:
-    #     print(logits.max(), logits.min(), logits.mean(), logits.shape)
-
-    #     raise RuntimeError
-
-    probs = F.softmax(logits, dim=-1)
-    
-    # check if has nan
-    # if torch.isnan(probs).any():
-    #     print(logits.max(), logits.min(), logits.mean(), logits.shape)
-
-    #     raise RuntimeError
-
+    # probs = F.softmax(logits, dim=-1)
+    logits = get_sampling_logits(logits=logits, top_p=top_p, T=temperature)
+    probs = F.softmax(logits / temperature, dim=-1)
     return probs
+
+    
 
 
 def sample(probs : torch.Tensor, num_samples=1):
     idx_next = torch.multinomial(probs, num_samples=num_samples, replacement=True)
-    # try:
-    #     idx_next = torch.multinomial(probs, num_samples=num_samples, replacement=True)
-    # except RuntimeError:
-    #     print(probs)
-    #     raise RuntimeError
-
-    # if (idx_next.item() == 0):
-    #     print('<unk>')
     return idx_next
 
 
