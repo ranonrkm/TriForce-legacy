@@ -95,6 +95,10 @@ if args.draft == 'llama-68M':
     draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-68M-align':
     draft = LlamaForCausalLM_68M.from_pretrained(align_ckpt, torch_dtype=torch.float16, device_map="auto")
+elif args.draft == 'llama-68M-512':
+    draft = LlamaForCausalLM_68M.from_pretrained("/fsx-storygen/beidic/hanshi/ckpts/Base-128K-512/step_36056", torch_dtype=torch.float16, device_map="auto")
+elif args.draft == 'llama-68M-1024':
+    draft = LlamaForCausalLM_68M.from_pretrained("/fsx-storygen/beidic/hanshi/ckpts/Base-128K-1024/step_26088", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-160m':
     draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-1.1b':

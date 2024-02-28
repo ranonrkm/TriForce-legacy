@@ -852,7 +852,6 @@ def Recomp_Spec(tokenizer, target, target_cache, draft, input_ids, gamma=4, max_
 
     return acceptance_rate
 
-
 @torch.inference_mode()
 def Graph_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
     graph_engine.engine.kv_cache.reset()
@@ -1426,7 +1425,6 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
-
 def Spec_Tiny_for_streamllm_V3(next_token, graph_engine, gamma, verbose, tokenizer):
 
     # verify multiple tokens
@@ -1506,8 +1504,6 @@ def Spec_Tiny_for_streamllm_V3(next_token, graph_engine, gamma, verbose, tokeniz
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
-
-
 @torch.inference_mode()
 def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
 
@@ -1545,7 +1541,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         
         # speculative decoding for draft (68m) and streamllm 7b model
         pred_token_idx = next_token
-        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V3(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
         acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
@@ -1622,8 +1618,13 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         current_seq_len = graph_engine.engine.draft_cache.start_size + graph_engine.engine.draft_cache.recent_size + count
         graph_engine.engine.draft_cache.evict_for_spec(current_seq_len)
 
-        # print(current_seq_len)
-        # exit()
+        # if dataset == 'password' and n % 32 == 0:
+        if n % 32 == 0: #!!! should update or not?????
+            logits = graph_engine.inference(input_ids=next_token.unsqueeze(0))
+            next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+            if verbose:
+                spec_stream(next_token[0], tokenizer, 'yellow')
+            n += 1
     
     time2 = time.time()
     acceptance_rate = accepted_count / draft_count
