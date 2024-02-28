@@ -44,8 +44,8 @@ if args.target == 'llama-7B':
     target = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="auto")
 elif args.target == 'llama-7B-32K':
     target = LlamaForCausalLM.from_pretrained("togethercomputer/LLaMA-2-7B-32K", torch_dtype=torch.float16, device_map="auto")
-elif args.target == 'llama-7B-128K': # bf16 for 7B
-    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.bfloat16, device_map="auto")
+elif args.target == 'llama-7B-128K':
+    target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 elif args.target == 'llama-7B-1M':
     target = LlamaForCausalLM.from_pretrained("LargeWorldModel/LWM-Text-1M", torch_dtype=torch.float16, device_map="auto")
 else:
