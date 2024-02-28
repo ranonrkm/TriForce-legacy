@@ -1586,7 +1586,8 @@ class GraphFlashChunkTopKVerificationCache(Cache):
 
     def update_graph_cache_retrieval(self, kv_cache, query_states, layer_idx):
         self.init_graph_cache(kv_cache, query_states, layer_idx)
-        self.update_graph_cache(kv_cache)
+        self.value_cache[layer_idx,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx,:, self.prefill:kv_cache.seq_len].clone()
+        self.key_cache[layer_idx,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx,:, self.prefill:kv_cache.seq_len].clone()
 
     def reset(self):
         self.key_cache.zero_()

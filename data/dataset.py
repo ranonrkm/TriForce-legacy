@@ -104,8 +104,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             assert len(garbage_inf) >= n_garbage
             garbage_prefix = garbage_inf[:n_garbage_prefix]
             garbage_suffix = garbage_inf[:n_garbage_suffix]
-            # pass_key = secrets.token_urlsafe(256)
-            pass_key = ''.join([str(random.randint(0, 9)) for _ in range(256)])
+            pass_key = secrets.token_urlsafe(256)
+            # pass_key = ''.join([str(random.randint(0, 9)) for _ in range(256)])
             # print(f"pass_key = {pass_key}")
             information_line = f"The pass key is {pass_key}. Remember it. {pass_key} is the pass key."
             final_question = "What is the pass key? Don't give information outside the document or repeat your findings. Keep your response short and direct. ASSISTANT: The pass key is"

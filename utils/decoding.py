@@ -1142,7 +1142,10 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
         
         # speculative decoding for draft (68m) and streamllm 7b model
         pred_token_idx = next_token
-        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        if dataset == 'password':
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_without_tiny_in_chain(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        else:
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
         acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
@@ -1504,6 +1507,37 @@ def Spec_Tiny_for_streamllm_V3(next_token, graph_engine, gamma, verbose, tokeniz
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
+def Spec_without_tiny_in_chain(next_token, graph_engine, gamma, verbose, tokenizer):
+
+    # verify multiple tokens
+    n = 0
+    acceptance_rate = 0
+    pred_token_idx = next_token
+
+    return_generated_ids = []
+    return_speculation_probs = []
+    return_generated_ids.append(next_token.item())
+
+    verify_tokens = torch.full((1, gamma + 2), 100, device=graph_engine.engine.model.device)
+    verify_tokens[:, 0] = next_token
+
+    storage_ids = torch.arange(graph_engine.engine.graph_cache.max_budget, graph_engine.engine.graph_cache.max_budget+gamma+1, device=graph_engine.engine.model.device)
+    position_ids = torch.arange(graph_engine.engine.kv_cache.seq_len, graph_engine.engine.kv_cache.seq_len+gamma+1, device=graph_engine.engine.model.device).unsqueeze(0)
+
+    # time1 = time.time()
+    while n < gamma:
+        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens[:,:-1], storage_ids=storage_ids, position_ids=position_ids)
+        pred_token_idx = sample(verify_prob[n])
+        token_idx = pred_token_idx.item()
+        return_generated_ids.append(token_idx)
+        return_speculation_probs.append(verify_prob[n])
+        n = n + 1
+        verify_tokens[:, n:n+1] = pred_token_idx
+
+    return return_generated_ids, return_speculation_probs, acceptance_rate
+
+
+
 @torch.inference_mode()
 def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
 
@@ -1541,7 +1575,10 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         
         # speculative decoding for draft (68m) and streamllm 7b model
         pred_token_idx = next_token
-        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        if dataset == 'password':
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_without_tiny_in_chain(pred_token_idx, graph_engine, gamma, False, tokenizer)
+        else:
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
         acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
@@ -1615,8 +1652,9 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         graph_engine.update_graph_cache()
         
         # update streamllm 68m graph cache
-        current_seq_len = graph_engine.engine.draft_cache.start_size + graph_engine.engine.draft_cache.recent_size + count
-        graph_engine.engine.draft_cache.evict_for_spec(current_seq_len)
+        if dataset != 'password':
+            current_seq_len = graph_engine.engine.draft_cache.start_size + graph_engine.engine.draft_cache.recent_size + count
+            graph_engine.engine.draft_cache.evict_for_spec(current_seq_len)
 
         # if dataset == 'password' and n % 32 == 0:
         # if n % 32 == 0: #!!! should update or not?????
