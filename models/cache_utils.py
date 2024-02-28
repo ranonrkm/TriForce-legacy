@@ -1186,11 +1186,11 @@ class GraphFlashChunkCache(Cache):
 
         # replace some kv cache here
         if layer_idx == self.layers-1:
-            self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len]
-            self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len]
+            self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len].clone()
+            self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len].clone()
         else:
-            self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len  + self.gamma +1-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len + self.gamma +1]
-            self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len  + self.gamma +1-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len + self.gamma +1]
+            self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len  + self.gamma +1-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len + self.gamma +1].clone()
+            self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len  + self.gamma +1-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len + self.gamma +1].clone()
         
         # print(kv_cache.seq_len)
         # if layer_idx == self.layers-1:
@@ -1256,8 +1256,8 @@ class GraphFlashChunkCache(Cache):
 
         # replace some kv cache here (add local cache)
 
-        self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len]
-        self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len]
+        self.value_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[layer_idx][:, self.prefill:kv_cache.seq_len].clone()
+        self.key_cache[layer_idx][:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[layer_idx][:, self.prefill:kv_cache.seq_len].clone()
 
         # print(kv_cache.seq_len, self.max_budget-(kv_cache.seq_len-self.prefill), self.max_budget, self.prefill)
 
@@ -1271,8 +1271,8 @@ class GraphFlashChunkCache(Cache):
         assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
         assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_k_cache
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_v_cache
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_k_cache.clone()
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_v_cache.clone()
 
         return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1]
 

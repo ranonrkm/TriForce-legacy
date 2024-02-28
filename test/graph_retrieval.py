@@ -29,6 +29,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
 
     parser.add_argument('--budget', type=float, default='0.1')
+    parser.add_argument('--chunk_size', type=int, default=128, help='chunk size')
     args = parser.parse_args()
     
     return args
@@ -78,11 +79,12 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Retrieval", spec_args={'budget': args.budget}, dataset=args.dataset)
+chunk_size = args.chunk_size
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Retrieval", spec_args={'budget': args.budget, 'chunk_size': chunk_size}, dataset=args.dataset)
 
-budget = int(args.budget * prefill) // 128 * 128
+budget = int(args.budget * prefill) // chunk_size * chunk_size
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashChunkCache(target, max_budget=budget, prefill=prefill, gamma=gamma, chunk_size=128)
+graph_cache = GraphFlashChunkCache(target, max_budget=budget, prefill=prefill, gamma=gamma, chunk_size=chunk_size)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
 graph_engine.initialize_cuda_graph(gamma)
 
