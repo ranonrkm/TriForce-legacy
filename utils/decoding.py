@@ -1619,7 +1619,8 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         graph_engine.engine.draft_cache.evict_for_spec(current_seq_len)
 
         # if dataset == 'password' and n % 32 == 0:
-        if n % 32 == 0: #!!! should update or not?????
+        # if n % 32 == 0: #!!! should update or not?????
+        if count == 0:
             logits = graph_engine.inference(input_ids=next_token.unsqueeze(0))
             next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
             if verbose:
