@@ -1,5 +1,6 @@
 from sympy import symbols, Eq, solve
 from termcolor import colored
+import random
 
 def fake2real(fake,gamma=4):
     a = 1+ gamma*fake
@@ -8,6 +9,13 @@ def fake2real(fake,gamma=4):
     solutions = solve(equation, x)
     return solutions[1]
 
+def setup_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def spec_stream(pred_token_idx, tokenizer, color='blue'):
     decoded_token = tokenizer.decode(

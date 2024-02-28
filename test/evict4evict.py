@@ -27,6 +27,7 @@ def parse_arguments():
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
     parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
+    parser.add_argument('--temp', type=float, default=0.6, help='temperature')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     args = parser.parse_args()
@@ -67,7 +68,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.8
+    temperature = args.temp
 
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)

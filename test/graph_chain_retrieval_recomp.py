@@ -8,11 +8,11 @@ from transformers import AutoTokenizer
 from termcolor import colored
 
 from models.modeling_llama import LlamaForCausalLM
-from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
+from models.modeling_llama_68m_forward import LlamaForCausalLM as LlamaForCausalLM_68M
 from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache_V2, GraphFlashStreamLLMVerificationCache, GraphFlashChunkTopKVerificationCache
-from utils.decoding import Graph_Chain_V2, Graph_Chain_Retrieval_Spec
+from utils.decoding import Graph_Chain_Retrieval_Spec_Recomp
 from utils.misc import print_config
-from utils.chain_infer import GraphInferenceEngine
+from utils.chain_infer_v2 import GraphInferenceEngine
 import socket
 host = socket.gethostname()
 import argparse
@@ -32,7 +32,6 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--budget', type=float, default='0.1')
-    parser.add_argument('--draft_cache_budget', type=int, default=256, help='draft cache budget')
     args = parser.parse_args()
     
     return args
@@ -95,30 +94,17 @@ if args.draft == 'llama-68M':
     draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 elif args.draft == 'llama-68M-align':
     draft = LlamaForCausalLM_68M.from_pretrained(align_ckpt, torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-160m':
-    draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-1.1b':
-    draft = LlamaForCausalLM_68M.from_pretrained("TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-1.3b':
-    draft = LlamaForCausalLM_68M.from_pretrained("princeton-nlp/Sheared-LLaMA-1.3B", torch_dtype=torch.float16, device_map="auto")
 else:
     raise NotImplementedError
 
 ####### cache init #######
-
-draft_cache_budget = args.draft_cache_budget
-recent_size = draft_cache_budget - 16 - gamma
-
 cache = FlashSimpleCache(target, prefill+gen_len+16)
 graph_cache = GraphFlashChunkTopKVerificationCache(target, max_budget=max_budget, prefill=prefill, gamma=gamma, chunk_size=chunk_size)
-draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=recent_size, gamma=gamma)
-
-graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
+graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft)
 graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature)
 
 cache.print_status()
 graph_cache.print_status()
-draft_cache.print_status()
 
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
@@ -126,7 +112,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    acceptance_rate = Graph_Chain_Retrieval_Spec_Recomp(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))

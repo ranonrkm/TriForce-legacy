@@ -1720,4 +1720,3 @@ class GraphFlashStreamEvictionCache_V2(Cache):
     def evict_for_spec(self, current_seq_len):
         self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
         self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
-

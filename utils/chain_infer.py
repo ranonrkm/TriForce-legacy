@@ -40,7 +40,7 @@ class InferenceEngine:
         return logits
 
     @torch.inference_mode()
-    def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0, probs=False):
+    def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0, probs=False, temperature=0.6):
         if input_ids.shape[-1] > 64: # prefill
             iter_prefill = math.ceil(input_ids.shape[1] / 64)
             for i in tqdm(range(iter_prefill)):
@@ -55,16 +55,16 @@ class InferenceEngine:
 
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
-            return norm_logits(logits[0], temperature=0.8, top_k=-1, top_p=0.9)[-1]
+            return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=0.9)[-1]
         return logits
 
     @torch.inference_mode()
-    def model_verify(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, probs=False):
+    def model_verify(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6):
         # graph verification (used for cuda graph capture)
         logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
-            return norm_logits(logits[0], temperature=0.8, top_k=-1, top_p=0.9)
+            return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=0.9)
         return logits
 
     def clear_kv(self):
@@ -72,7 +72,7 @@ class InferenceEngine:
         self.graph_cache.reset()
         self.draft_cache.reset()
 
-def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3, probs=False):
+def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3, probs=False, temperature=0.6):
     device = engine.draft.device
     
     # draft run is incremental decoding
@@ -81,14 +81,14 @@ def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempo
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
+            static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs, temperature=temperature)
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
 
-    print(f"[draft run] capturing graph for {gamma_offset}...")
+    print(f"[draft run] capturing graph for {gamma_offset} (probs={probs}, temp={temperature})...")
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs)
+        static_logits = engine.draft_run(input_ids=static_input_ids, gamma_offset=gamma_offset, probs=probs, temperature=temperature)
     
     def run(input_ids):
         static_input_ids.copy_(input_ids)
@@ -97,7 +97,7 @@ def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempo
 
     return run
 
-def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups :int=3, gamma:int=6, probs=False):
+def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups :int=3, gamma:int=6, probs=False, temperature=0.6):
     device = engine.model.device
     
     # model_verify is verifying gamma tokens
@@ -109,14 +109,14 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs)
+            static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
 
-    print(f"[model verify] capturing graph for spec len {gamma}...")
+    print(f"[model verify] capturing graph for spec len {gamma} (probs={probs}, temp={temperature})...")
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs)
+        static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
     
     def run(input_ids, storage_ids, position_ids):
         static_input_ids.copy_(input_ids)
@@ -135,7 +135,7 @@ class GraphInferenceEngine:
         self.mempool = None
 
     @torch.inference_mode()
-    def initialize_cuda_graph(self, gamma=6, probs=False):
+    def initialize_cuda_graph(self, gamma=6, probs=False, temperature=0.6):
         gc.collect()
         self.mempool = torch.cuda.graphs.graph_pool_handle()
         
@@ -147,7 +147,8 @@ class GraphInferenceEngine:
                                                 gamma_offset=gamma_offset,
                                                 mempool=self.mempool,
                                                 n_warmups=3,
-                                                probs=probs
+                                                probs=probs,
+                                                temperature=temperature
                                             )
 
         self.callable_model_verify = model_verify_capture_graph(
@@ -155,7 +156,8 @@ class GraphInferenceEngine:
                                         mempool=self.mempool,
                                         n_warmups=3,
                                         gamma=gamma,
-                                        probs=probs
+                                        probs=probs,
+                                        temperature=temperature
                                     )
 
         self.engine.clear_kv()
