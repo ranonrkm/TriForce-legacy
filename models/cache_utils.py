@@ -93,8 +93,10 @@ class FlashSimpleCache(Cache):
         self.head_dim = self.hidden_size // model.config.num_attention_heads
         self.layers = model.config.num_hidden_layers
 
-        self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
-        self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
+        dtype = model.model.layers[0].self_attn.q_proj.weight.dtype
+
+        self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+        self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
 
         # for i in range(self.layers):
         #     if hasattr(model, 'gpt_neox'):
@@ -1519,8 +1521,10 @@ class GraphFlashChunkTopKVerificationCache(Cache):
         self.head_dim = self.hidden_size // model.config.num_attention_heads
         self.layers = model.config.num_hidden_layers
 
-        self.key_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
-        self.value_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=torch.float16).to(model.device)
+        dtype = model.model.layers[0].self_attn.q_proj.weight.dtype
+
+        self.key_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+        self.value_cache = torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
 
     def print_status(self):
         print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets)
