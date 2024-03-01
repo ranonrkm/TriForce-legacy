@@ -1,8 +1,9 @@
 from typing import List, Optional, Tuple, Union
+from numpy import zeros_like
 
 import torch
 import torch.nn.functional as F
-from torch import nn
+from torch import nn, ones_like
 
 from transformers.activations import ACT2FN
 from models.cache_utils import Cache
@@ -14,7 +15,7 @@ from transformers.modeling_attn_mask_utils import (
 
 from .modeling_llama_flash import FlashRotaryEmbedding, FlashYaRNRotaryEmbedding
 from .modeling_llama_cache import LlamaYaRNRotaryEmbedding, LlamaRotaryEmbedding
-
+import math
 from transformers.models.llama.modeling_llama import(
     LlamaRMSNorm,
     LlamaConfig,
@@ -143,7 +144,7 @@ class LlamaAttention(nn.Module):
         if storage_ids is not None:
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
         else:
-            if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashChunkTopKVerificationCache)):
+            if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashChunkTopKVerificationCache)): # update graph cache
                 if graph_cache.init_graph == False:
                     graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
                 else:
@@ -159,7 +160,18 @@ class LlamaAttention(nn.Module):
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        if storage_ids is not None:
+        # if isinstance(graph_cache, GraphFlashChunkTopKVerificationCache): # test use!!!!
+            attn_weights = torch.matmul(query_states.transpose(1, 2), key_states.permute(0,2,3,1)) / math.sqrt(self.head_dim)
+            attention_mask = _prepare_4d_causal_attention_mask(
+                attention_mask, (1, hidden_states.shape[1]), hidden_states, graph_cache.max_budget
+            )
+            attn_weights = attn_weights + attention_mask
+            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+            attn_output = torch.matmul(attn_weights, value_states.transpose(1, 2))
+            attn_output = attn_output.transpose(1, 2).contiguous()
+        else:
+            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
