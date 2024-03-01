@@ -11,9 +11,9 @@ import socket
 from time import sleep
 from torch.profiler import profile, record_function, ProfilerActivity
 from models.modeling_llama import LlamaForCausalLM, LlamaConfig
-from models.cache_utils import SimpleCache, FlashSimpleCache, GraphFlashSimpleCache, GraphSimpleCache, GraphFlashStreamLLMVerificationCache, GraphFlashStreamEvictionCache
-from models.modeling_llama_68m import LlamaForCausalLM as LlamaForCausalLM_68M
-from utils.chain_graph_infer import GraphInferenceEngine
+from models.cache_utils import SimpleCache, FlashSimpleCache, GraphFlashSimpleCache, GraphSimpleCache, GraphFlashStreamLLMVerificationCache, GraphFlashStreamEvictionCache, GraphFlashChunkTopKVerificationCache, GraphFlashStreamEvictionCache_V2
+from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
+from utils.chain_infer import GraphInferenceEngine
 
 from utils.sampling import norm_logits, sample
 
@@ -45,13 +45,14 @@ if not contents:
         f.write("model,prefill,len,latency,repeat_time,flash\n")
 
 if args.model_name != "4bit":
-    model_name = args.model_name
-    config = LlamaConfig.from_pretrained(model_name)
-    # if args.flash:
-    config.flash = True
-    if config.max_position_embeddings < 4096:
-        config.max_position_embeddings = PREFIX_LEN + 1
-    model = LlamaForCausalLM.from_pretrained(model_name, config=config, torch_dtype=torch.float16, device_map="auto")
+    # model_name = args.model_name
+    # config = LlamaConfig.from_pretrained(model_name)
+    # # if args.flash:
+    # config.flash = True
+    # if config.max_position_embeddings < 4096:
+    #     config.max_position_embeddings = PREFIX_LEN + 1
+    # model = LlamaForCausalLM.from_pretrained(model_name, config=config, torch_dtype=torch.float16, device_map="auto")
+    model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 else:
     model_name="TheBloke/Yarn-Llama-2-7B-128K-GPTQ"
     model = LlamaForCausalLM.from_pretrained("TheBloke/Yarn-Llama-2-7B-128K-GPTQ", revision="gptq-4bit-128g-actorder_True", device_map="auto")
@@ -65,18 +66,18 @@ DEC_LEN_LIST = [1]
 gamma=5
 MAX_LEN = PREFIX_LEN + 1
 
-cache = FlashSimpleCache(model, MAX_LEN)
-graph_cache = GraphFlashSimpleCache(model, MAX_LEN)
 draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="cuda:0")
 
-cache = FlashSimpleCache(model, MAX_LEN)
-graph_cache = GraphFlashStreamLLMVerificationCache(model, max_budget=3200, prefill=PREFIX_LEN, gamma=5, start_size=32)
-draft_cache = GraphFlashStreamEvictionCache(draft, start_size=16, recent_size=250-16, gamma=5)
+chunk_size = 8
+max_budget = int(0.05 * PREFIX_LEN) // chunk_size * chunk_size
+cache = FlashSimpleCache(model, MAX_LEN+100)
+graph_cache = GraphFlashChunkTopKVerificationCache(model, max_budget=max_budget, prefill=PREFIX_LEN, gamma=gamma, chunk_size=8)
+draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=250-16, gamma=gamma)
 
 graph_engine = GraphInferenceEngine(model, cache, graph_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(5, probs=True)
 
-def test_real_draft(gamma_offset, pred_token_idx, storage_ids, position_ids):
+def test_real_draft(gamma_offset, pred_token_idx):
     speculation_probs = []
     generated_ids = []
     return_generated_ids.append([[1]])
@@ -85,8 +86,8 @@ def test_real_draft(gamma_offset, pred_token_idx, storage_ids, position_ids):
     storage_ids = torch.tensor([graph_engine.engine.draft_cache.start_size + graph_engine.engine.draft_cache.recent_size + gamma_offset], device=graph_engine.engine.draft.device)
     # position_ids = storage_ids.clone().unsqueeze(0)
     # print(storage_ids, position_ids, gamma_offset)
-    
-    probs = graph_engine.graph_draft_inference(input_ids=pred_token_idx, storage_ids=storage_ids, position_ids=position_ids, gamma_offset = gamma_offset)
+
+    probs = graph_engine.graph_draft_inference(input_ids=pred_token_idx, gamma_offset = gamma_offset)
 
     # probs = norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p)
     pred_token_idx = sample(probs)
@@ -116,14 +117,14 @@ for DEC_LEN in DEC_LEN_LIST:
     storage_ids = torch.arange(DEC_LEN, device=model.device) + PREFIX_LEN
     position_ids = storage_ids.clone().unsqueeze(0)
     for _ in range(WARM_UP):
-        graph_engine.graph_draft_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+        graph_engine.graph_draft_inference(input_ids=input_ids, gamma_offset=0)
 
     print("Start benchmark...")
     
     torch.cuda.synchronize()
     t1 = time.time()
     for _ in range(T):
-        graph_engine.graph_draft_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+        graph_engine.graph_draft_inference(input_ids=input_ids, gamma_offset=0)
     torch.cuda.synchronize()
     t2 = time.time()
 
@@ -141,12 +142,12 @@ for DEC_LEN in DEC_LEN_LIST:
     return_speculation_probs = []
 
     for _ in range(WARM_UP):
-        test_real_draft(0, pred_token_idx, storage_ids, position_ids)
+        test_real_draft(0, pred_token_idx)
     
     torch.cuda.synchronize()
     t1 = time.time()
     for _ in range(T):
-        test_real_draft(0, pred_token_idx, storage_ids, position_ids)
+        test_real_draft(0, pred_token_idx)
     torch.cuda.synchronize()
     t2 = time.time()
 
