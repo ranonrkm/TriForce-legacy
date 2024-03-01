@@ -29,7 +29,7 @@ class InferenceEngine:
     def model_run(self, input_ids: torch.LongTensor):
         if input_ids.shape[-1] > 64: # prefill
             iter_prefill = math.ceil(input_ids.shape[1] / 100)
-            for i in tqdm(range(iter_prefill)):
+            for i in range(iter_prefill):
                 logits = self.model(
                     input_ids=input_ids[:, i*100:(i+1)*100],
                     kv_cache=self.kv_cache,

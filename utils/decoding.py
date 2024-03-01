@@ -1671,7 +1671,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         if dataset == 'password':
             verify_tokens, speculation_probs, acc_rate_middle = Spec_without_tiny_in_chain(pred_token_idx, graph_engine, gamma, False, tokenizer)
         else:
-            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2_Tree(pred_token_idx, graph_engine, gamma, False, tokenizer)
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
         acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
@@ -1775,9 +1775,38 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
 
     if file_path is not None:
         log_csv(file_path, header, entry)
-    print(f"Theory top-64 hit rate: {np.array(acc_rate_middle_list).mean()}")
+    # print(f"middle hit rate: {np.array(acc_rate_middle_list).mean()}")
 
-    return acceptance_rate
+    return acceptance_rate, n / (time2 - time1)
+
+@torch.inference_mode()
+def Baseline(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False):
+# reset all cache
+    graph_engine.engine.kv_cache.reset()
+
+    logits = graph_engine.inference(input_ids=input_ids)
+
+    if verbose:
+        graph_engine.engine.kv_cache.print_status()
+
+    next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+    
+    if verbose:
+        spec_stream(next_token[0], tokenizer, 'cyan')
+
+    n = 0
+    time1 = time.time()
+    while n < max_len:
+        logits = graph_engine.engine.model(input_ids=next_token, kv_cache=graph_engine.engine.kv_cache, graph_cache=None).logits
+        # print(next_token)
+        next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+        n += 1
+        if verbose:
+            spec_stream(next_token[0], tokenizer, 'cyan')
+    time2 = time.time()
+    # print(n, n / (time2 - time1))
+    return n / (time2 - time1)
+
 
 @torch.inference_mode()
 def Graph_Chain_Retrieval_Spec_Recomp(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
