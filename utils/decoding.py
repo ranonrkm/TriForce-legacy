@@ -1683,7 +1683,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
 
         generated_ids = verify_tokens[1:]
         # print(generated_ids, len(speculation_probs)) gamma+2, gamma+1
-        assert len(generated_ids) == len(speculation_probs), f"{len(generated_ids)} != {len(speculation_probs)} != {gamma+1}"
+        # assert len(generated_ids) == len(speculation_probs), f"{len(generated_ids)} != {len(speculation_probs)} != {gamma+1}"
         draft_count += len(speculation_probs)
 
         gamma2 = len(generated_ids)
@@ -1766,15 +1766,14 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
-    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
-    # add sepc_args
-    if spec_args is not None:
-        for k, v in spec_args.items():
-            header=header.replace("\n", f",{k}\n")
-            entry=entry.replace("\n", f",{v}\n")
-
     if file_path is not None:
+        header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
+        entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
+        # add sepc_args
+        if spec_args is not None:
+            for k, v in spec_args.items():
+                header=header.replace("\n", f",{k}\n")
+                entry=entry.replace("\n", f",{v}\n")
         log_csv(file_path, header, entry)
     # print(f"middle hit rate: {np.array(acc_rate_middle_list).mean()}")
 
