@@ -1436,7 +1436,7 @@ def Spec_Tiny_for_streamllm_V2_Tree(next_token, graph_engine, gamma, verbose, to
     accepted_count = 0
     target_sample_count = 0
     draft_count = 0
-    top_20_hit = 0
+    top_64_hit = 0
 
     pred_token_idx = next_token
 
@@ -1456,7 +1456,7 @@ def Spec_Tiny_for_streamllm_V2_Tree(next_token, graph_engine, gamma, verbose, to
         
         pred_token_idx = sample(speculation_prob)
 
-        top_20_values, top_20_idx = torch.topk(speculation_prob, 20)
+        top_64_values, top_64_idx = torch.topk(speculation_prob, 64)
 
         token_idx = pred_token_idx.item()
         draft_count += 1
@@ -1473,8 +1473,8 @@ def Spec_Tiny_for_streamllm_V2_Tree(next_token, graph_engine, gamma, verbose, to
 
         idx = sample(verify_prob[n])
         # print(idx in top_20_idx, idx, top_20_idx)
-        if idx in top_20_idx:
-            top_20_hit += 1
+        if idx in top_64_idx:
+            top_64_hit += 1
 
         if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[n, token_idx] / speculation_prob[token_idx])):
             return_speculation_probs.append(verify_prob[n])
@@ -1517,7 +1517,7 @@ def Spec_Tiny_for_streamllm_V2_Tree(next_token, graph_engine, gamma, verbose, to
     # avg_tokens = accepted_count / draft_count * gamma
     # print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
     # print(top_20_hit/draft_count, acceptance_rate)
-    acceptance_rate = top_20_hit/draft_count
+    acceptance_rate = top_64_hit/draft_count
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
@@ -1775,7 +1775,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
 
     if file_path is not None:
         log_csv(file_path, header, entry)
-    print(f"Theory top-20 hit rate: {np.array(acc_rate_middle_list).mean()}")
+    print(f"Theory top-64 hit rate: {np.array(acc_rate_middle_list).mean()}")
 
     return acceptance_rate
 
