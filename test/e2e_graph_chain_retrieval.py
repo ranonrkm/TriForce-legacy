@@ -129,11 +129,11 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 ######## Warm up for baseline ########
 n_warmups = 6
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
-for i in tqdm(range(n_warmups), desc="Baseline warmup"):
+for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
     Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
 
 all_speed = []
-for input_ids in tqdm(tokenized_prompts, desc="Baseline"):
+for input_ids in tqdm(tokenized_prompts, desc="Baseline Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     speed = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
     all_speed.append(speed)
@@ -144,12 +144,12 @@ print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms
 ######## Warm up for our method ########
 n_warmups = 6
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
-for i in tqdm(range(n_warmups), desc="Graph Chain Spec warmup"):
+for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
     Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
 
 all_acceptance_rate = []
 all_speed = []
-for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec"):
+for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
 
     acceptance_rate, speed = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
@@ -159,4 +159,4 @@ for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec"):
 method_latency = 1000/(sum(all_speed) / len(all_speed))
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
 print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} ms", "red"))
-print(colored(f"[Speedup]: {baseline_latency / method_latency}", "red"))
+print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))
