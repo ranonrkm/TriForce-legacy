@@ -1645,9 +1645,10 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
     
     _ = graph_engine.graph_draft_prefill(input_ids=input_ids)
 
-    graph_engine.engine.kv_cache.print_status()
-    graph_engine.engine.graph_cache.print_status()
-    graph_engine.engine.draft_cache.print_status()
+    if verbose:
+        graph_engine.engine.kv_cache.print_status()
+        graph_engine.engine.graph_cache.print_status()
+        graph_engine.engine.draft_cache.print_status()
 
     resample_count = 0
     accepted_count = 0
