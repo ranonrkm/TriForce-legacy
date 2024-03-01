@@ -74,6 +74,8 @@ cache = FlashSimpleCache(model, MAX_LEN+100)
 graph_cache = GraphFlashChunkTopKVerificationCache(model, max_budget=max_budget, prefill=PREFIX_LEN, gamma=gamma, chunk_size=8)
 draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=250-16, gamma=gamma)
 
+graph_cache.print_status()
+
 graph_engine = GraphInferenceEngine(model, cache, graph_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(5, probs=True)
 
