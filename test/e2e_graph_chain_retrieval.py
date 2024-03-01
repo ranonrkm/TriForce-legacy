@@ -138,8 +138,8 @@ for input_ids in tqdm(tokenized_prompts, desc="Baseline"):
     speed = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
     all_speed.append(speed)
 
-print(colored(f"[Baseline-Autoregressive] average latency: {1000/(sum(all_speed) / len(all_speed))} ms", "red"))
-
+baseline_latency = 1000/(sum(all_speed) / len(all_speed))
+print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
 
 ######## Warm up for our method ########
 n_warmups = 6
@@ -156,5 +156,7 @@ for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec"):
     all_acceptance_rate.append(acceptance_rate)
     all_speed.append(speed)
 
+method_latency = 1000/(sum(all_speed) / len(all_speed))
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
-print(colored(f"[Ours-Chain_Retrieval] average latency: {1000/(sum(all_speed) / len(all_speed))} ms", "red"))
+print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} ms", "red"))
+print(colored(f"[Speedup]: {baseline_latency / method_latency}", "red"))
