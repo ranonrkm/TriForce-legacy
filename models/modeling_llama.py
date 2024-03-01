@@ -160,18 +160,18 @@ class LlamaAttention(nn.Module):
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        if storage_ids is not None:
-        # if isinstance(graph_cache, GraphFlashChunkTopKVerificationCache): # test use!!!!
-            attn_weights = torch.matmul(query_states.transpose(1, 2), key_states.permute(0,2,3,1)) / math.sqrt(self.head_dim)
-            attention_mask = _prepare_4d_causal_attention_mask(
-                attention_mask, (1, hidden_states.shape[1]), hidden_states, graph_cache.max_budget
-            )
-            attn_weights = attn_weights + attention_mask
-            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-            attn_output = torch.matmul(attn_weights, value_states.transpose(1, 2))
-            attn_output = attn_output.transpose(1, 2).contiguous()
-        else:
-            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        # if storage_ids is not None:
+        # # if isinstance(graph_cache, GraphFlashChunkTopKVerificationCache): # test use!!!!
+        #     attn_weights = torch.matmul(query_states.transpose(1, 2), key_states.permute(0,2,3,1)) / math.sqrt(self.head_dim)
+        #     attention_mask = _prepare_4d_causal_attention_mask(
+        #         attention_mask, (1, hidden_states.shape[1]), hidden_states, graph_cache.max_budget
+        #     )
+        #     attn_weights = attn_weights + attention_mask
+        #     attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        #     attn_output = torch.matmul(attn_weights, value_states.transpose(1, 2))
+        #     attn_output = attn_output.transpose(1, 2).contiguous()
+        # else:
+        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)

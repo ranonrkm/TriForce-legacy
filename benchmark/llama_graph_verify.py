@@ -22,7 +22,7 @@ parser.add_argument('--T', type=int, default=2000, help='time')
 parser.add_argument('--P', type=int, default=128, help='prefix length')
 parser.add_argument('--flash', action='store_true', help='flash')
 parser.add_argument('--model_name', type=str, default="NousResearch/Yarn-Llama-2-7b-128k", help='model name')
-parser.add_argument('--gamma', type=int, default=32, help='gamma')
+parser.add_argument('--gamma', type=int, default=5, help='gamma')
 args = parser.parse_args()
 
 PREFIX_LEN = args.P
