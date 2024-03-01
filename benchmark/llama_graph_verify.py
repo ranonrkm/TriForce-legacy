@@ -22,6 +22,7 @@ parser.add_argument('--T', type=int, default=2000, help='time')
 parser.add_argument('--P', type=int, default=128, help='prefix length')
 parser.add_argument('--flash', action='store_true', help='flash')
 parser.add_argument('--model_name', type=str, default="NousResearch/Yarn-Llama-2-7b-128k", help='model name')
+parser.add_argument('--gamma', type=int, default=32, help='gamma')
 args = parser.parse_args()
 
 PREFIX_LEN = args.P
@@ -63,7 +64,7 @@ else:
 # DEC_LEN_LIST = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
 
 DEC_LEN_LIST = [1]
-gamma=5
+gamma=args.gamma
 MAX_LEN = PREFIX_LEN + 1
 
 draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="cuda:0")
@@ -77,7 +78,7 @@ draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size
 graph_cache.print_status()
 
 graph_engine = GraphInferenceEngine(model, cache, graph_cache, draft, draft_cache)
-graph_engine.initialize_cuda_graph(5, probs=True)
+graph_engine.initialize_cuda_graph(gamma, probs=True)
 
 def test_real_draft(gamma_offset, pred_token_idx):
     speculation_probs = []

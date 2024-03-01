@@ -27,7 +27,7 @@ WARM_UP = 10
 
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
 
-DEC_LEN_LIST = [1]
+DEC_LEN_LIST = [6]
 
 MAX_LEN = PREFIX_LEN + 1
 
@@ -62,6 +62,6 @@ for DEC_LEN in DEC_LEN_LIST:
 
     print("Prefix Length :{}, Decode Length :{}, inference time:{}s".format(PREFIX_LEN, DEC_LEN, (t2 - t1)/ T))
 
-    file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_torch_new.csv"
-    with open(file_path, 'a') as f:
-        f.write(f"{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")
+    # file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_torch_new.csv"
+    # with open(file_path, 'a') as f:
+    #     f.write(f"{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")
