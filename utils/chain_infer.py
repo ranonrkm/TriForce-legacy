@@ -43,7 +43,7 @@ class InferenceEngine:
     def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0, probs=False, temperature=0.6):
         if input_ids.shape[-1] > 64: # prefill
             iter_prefill = math.ceil(input_ids.shape[1] / 64)
-            for i in tqdm(range(iter_prefill)):
+            for i in range(iter_prefill):
                 self.draft_cache.evict_prefill(64)
                 logits = self.draft(
                     input_ids=input_ids[:, i*64:(i+1)*64],
