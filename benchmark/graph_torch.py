@@ -27,7 +27,7 @@ WARM_UP = 10
 
 model = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map='cuda:0')
 
-DEC_LEN_LIST = [6]
+DEC_LEN_LIST = [1]
 
 MAX_LEN = PREFIX_LEN + 1
 
