@@ -1428,6 +1428,99 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
     # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
+
+def Spec_Tiny_for_streamllm_V2_Tree(next_token, graph_engine, gamma, verbose, tokenizer):
+
+    n = 0
+    resample_count = 0
+    accepted_count = 0
+    target_sample_count = 0
+    draft_count = 0
+    top_20_hit = 0
+
+    pred_token_idx = next_token
+
+    return_generated_ids = []
+    return_speculation_probs = []
+    return_generated_ids.append(next_token.item())
+
+    verify_tokens = torch.full((1, gamma + 1), 100, device=graph_engine.engine.model.device)
+    verify_tokens[:, 0] = next_token
+
+    storage_ids = torch.arange(graph_engine.engine.graph_cache.max_budget, graph_engine.engine.graph_cache.max_budget+gamma+1, device=graph_engine.engine.model.device)
+    position_ids = torch.arange(graph_engine.engine.kv_cache.seq_len, graph_engine.engine.kv_cache.seq_len+gamma+1, device=graph_engine.engine.model.device).unsqueeze(0)
+
+    # time1 = time.time()
+    while n < gamma:
+        speculation_prob = graph_engine.graph_draft_inference(input_ids=verify_tokens[:,:n+1], gamma_offset = n)
+        
+        pred_token_idx = sample(speculation_prob)
+
+        top_20_values, top_20_idx = torch.topk(speculation_prob, 20)
+
+        token_idx = pred_token_idx.item()
+        draft_count += 1
+
+        verify_tokens[:, n+1:n+2] = pred_token_idx
+        # print(verify_tokens)
+        # print(verify_tokens, storage_ids, position_ids)
+        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens, storage_ids=storage_ids, position_ids=position_ids)
+
+        # print(verify_prob.shape, speculation_prob.shape)
+
+        r = torch.rand(1, device = graph_engine.engine.model.device)
+        # print(n, verify_prob[n, token_idx],  speculation_prob[token_idx])
+
+        idx = sample(verify_prob[n])
+        # print(idx in top_20_idx, idx, top_20_idx)
+        if idx in top_20_idx:
+            top_20_hit += 1
+
+        if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[n, token_idx] / speculation_prob[token_idx])):
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(token_idx)
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'green')
+            accepted_count += 1
+            n += 1
+        
+            pred_token_idx = sample(verify_prob[n])
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(pred_token_idx.item())
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'blue')
+            target_sample_count += 1
+            n += 1
+
+            verify_tokens[:, n:n+1] = pred_token_idx
+        
+        else:
+            # pred_token_idx = sample(max_fn(verify_prob[n]-speculation_prob))
+            pred_token_idx = sample(verify_prob[n])
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(pred_token_idx.item())
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'red')
+            resample_count += 1
+            n += 1
+
+            verify_tokens[:, n:n+1] = pred_token_idx
+
+    # update 68m cache
+    graph_engine.graph_draft_inference(input_ids=verify_tokens, gamma_offset = gamma)
+
+    # for i in range(gamma):
+    #     assert torch.allclose(return_speculation_probs[i], verify_prob[i]), i
+    # exit()
+    # time2 = time.time()
+    acceptance_rate = accepted_count / draft_count
+    # avg_tokens = accepted_count / draft_count * gamma
+    # print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
+    # print(top_20_hit/draft_count, acceptance_rate)
+    acceptance_rate = top_20_hit/draft_count
+    # print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
+    return return_generated_ids, return_speculation_probs, acceptance_rate
+
 def Spec_Tiny_for_streamllm_V3(next_token, graph_engine, gamma, verbose, tokenizer):
 
     # verify multiple tokens
@@ -1578,7 +1671,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         if dataset == 'password':
             verify_tokens, speculation_probs, acc_rate_middle = Spec_without_tiny_in_chain(pred_token_idx, graph_engine, gamma, False, tokenizer)
         else:
-            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2(pred_token_idx, graph_engine, gamma, False, tokenizer)
+            verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_streamllm_V2_Tree(pred_token_idx, graph_engine, gamma, False, tokenizer)
         acc_rate_middle_list.append(acc_rate_middle)
         # verify_tokens, speculation_probs = Spec_Tiny_for_streamllm(pred_token_idx, graph_engine, gamma, temperature, top_k, top_p, False, tokenizer)
         
@@ -1682,6 +1775,7 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
 
     if file_path is not None:
         log_csv(file_path, header, entry)
+    print(f"Theory top-20 hit rate: {np.array(acc_rate_middle_list).mean()}")
 
     return acceptance_rate
 
