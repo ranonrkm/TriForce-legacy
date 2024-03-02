@@ -33,6 +33,24 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             tokenized_prompts.append(tokenized_prompt)
         return tokenized_prompts
 
+    elif dataset_name == '128k':
+        import socket
+        import os
+        host = socket.gethostname()
+        if 'lovelace' in host:
+            datasetparent = f"/home/hanshis/workspace/LongContextInfer/data/pg19/"
+        else:
+            datasetparent = "/data/home/beidic/hanshi/LongContextInfer/data/pg19/"
+        d_files = os.listdir(datasetparent)
+        dataset = load_dataset("json", data_files = [datasetparent + name for name in d_files], split = "train")
+        tokenized_prompts = []
+        for i in tqdm(range(len(dataset))):
+            prompt = dataset[i]['text']
+            tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")
+            tokenized_prompts.append(tokenized_prompt)
+
+        return tokenized_prompts
+
     elif dataset_name == 'pg19':
         dataset = load_dataset("emozilla/pg19")
         test_valid_dict = json.load(open(f"data/json/pg19.json", "r"))
