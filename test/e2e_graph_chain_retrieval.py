@@ -133,7 +133,7 @@ for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
     Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
 
 all_speed = []
-for input_ids in tqdm(tokenized_prompts, desc="Baseline Test"):
+for input_ids in tqdm(tokenized_prompts[:6], desc="Baseline Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     speed = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
     all_speed.append(speed)
