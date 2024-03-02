@@ -52,7 +52,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
                 tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :4096]
                 tokenized_prompts.append(tokenized_prompt)
                 # assert tokenized_prompt.shape[1] > 120000, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
-            
+
             for i in tqdm(valid_idx):
                 prompt = dataset['validation'][i]['text'][:4096*5]
                 tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :4096]
