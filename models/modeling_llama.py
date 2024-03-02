@@ -125,6 +125,7 @@ class LlamaAttention(nn.Module):
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = 0,
+        spec=False,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, _ = hidden_states.size()
 
@@ -141,12 +142,13 @@ class LlamaAttention(nn.Module):
         query_states = query_states.transpose(1, 2)
         key_states = key_states.transpose(1, 2)
 
-        if storage_ids is not None:
-            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
+        if spec: # spec decoding
+            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx)
         else:
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
 
+            # init graph cache
             if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashChunkTopKVerificationCache)): # update graph cache
                 if graph_cache.init_graph == False:
                     graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
@@ -201,6 +203,7 @@ class LlamaDecoderLayer(nn.Module):
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = 0,
+        spec=False,
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
 
         residual = hidden_states
@@ -215,6 +218,7 @@ class LlamaDecoderLayer(nn.Module):
             graph_cache=graph_cache,
             storage_ids=storage_ids,
             gamma_offset=gamma_offset,
+            spec=spec,
         )
         hidden_states = residual + hidden_states
 
@@ -271,6 +275,7 @@ class LlamaModel(LlamaPreTrainedModel):
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = 0,
+        spec=False,
     ):
         batch_size, seq_length = input_ids.shape[:2]
         kv_cache_length = kv_cache.seq_len
@@ -281,10 +286,6 @@ class LlamaModel(LlamaPreTrainedModel):
             position_ids = position_ids.unsqueeze(0)
 
         inputs_embeds = self.embed_tokens(input_ids)
-        # attention_mask = _prepare_4d_causal_attention_mask(
-        #     attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
-        # )
-
         hidden_states = inputs_embeds
 
         for decoder_layer in self.layers:
@@ -296,6 +297,7 @@ class LlamaModel(LlamaPreTrainedModel):
                 graph_cache=graph_cache,
                 storage_ids=storage_ids,
                 gamma_offset=gamma_offset,
+                spec=spec,
             )
 
             hidden_states = layer_outputs
@@ -325,6 +327,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = 0,
+        spec=False,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
         outputs = self.model(
@@ -335,6 +338,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             graph_cache=graph_cache,
             storage_ids=storage_ids,
             gamma_offset=gamma_offset,
+            spec=spec,
         )
 
         hidden_states = outputs

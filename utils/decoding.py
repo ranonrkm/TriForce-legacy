@@ -1365,7 +1365,6 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
     verify_tokens = torch.full((1, gamma + 1), 100, device=graph_engine.engine.model.device)
     verify_tokens[:, 0] = next_token
 
-    storage_ids = torch.arange(graph_engine.engine.graph_cache.max_budget, graph_engine.engine.graph_cache.max_budget+gamma+1, device=graph_engine.engine.model.device)
     position_ids = torch.arange(graph_engine.engine.kv_cache.seq_len, graph_engine.engine.kv_cache.seq_len+gamma+1, device=graph_engine.engine.model.device).unsqueeze(0)
 
     # time1 = time.time()
@@ -1379,7 +1378,7 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
         verify_tokens[:, n+1:n+2] = pred_token_idx
         # print(verify_tokens)
         # print(verify_tokens, storage_ids, position_ids)
-        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens, storage_ids=storage_ids, position_ids=position_ids)
+        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens, position_ids=position_ids)
 
         # print(verify_prob.shape, speculation_prob.shape)
 
@@ -1614,12 +1613,11 @@ def Spec_without_tiny_in_chain(next_token, graph_engine, gamma, verbose, tokeniz
     verify_tokens = torch.full((1, gamma + 2), 100, device=graph_engine.engine.model.device)
     verify_tokens[:, 0] = next_token
 
-    storage_ids = torch.arange(graph_engine.engine.graph_cache.max_budget, graph_engine.engine.graph_cache.max_budget+gamma+1, device=graph_engine.engine.model.device)
     position_ids = torch.arange(graph_engine.engine.kv_cache.seq_len, graph_engine.engine.kv_cache.seq_len+gamma+1, device=graph_engine.engine.model.device).unsqueeze(0)
 
     # time1 = time.time()
     while n < gamma:
-        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens[:,:-1], storage_ids=storage_ids, position_ids=position_ids)
+        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens[:,:-1], position_ids=position_ids)
         pred_token_idx = sample(verify_prob[n])
         token_idx = pred_token_idx.item()
         return_generated_ids.append(token_idx)

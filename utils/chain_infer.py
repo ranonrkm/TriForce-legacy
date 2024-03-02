@@ -40,7 +40,7 @@ class InferenceEngine:
         return logits
 
     @torch.inference_mode()
-    def draft_run(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, gamma_offset: int=0, probs=False, temperature=0.6):
+    def draft_run(self, input_ids: torch.LongTensor, gamma_offset: int=0, probs=False, temperature=0.6):
         if input_ids.shape[-1] > 64: # prefill
             iter_prefill = math.ceil(input_ids.shape[1] / 64)
             for i in range(iter_prefill):
@@ -51,7 +51,7 @@ class InferenceEngine:
                     graph_cache=None,
                 ).logits
         else: # decoding
-            logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
+            logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, gamma_offset=gamma_offset).logits
 
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
@@ -59,9 +59,9 @@ class InferenceEngine:
         return logits
 
     @torch.inference_mode()
-    def model_verify(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6):
+    def model_verify(self, input_ids: torch.LongTensor, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6):
         # graph verification (used for cuda graph capture)
-        logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
+        logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, position_ids=position_ids, spec=True).logits
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
             return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=0.9)
@@ -102,25 +102,25 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     
     # model_verify is verifying gamma tokens
     static_input_ids = torch.full((1, gamma+1), 0, dtype=torch.long, device=device)
-    static_storage_ids = torch.arange(gamma+1, device=device)
-    static_position_ids = static_storage_ids.clone().unsqueeze(0)
+    # static_storage_ids = torch.arange(gamma+1, device=device)
+    static_position_ids = torch.arange(gamma+1, device=device).unsqueeze(0)
     
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
         for _ in range(n_warmups):
-            static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
+            static_logits = engine.model_verify(input_ids=static_input_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
 
     print(f"[model verify] capturing graph for spec len {gamma} (probs={probs}, temp={temperature})...")
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
-        static_logits = engine.model_verify(input_ids=static_input_ids, storage_ids=static_storage_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
+        static_logits = engine.model_verify(input_ids=static_input_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
     
-    def run(input_ids, storage_ids, position_ids):
+    def run(input_ids, position_ids):
         static_input_ids.copy_(input_ids)
-        static_storage_ids.copy_(storage_ids)
+        # static_storage_ids.copy_(storage_ids)
         static_position_ids.copy_(position_ids)
         graph.replay()
         return static_logits.clone()
@@ -182,9 +182,9 @@ class GraphInferenceEngine:
         return self.engine.model_run(input_ids=input_ids)
 
     @torch.inference_mode()
-    def graph_verify(self, input_ids: torch.LongTensor, storage_ids: torch.LongTensor, position_ids: torch.LongTensor):
+    def graph_verify(self, input_ids: torch.LongTensor, position_ids: torch.LongTensor):
         # model verify
-        return self.callable_model_verify(input_ids, storage_ids, position_ids)
+        return self.callable_model_verify(input_ids, position_ids)
 
     def init_graph_cache(self):
         self.engine.graph_cache.init_graph_cache(kv_cache=self.engine.kv_cache)
