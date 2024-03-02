@@ -1630,7 +1630,6 @@ def Spec_without_tiny_in_chain(next_token, graph_engine, gamma, verbose, tokeniz
     return return_generated_ids, return_speculation_probs, acceptance_rate
 
 
-
 @torch.inference_mode()
 def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
 

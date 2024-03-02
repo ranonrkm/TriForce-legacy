@@ -144,6 +144,9 @@ class LlamaAttention(nn.Module):
         if storage_ids is not None:
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids, kv_cache=kv_cache, query_states=query_states, gamma_offset=gamma_offset)
         else:
+            # update kv cache first
+            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
+
             if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashChunkTopKVerificationCache)): # update graph cache
                 if graph_cache.init_graph == False:
                     graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
@@ -153,7 +156,6 @@ class LlamaAttention(nn.Module):
             if query_states.shape[1] == 1 and (isinstance(graph_cache, GraphFlashTopKCache) or isinstance(graph_cache, GraphFlashChunkTopKCache)):
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
-            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
             # if isinstance(graph_cache, GraphFlashChunkCache):
             #     graph_cache.update_graph_cache(layer_idx=self.layer_idx, kv_cache=kv_cache, query_states=query_states[:,-1:])
 

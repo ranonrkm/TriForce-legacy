@@ -137,6 +137,62 @@ class FlashSimpleCache(Cache):
 
         return key, value
 
+class OffloadingFlashSimpleCache(Cache):
+    def __init__(self, model, max_budget=1024) -> None:
+        self.seq_len = 0
+        self.max_budget = max_budget
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        dtype = model.model.layers[0].self_attn.q_proj.weight.dtype
+        self.device = model.device
+
+        self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device='cpu').pin_memory()
+        self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device='cpu').pin_memory()
+
+        # init layer cache buffer on chip
+        self.key_cache_buffer = torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
+        self.value_cache_buffer = torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
+
+    def print_status(self):
+        print("[Offloading Flash Simple Cache] Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+    
+    def reset(self):
+        self.seq_len = 0
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def update(
+        self,
+        key_states: torch.Tensor,
+        value_states: torch.Tensor,
+        layer_idx: int,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        
+        # copy incoming k v cache to cpu
+        self.key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = key_states.cpu()
+        self.value_cache[layer_idx][:, self.seq_len : self.seq_len + value_states.shape[-3]] = value_states.cpu()
+
+        # copy k v cache to buffer
+        self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
+        self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+        
+        key = self.key_cache_buffer[:, :self.seq_len + value_states.shape[-3]]
+        value = self.value_cache_buffer[:, :self.seq_len + value_states.shape[-3]]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-3]
+
+        return key, value
+
+
 class StreamLLMCache(Cache):
     def __init__(self, model, max_budget=1024, start_size=4, recent_size=16, skip_start_layers=-1, gamma=4) -> None:
         self.key_cache: List[torch.Tensor] = []
@@ -1539,7 +1595,7 @@ class GraphFlashChunkTopKVerificationCache(Cache):
 
         assert 1 == query_states.shape[1], "query_states should be 1 for init"
 
-        chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].view(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
+        chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].cuda().view(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
         
         chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 2, 3, 1)).squeeze(2) # (bsz, 32, chunks)
         _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
@@ -1552,20 +1608,19 @@ class GraphFlashChunkTopKVerificationCache(Cache):
         expanded_index_tensor = topk_idx.permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim)
 
         # (bsz, prefill, 32, head_dim) --> (bsz, chunks, chunk_size, 32, head_dim) --> (bsz, chunks, 32, chunk_size, head_dim)
-        key_ = kv_cache.key_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim)
+        key_ = kv_cache.key_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
         key_ = key_.permute(0, 1, 3, 2, 4)
         result_tensor = torch.gather(key_, 1, expanded_index_tensor) # (bsz, select_sets, 32, chunk_size, head_dim)
         # (bsz, select_sets, 32, chunk_size, head_dim) --> (bsz, select_sets*chunk_size, 32, head_dim)
         self.key_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
 
-        value_ = kv_cache.value_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim)
+        value_ = kv_cache.value_cache[layer_idx][:, :self.prefill].reshape(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
         value_ = value_.permute(0, 1, 3, 2, 4)
         result_tensor = torch.gather(value_, 1, expanded_index_tensor)
         self.value_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(1, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
 
         if layer_idx == self.layers-1:
             self.init_graph = True
-
 
     def update_graph_cache(self, kv_cache=None):
         self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len].clone()
