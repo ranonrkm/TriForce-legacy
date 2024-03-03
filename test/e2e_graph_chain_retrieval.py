@@ -75,9 +75,9 @@ verbose = args.verbose
 
 if args.log_csv:
     if 'lovelace' in host:
-        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_graph_chain_retrieval.csv"
+        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_E2E_graph_chain_retrieval.csv"
     else:
-        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_graph_chain_retrieval.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_E2E_graph_chain_retrieval.csv"
 else:
     file_path = None
 
@@ -127,13 +127,13 @@ draft_cache.print_status()
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 ######## Warm up for baseline ########
-n_warmups = 6
+n_warmups = 1
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
     Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
 
 all_speed = []
-for input_ids in tqdm(tokenized_prompts[:6], desc="Baseline Test"):
+for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     speed = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
     all_speed.append(speed)
@@ -145,14 +145,14 @@ print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms
 n_warmups = 6
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
-    Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size})
 
 all_acceptance_rate = []
 all_speed = []
 for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate, speed = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    acceptance_rate, speed = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size, 'gamma': gamma})
     all_acceptance_rate.append(acceptance_rate)
     all_speed.append(speed)
 

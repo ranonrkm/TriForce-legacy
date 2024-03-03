@@ -1,0 +1,2 @@
+target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle,budget,draft,chunk_size,gamma
+NousResearch/Yarn-Llama-2-7b-128k,0.71,33.07323243446658,4.26,32768,261,benchmark,0.371875,0.1,llama-68M,8,6
