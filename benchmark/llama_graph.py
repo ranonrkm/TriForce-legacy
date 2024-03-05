@@ -10,7 +10,7 @@ from tqdm import tqdm
 import socket
 from time import sleep
 from torch.profiler import profile, record_function, ProfilerActivity
-from models.modeling_llama import LlamaForCausalLM, LlamaConfig
+from models.modeling_benchmark import LlamaForCausalLM, LlamaConfig
 from models.cache_utils import SimpleCache, FlashSimpleCache, GraphFlashSimpleCache, GraphSimpleCache
 from utils.graph_infer import GraphInferenceEngine
 
@@ -29,7 +29,7 @@ host = socket.gethostname()
 if 'lovelace' in host:
     file_path = "/home/hanshis/workspace/LongContextInfer/benchmark/report/L40_llama_7B_128K_graph.csv"
 else:
-    file_path = "/data/home/beidic/hanshi/LongContextInfer/benchmark/report/A100_llama_7B_128K_graph.csv"
+    file_path = "/data/home/beidic/hanshi/LongContextInfer/benchmark/report/A100_llama_7B_128K_graph_turning_point.csv"
 
 try:
     with open(file_path, 'r') as f:
@@ -56,23 +56,23 @@ else:
 # print(model)
 # sleep(1000)
 
-# DEC_LEN_LIST = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
+DEC_LEN_LIST = [1,2,4,8,16,32,48,64,80,96,112,128,144,160,176,192,208,224,240,256,272,288,304,320,336,352,368,384,400,416,432,448,464,480,496,512]
 
-DEC_LEN_LIST = [1]
+# DEC_LEN_LIST = [1]
 
-MAX_LEN = PREFIX_LEN + 1
-
-cache = FlashSimpleCache(model, MAX_LEN)
-graph_cache = GraphFlashSimpleCache(model, MAX_LEN)
+MAX_LEN = PREFIX_LEN + max(DEC_LEN_LIST)
 
 for DEC_LEN in DEC_LEN_LIST:
+
+    cache = FlashSimpleCache(model, 1)
+    graph_cache = GraphFlashSimpleCache(model, MAX_LEN)
     cache.reset()
     graph_cache.reset()
     prefix = torch.randint(low=3, high=30000, size=(1, PREFIX_LEN), device=model.device)
     assert prefix.shape[-1] == PREFIX_LEN
     
     graph_engine = GraphInferenceEngine(model, cache, graph_cache)
-    graph_engine.initialize_cuda_graph(1)
+    graph_engine.initialize_cuda_graph(DEC_LEN)
 
     # graph_engine.inference(input_ids=prefix)
 
@@ -86,7 +86,7 @@ for DEC_LEN in DEC_LEN_LIST:
     position_ids = storage_ids.clone().unsqueeze(0)
     # print(input_ids, storage_ids, position_ids)
     for _ in range(WARM_UP):
-        graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+        graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=DEC_LEN-1)
 
     print("Start benchmark...")
     torch.cuda.synchronize()
@@ -101,12 +101,12 @@ for DEC_LEN in DEC_LEN_LIST:
     # exit()
 
     for _ in range(T):
-        graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids)
+        graph_engine.graph_inference(input_ids=input_ids, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=DEC_LEN-1)
 
     torch.cuda.synchronize()
     t2 = time.time()
 
     print("Prefix Length :{}, Decode Length :{}, inference time:{}s".format(PREFIX_LEN, DEC_LEN, (t2 - t1)/ T))
 
-    # with open(file_path, 'a') as f:
-    #     f.write(f"{model_name},{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T},{args.flash}\n")
+    with open(file_path, 'a') as f:
+        f.write(f"{model_name},{PREFIX_LEN},{DEC_LEN},{(t2 - t1) / T},{T}\n")

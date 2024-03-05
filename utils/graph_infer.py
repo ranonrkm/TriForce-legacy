@@ -31,7 +31,7 @@ class InferenceEngine:
             else: # verification
                 logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache).logits
         else: # graph decoding (used for cuda graph capture)
-            logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset).logits
+            logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids, gamma_offset=gamma_offset, spec=True).logits
         return logits
     
     def clear_kv(self):
@@ -41,8 +41,8 @@ class InferenceEngine:
 def capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3):
     device = engine.model.device
     
-    static_input_ids = torch.full((1, 1), 0, dtype=torch.long, device=device)
-    static_storage_ids = torch.arange(1, device=device)
+    static_input_ids = torch.full((1, gamma_offset+1), 0, dtype=torch.long, device=device)
+    static_storage_ids = torch.arange(gamma_offset+1, device=device)
     static_position_ids = static_storage_ids.clone().unsqueeze(0)
     
     s = torch.cuda.Stream()

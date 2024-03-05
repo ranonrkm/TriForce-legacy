@@ -61,7 +61,7 @@ class InferenceEngine:
     @torch.inference_mode()
     def model_verify(self, input_ids: torch.LongTensor, storage_ids: Optional[torch.LongTensor]=None, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6):
         # graph verification (used for cuda graph capture)
-        logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids).logits
+        logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, storage_ids=storage_ids, position_ids=position_ids, spec=True).logits
         if probs: # without top_p
             # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
             return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=0.9)

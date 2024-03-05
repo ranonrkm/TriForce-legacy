@@ -1,3 +1,4 @@
+# CUDA_VISIBLE_DEVICES=3 nohup python test/e2e_offloading_graph_chain_retrieval.py --gamma 32 --verbose --prefill 130048 --dataset 128k --budget 0.05 --draft llama-68M-align > archive/log/offloading.log &
 import os
 import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -11,7 +12,7 @@ from models.modeling_llama import LlamaForCausalLM
 from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
 from models.cache_utils import OffloadingFlashSimpleCache, GraphFlashStreamEvictionCache_V2, GraphFlashStreamLLMVerificationCache, GraphFlashChunkTopKVerificationCache
 from utils.decoding import Graph_Chain_V2, Graph_Chain_Retrieval_Spec, Baseline
-from utils.misc import print_config
+from utils.misc import print_config, setup_seed
 from utils.offloading_chain_infer import GraphInferenceEngine
 import socket
 host = socket.gethostname()
@@ -23,6 +24,7 @@ def parse_arguments():
     parser.add_argument('--draft', type=str, default='llama-68M', help='draft model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
+    parser.add_argument('--seed', type=int, default=42, help='seed')
 
     parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
@@ -39,6 +41,7 @@ def parse_arguments():
     return args
 
 args = parse_arguments()
+setup_seed(args.seed)
 
 ######## model initialization ########
 if args.target == 'llama-7B':
