@@ -156,10 +156,16 @@ class SpecTree(Tree):
         # print(f"Grow step: {grow_step}, idx_list: {idx_list}, n_branch_list: {n_branch_list}, total_branch: {total_branch}")
 
         # new_tokens_set = draft_logits.topk(total_branch, dim=-1).indices
-        # assert torch.allclose(self.draft_logits[idx_list], draft_logits), "Draft logits not equal"
+        assert torch.allclose(self.draft_logits[idx_list], draft_logits), "Draft logits not equal"
         new_tokens_set = self.sampling_callables[grow_step](self.draft_logits[idx_list], self.rand[idx_list])
         new_tokens_set = new_tokens_set[self.sample_gather_indices[grow_step]]
         self.verify_tokens[next_idx_list] = new_tokens_set
+        
+        # print(f"New tokens set: {new_tokens_set}")
+        # for i in new_tokens_set:
+        #     print(draft_logits[:,i])
+        # exit()
+
         new_tokens_set = new_tokens_set.view(1, total_branch)
         # print(new_tokens_set)
         # assert new_tokens_set.shape == (1, total_branch), f"New tokens set shape: {new_tokens_set.shape}"
@@ -187,7 +193,7 @@ class SpecTree(Tree):
         children = self.Successors[logits_id]
         
         if len(children) == 0:
-            return (-1, p)
+            return (-2, p)
         
         for pos in children:
             token = self.verify_tokens[pos]
@@ -217,22 +223,23 @@ class SpecTree(Tree):
         self.target_logits = softmax(self.target_logits / self.temperature, dim=-1)
         
         # print(f"Target logits: {self.target_logits.shape}, Draft logits: {self.draft_logits.shape}")
-
+        acc_count = 0
         accept_list = []
         accept_list.append(0)
         terminal = False
         while True:
             pos, res = self.accept_step(logits_id=accept_list[-1])
-            if pos != -1:
+            if pos > -1:
                 # accept
                 accept_list.append(pos)
                 spec_stream(self.verify_tokens[pos], self.tokenizer, 'green')
+                acc_count += 1
                 # eos
                 if self.verify_tokens[pos] == 0 or self.verify_tokens[pos] == 2:
                     terminal = True
                     break
             else:
-                # reject
+                # reject or last node
                 residual = res
                 break
         
@@ -241,13 +248,20 @@ class SpecTree(Tree):
                 terminal = True
             else:
                 next_token = residual.multinomial(num_samples=1, replacement=True)
-                spec_stream(next_token[0], self.tokenizer, 'red')
+                if pos == -2:
+                    spec_stream(next_token[0], self.tokenizer, 'blue')
+                else:
+                    spec_stream(next_token[0], self.tokenizer, 'red')
+                acc_count += 1
             
         # print(f"Accept list: {accept_list}, Terminal: {terminal}, Accept length: {accept_length}")
         # print(self.verify_tokens)
         # print(self.verify_tokens[accept_list])
+        
+        if terminal:
+            print(f"Terminal: {terminal}, Accept list: {accept_list}, Accept count: {acc_count}")
 
-        accept_list = accept_list[1:]
+        # assert len(accept_list) == acc_count, f"Accept list: {accept_list}, Accept count: {acc_count}"
         accept_tokens = self.verify_tokens[accept_list]
         accept_tokens = torch.cat([accept_tokens, next_token], dim=-1)
 
@@ -259,5 +273,10 @@ class SpecTree(Tree):
         self.graph_engine.update_graph_cache()
         self.draft_logits.zero_()
         self.verify_tokens.zero_()
-        self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
-        return next_token
+        # self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
+        
+        # assert torch.allclose(self.graph_engine.engine.kv_cache.key_cache[:,:,:,:900], self.graph_engine.engine.graph_cache.key_cache[:,:,:,:900])
+
+        # exit()
+
+        return next_token, acc_count

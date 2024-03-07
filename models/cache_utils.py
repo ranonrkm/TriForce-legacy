@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional, Tuple
+from numpy import dtype
 import torch
 import math
 
@@ -1968,7 +1969,7 @@ class TREEChunkTopKCache:
         self.select_sets = max_budget // self.chunk_size
         self.tree_size = tree_size
         self.max_budget = max_budget
-        self.seq_len = 0
+        self.seq_len = self.max_budget
         assert prefill % self.chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {self.chunk_size}"
         assert max_budget % self.chunk_size == 0, f"max_budget should be multiple of chunk_size, got {max_budget} % {self.chunk_size}"
 
@@ -1995,23 +1996,29 @@ class TREEChunkTopKCache:
         # query_states: (bsz, 32, 1, head_dim)
         # k_cache: (bsz, 32, head_dim, seq_len)
 
+        if self.init_graph == True:
+            raise ValueError("Graph is already initialized")
+
         assert query_states.shape[2] == 1, "query_states should be 1 for init"
 
         self.chunk_k = kv_cache.key_cache[layer_idx,:,:,:self.prefill].view(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim).mean(dim=-2)
         
-        
         chunk_attn = torch.matmul(query_states, self.chunk_k.permute(0, 1, 3, 2)).squeeze(2) # (bsz, 32, chunks)
         _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
         topk_idx_rest += 1
+
+        # !!! DEBUG USE
+        # topk_idx_rest = topk_idx_rest.sort().values
+
         topk_idx_first = torch.zeros((topk_idx_rest.shape[0], topk_idx_rest.shape[1], 1), device=topk_idx_rest.device, dtype=topk_idx_rest.dtype)
         topk_idx = torch.cat([topk_idx_first, topk_idx_rest], dim=-1)  # (bsz, 32, select_sets)
 
+        # print(topk_idx)
+
         expanded_index_tensor = topk_idx.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim) # (bsz, 32, select_sets, self.chunk_size, self.head_dim)
 
-        # OLD: (bsz, prefill, 32, head_dim) --> (bsz, chunks, chunk_size, 32, head_dim) --> (bsz, chunks, 32, chunk_size, head_dim)
         # NEW: (bsz, 32, prefill, head_dim) --> (bsz, 32, chunks, chunk_size, head_dim)
         key_ = kv_cache.key_cache[layer_idx,:,:,:self.prefill].reshape(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim)
-
         # print(key_.shape, expanded_index_tensor.shape)
         result_tensor = torch.gather(key_, 2, expanded_index_tensor) # (bsz, 32, select_sets, chunk_size, head_dim)
         # (bsz, 32, select_sets, chunk_size, head_dim) --> (bsz, 32, select_sets*chunk_size, head_dim)
@@ -2021,21 +2028,35 @@ class TREEChunkTopKCache:
         result_tensor = torch.gather(value_, 2, expanded_index_tensor)
         self.value_cache[layer_idx,:,:,:self.max_budget] = result_tensor.reshape(1, self.num_heads, self.select_sets*self.chunk_size, self.head_dim)
 
+        # assert torch.allclose(self.key_cache[layer_idx,:,:,:self.max_budget], kv_cache.key_cache[layer_idx,:,:,:self.prefill]), "Key Cache Mismatch"
+        # assert torch.allclose(self.value_cache[layer_idx,:,:,:self.max_budget], kv_cache.value_cache[layer_idx,:,:,:self.prefill]), "Value Cache Mismatch"
+
         if layer_idx == self.layers-1:
             self.init_graph = True
 
     def update_graph_cache(self, kv_cache=None):
+        # print(self.max_budget, kv_cache.seq_len, self.prefill)
+        # print(self.value_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget].shape)
         self.value_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:,:, self.prefill:kv_cache.seq_len].clone()
         self.key_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:,:, self.prefill:kv_cache.seq_len].clone()
 
+        self.seq_len = self.max_budget
+
     def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids):
         input_length = len(storage_ids)
+
+        assert self.seq_len + input_length <= self.real_budget, (self.seq_len, input_length, self.real_budget)
+
+        # print(storage_ids)
 
         assert input_length == new_k_cache.shape[-2]
         assert input_length == new_v_cache.shape[-2]
         
         self.key_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_k_cache)
         self.value_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_v_cache)
+
+        if layer_idx == self.layers-1:
+            self.seq_len += input_length
 
         return self.key_cache[layer_idx], self.value_cache[layer_idx]
 
@@ -2077,8 +2098,8 @@ class TREESimpleCache(Cache):
         layer_idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
         value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
@@ -2089,7 +2110,79 @@ class TREESimpleCache(Cache):
         return key, value
     
     def gather_kv_incremental(self, indices: list[int], offset:int):
+        # print(indices, offset)
+        indices = [i + offset for i in indices]
+        # print(indices)
+        self.key_cache[..., offset:offset + len(indices), :] = self.key_cache[..., indices, :].clone()
+        self.value_cache[..., offset:offset + len(indices), :] = self.value_cache[..., indices, :].clone()
 
+        self.key_cache[..., offset + len(indices):, :] = 0.0
+        self.value_cache[..., offset + len(indices):, :] = 0.0
+
+        self.seq_len = offset + len(indices)
+
+
+class OffloadingTREESimpleCache(Cache):
+    def __init__(self, model, max_budget=1024) -> None:
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
+        self.seq_len = 0
+        self.max_budget = max_budget
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        dtype = torch.float16
+        self.key_cache = torch.zeros([self.layers, 1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device='cpu').pin_memory()
+        self.value_cache = torch.zeros([self.layers, 1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device='cpu').pin_memory()
+
+        # init layer cache buffer on chip
+        self.key_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+        self.value_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+
+    def print_status(self):
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+    
+    def reset(self):
+        self.seq_len = 0
+        self.key_cache.zero_()
+        self.value_cache.zero_()
+        self.key_cache_buffer.zero_()
+        self.value_cache_buffer.zero_()
+
+    def update(
+        self,
+        key_states: torch.Tensor,
+        value_states: torch.Tensor,
+        layer_idx: int,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+
+        # copy incoming k v cache to cpu
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.cpu()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.cpu()
+
+        # copy k v cache to buffer
+        self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
+        self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+        
+        key = self.key_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
+        value = self.value_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-2]
+
+        return key, value
+
+    def gather_kv_incremental(self, indices: list[int], offset:int):
+        #!!! on chip or cpu-directly moving???
+        # print(indices, offset)
+        indices = [i + offset for i in indices]
+        # print(indices)
         self.key_cache[..., offset:offset + len(indices), :] = self.key_cache[..., indices, :]
         self.value_cache[..., offset:offset + len(indices), :] = self.value_cache[..., indices, :]
 

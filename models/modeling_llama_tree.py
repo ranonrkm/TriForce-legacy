@@ -139,7 +139,7 @@ class LlamaAttention(nn.Module):
 
         if spec: # spec decoding: graph cache
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids)
-            # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
+            # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
         else:
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)

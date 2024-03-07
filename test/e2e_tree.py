@@ -12,7 +12,7 @@ from models.cache_utils import TREEChunkTopKCache, TREESimpleCache
 from utils.decoding import Baseline
 from utils.misc import print_config, setup_seed, spec_stream
 from utils.tree_infer import GraphInferenceEngine, get_sampling_logits, cuda_graph_for_residual, cuda_graph_for_sampling_without_replacement
-
+import numpy as np
 from utils.SpecTree import SpecTree
 
 import socket
@@ -105,7 +105,7 @@ idx_lists = grow_map["roots"]
 branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
-cache = TREESimpleCache(target, prefill+gen_len+16)
+cache = TREESimpleCache(target, prefill+gen_len+tree_size+16)
 graph_cache = TREEChunkTopKCache(target, max_budget=max_budget, prefill=prefill, tree_size=tree_size, chunk_size=chunk_size)
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
@@ -137,28 +137,23 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 input_ids = tokenized_prompts[0][0,:args.prefill].to(target.device)
 
-
 dtype = torch.float16
 max_length = prefill+gen_len
 
-attn_mask = torch.full((max_length, max_length), torch.finfo(dtype).min, dtype=dtype, device='cuda:0')
-sequence = torch.tensor(list(range(max_length)), device='cuda:0').long().unsqueeze(-1)
-new_tokens_buffer =  torch.zeros(max_length).long().to('cuda:0')
-parents_buffer =  torch.zeros(max_length).long().to('cuda:0')
-position_ids = torch.zeros(max_length).long().to('cuda:0')
-
-spectree = SpecTree(prefix=input_ids, engine=graph_engine, device='cuda:0', temperature=args.temp, top_p=top_p,
+spectree = SpecTree(engine=graph_engine, device='cuda:0', temperature=args.temp, top_p=top_p,
                     max_length=prefill+gen_len, grow_map=grow_map,
-                    attn_mask = attn_mask, sequence = sequence, new_tokens_buffer = new_tokens_buffer, 
-                    parents_buffer = parents_buffer,
-                    position_ids = position_ids,
                     residual_graph = residual_graph,
                     sampling_callables=sampling_callables,
                     sample_gather_indices = sample_gather_indices,
                     tokenizer=tokenizer)
 
-
-
+n=0
 next_token = spectree.prefill(prefix=input_ids)
-spectree.construct_grow_map(next_token=next_token)
-next_token = spectree.verify()
+acc_count_list = []
+while n < gen_len:
+    spectree.construct_grow_map(next_token=next_token)
+    next_token, acc_count = spectree.verify()
+    next_token = next_token.unsqueeze(0)
+    n += acc_count
+    acc_count_list.append(acc_count)
+print(np.array(acc_count_list).mean())
