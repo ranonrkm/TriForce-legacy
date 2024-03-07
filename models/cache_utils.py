@@ -193,7 +193,6 @@ class OffloadingFlashSimpleCache(Cache):
 
         return key, value
 
-
 class StreamLLMCache(Cache):
     def __init__(self, model, max_budget=1024, start_size=4, recent_size=16, skip_start_layers=-1, gamma=4) -> None:
         self.key_cache: List[torch.Tensor] = []
@@ -1989,7 +1988,7 @@ class TREEChunkTopKCache:
         self.value_cache = torch.zeros([self.layers, 1, self.num_heads, self.real_budget, self.head_dim], dtype=torch.float16).to(model.device)
 
     def print_status(self):
-        print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets, " | Graph Init:", self.init_graph)
+        print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets, " | Graph Init:", self.init_graph, " | Seq Len:", self.seq_len)
 
     def init_graph_cache(self, kv_cache, query_states, layer_idx):
 
@@ -2001,7 +2000,7 @@ class TREEChunkTopKCache:
 
         assert query_states.shape[2] == 1, "query_states should be 1 for init"
 
-        self.chunk_k = kv_cache.key_cache[layer_idx,:,:,:self.prefill].view(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim).mean(dim=-2)
+        self.chunk_k = kv_cache.key_cache[layer_idx,:,:,:self.prefill].cuda().view(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim).mean(dim=-2)
         
         chunk_attn = torch.matmul(query_states, self.chunk_k.permute(0, 1, 3, 2)).squeeze(2) # (bsz, 32, chunks)
         _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
@@ -2018,13 +2017,13 @@ class TREEChunkTopKCache:
         expanded_index_tensor = topk_idx.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim) # (bsz, 32, select_sets, self.chunk_size, self.head_dim)
 
         # NEW: (bsz, 32, prefill, head_dim) --> (bsz, 32, chunks, chunk_size, head_dim)
-        key_ = kv_cache.key_cache[layer_idx,:,:,:self.prefill].reshape(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim)
+        key_ = kv_cache.key_cache[layer_idx,:,:,:self.prefill].cuda().reshape(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim)
         # print(key_.shape, expanded_index_tensor.shape)
         result_tensor = torch.gather(key_, 2, expanded_index_tensor) # (bsz, 32, select_sets, chunk_size, head_dim)
         # (bsz, 32, select_sets, chunk_size, head_dim) --> (bsz, 32, select_sets*chunk_size, head_dim)
         self.key_cache[layer_idx,:,:,:self.max_budget] = result_tensor.reshape(1, self.num_heads, self.select_sets*self.chunk_size, self.head_dim)
 
-        value_ = kv_cache.value_cache[layer_idx,:,:,:self.prefill].reshape(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim)
+        value_ = kv_cache.value_cache[layer_idx,:,:,:self.prefill].cuda().reshape(1, self.num_heads, self.chunks, self.chunk_size, self.head_dim)
         result_tensor = torch.gather(value_, 2, expanded_index_tensor)
         self.value_cache[layer_idx,:,:,:self.max_budget] = result_tensor.reshape(1, self.num_heads, self.select_sets*self.chunk_size, self.head_dim)
 
@@ -2037,15 +2036,15 @@ class TREEChunkTopKCache:
     def update_graph_cache(self, kv_cache=None):
         # print(self.max_budget, kv_cache.seq_len, self.prefill)
         # print(self.value_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget].shape)
-        self.value_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:,:, self.prefill:kv_cache.seq_len].clone()
-        self.key_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:,:, self.prefill:kv_cache.seq_len].clone()
+        self.value_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:,:, self.prefill:kv_cache.seq_len].cuda().clone()
+        self.key_cache[:,:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:,:, self.prefill:kv_cache.seq_len].cuda().clone()
 
         self.seq_len = self.max_budget
 
     def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids):
         input_length = len(storage_ids)
 
-        assert self.seq_len + input_length <= self.real_budget, (self.seq_len, input_length, self.real_budget)
+        # assert self.seq_len + input_length <= self.real_budget, (self.seq_len, input_length, self.real_budget)
 
         # print(storage_ids)
 
@@ -2055,8 +2054,8 @@ class TREEChunkTopKCache:
         self.key_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_k_cache)
         self.value_cache[layer_idx].index_copy_(dim=-2, index=storage_ids, source=new_v_cache)
 
-        if layer_idx == self.layers-1:
-            self.seq_len += input_length
+        # if layer_idx == self.layers-1:
+        #     self.seq_len += input_length
 
         return self.key_cache[layer_idx], self.value_cache[layer_idx]
 
@@ -2128,6 +2127,7 @@ class OffloadingTREESimpleCache(Cache):
         self.value_cache: List[torch.Tensor] = []
         self.seq_len = 0
         self.max_budget = max_budget
+        self.device = model.device
 
         self.hidden_size = model.config.hidden_size
         if hasattr(model.config, 'num_key_value_heads'):
@@ -2179,7 +2179,6 @@ class OffloadingTREESimpleCache(Cache):
         return key, value
 
     def gather_kv_incremental(self, indices: list[int], offset:int):
-        #!!! on chip or cpu-directly moving???
         # print(indices, offset)
         indices = [i + offset for i in indices]
         # print(indices)

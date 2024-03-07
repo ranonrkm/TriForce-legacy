@@ -4,7 +4,7 @@ from numpy import zeros_like
 import torch
 import torch.nn.functional as F
 from torch import nn, ones_like
-
+from flash_attn import flash_attn_with_kvcache
 from transformers.activations import ACT2FN
 from models.cache_utils import Cache
 from transformers.modeling_attn_mask_utils import (
@@ -144,22 +144,45 @@ class LlamaAttention(nn.Module):
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
             # init graph cache (last prefill)
-            if query_states.shape[2] == 1:
+            if query_states.shape[2] == 1 and graph_cache is not None:
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
-
-        attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-        if attention_mask is not None:
-            attn_weights = attn_weights + attention_mask
-        else:
-            assert query_states.shape[2] == 1, "Attention mask is required for non-causal attention"
+        # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
         
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        attn_output = torch.matmul(attn_weights, value_states)
-        attn_output = attn_output.transpose(1, 2).contiguous()
+        if attention_mask is None:
+            assert spec == False, "Attention mask is None only for the last prefill"
+            assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
+        
+            attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
+            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+            attn_output = torch.matmul(attn_weights, value_states)
 
+        else:
+            with torch.backends.cuda.sdp_kernel(enable_math=False):
+                attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
+
+            # attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
+
+            # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
+            # attn_weights = attn_weights + attention_mask
+            # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+            # attn_output = torch.matmul(attn_weights, value_states)
+
+
+        # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
+        # if attention_mask is not None:
+        #     attn_weights = attn_weights + attention_mask
+        # else:
+        #     assert spec == False, "Attention mask is None only for the last prefill"
+        #     assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
+        
+        # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        # attn_output = torch.matmul(attn_weights, value_states)
+        
+        
+        attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
         return attn_output

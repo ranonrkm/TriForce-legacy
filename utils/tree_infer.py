@@ -20,10 +20,10 @@ class InferenceEngine:
     @torch.inference_mode()
     def prefill(self, input_ids: torch.LongTensor):
         if input_ids.shape[-1] > 1: # prefill
-            iter_prefill = math.ceil(input_ids.shape[1] / 100)
+            iter_prefill = math.ceil(input_ids.shape[1] / 1000)
             for i in tqdm(range(iter_prefill)):
                 logits = self.model(
-                    input_ids=input_ids[:, i*100:(i+1)*100],
+                    input_ids=input_ids[:, i*1000:(i+1)*1000],
                     kv_cache=self.kv_cache,
                     graph_cache=None,
                 ).logits
@@ -54,7 +54,7 @@ def capture_graph(engine :InferenceEngine, decoding_seqlen :int =1, mempool=None
     static_input_ids = torch.full((1, decoding_seqlen), 0, dtype=torch.long, device=device)
     static_position_ids = torch.full((1, decoding_seqlen), 0, dtype=torch.long, device=device)
     static_storage_ids = torch.arange(decoding_seqlen, dtype=torch.long, device=device)
-    static_attn_mask = torch.full((decoding_seqlen, engine.max_length), 0, dtype=dtype, device=device)
+    static_attn_mask = torch.full((decoding_seqlen, engine.graph_cache.real_budget), 0, dtype=dtype, device=device)
     static_attn_mask = static_attn_mask[None, None, :, :]
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
@@ -68,6 +68,8 @@ def capture_graph(engine :InferenceEngine, decoding_seqlen :int =1, mempool=None
                     )
         s.synchronize()
     torch.cuda.current_stream().wait_stream(s)
+
+    print(f"[draft graph] {decoding_seqlen} captured")
 
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, pool=mempool):
@@ -131,6 +133,7 @@ class GraphInferenceEngine:
     def verify(self, input_ids: torch.LongTensor, position_ids: Optional[torch.LongTensor]=None, attention_mask: Optional[torch.LongTensor]=None):
         return self.engine.verify(input_ids=input_ids, position_ids=position_ids, attention_mask=attention_mask)
 
+    @torch.inference_mode()
     def update_graph_cache(self):
         self.engine.graph_cache.update_graph_cache(kv_cache=self.engine.kv_cache)
 
@@ -216,14 +219,6 @@ def get_sampling_logits(logits :torch.Tensor, top_p:float, T: float, replicate =
         indices_to_remove = filter.scatter(-1, sorted_indices, filter)
         logits[indices_to_remove] = float('-inf')
     return logits
-
-def select_kv(kv_cache: tuple[list[torch.FloatTensor]], indices: list[int]):
-    new_kv_cache = ()
-    for k,v in kv_cache:
-            k = k[..., indices, :]
-            v = v[..., indices, :]
-            new_kv_cache += ([k,v],)
-    return new_kv_cache
 
 
 def cuda_graph_for_residual(device="cuda:0", dtype=torch.float16, dim=32000, n_warmups=3, mempool=None):
