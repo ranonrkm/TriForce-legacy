@@ -101,7 +101,7 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 ####### cache init #######
 residual_graph = cuda_graph_for_residual()
-path = f'/var/cr06_data/beidic/LongContextInfer/tree/{args.tree_size}.pt'
+path = f'tree/{args.tree_size}.pt'
 
 grow_map = torch.load(path)
 tree_size = grow_map["size"]
