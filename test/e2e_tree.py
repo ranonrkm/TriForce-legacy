@@ -1,3 +1,4 @@
+# CUDA_VISIBLE_DEVICES=1 python test/e2e_tree.py --prefill 130752 --budget 0.1
 import os
 import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -98,7 +99,7 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 ####### cache init #######
 residual_graph = cuda_graph_for_residual()
-path = '/home/hanshis/workspace/Sequoia/long_tree-512.pt'
+path = '/var/cr06_data/beidic/LongContextInfer/tree/256.pt'
 
 grow_map = torch.load(path)
 tree_size = grow_map["size"]
@@ -138,20 +139,20 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 
 
-######## Warm up for TreeBaseline ########
-n_warmups = 1
-input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
-for i in tqdm(range(n_warmups), desc="TreeBaseline Warmup"):
-    TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+####### Warm up for TreeBaseline ########
+# n_warmups = 1
+# input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
+# for i in tqdm(range(n_warmups), desc="TreeBaseline Warmup"):
+#     TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
 
-all_speed = []
-for input_ids in tqdm(tokenized_prompts[:6], desc="TreeBaseline Test"):
-    input_ids = input_ids.to(target.device)[:,:prefill]
-    speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
-    all_speed.append(speed)
+# all_speed = []
+# for input_ids in tqdm(tokenized_prompts[:6], desc="TreeBaseline Test"):
+#     input_ids = input_ids.to(target.device)[:,:prefill]
+#     speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+#     all_speed.append(speed)
 
-TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
-print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
+# TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
+# print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
 
 
 ######## Our method ########
@@ -181,6 +182,6 @@ with torch.inference_mode():
     time2 = time.time()
     method_latency = (time2 - time1)/n
     print(np.array(acc_count_list).mean())
-    TreeBaseline_latency = 2.8
+    TreeBaseline_latency = 3.829643356800079
     print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
     print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))

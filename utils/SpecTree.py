@@ -85,6 +85,7 @@ class SpecTree:
         # print(position_ids, storage_ids)
         # print(self.tree_mask_first)
         draft_logits = self.graph_engine.inference(
+        # draft_logits = self.graph_engine.graph_inference(
             input_ids = next_token,
             position_ids = position_ids,
             attn_mask = self.tree_mask_first[None, None, :, :],
@@ -127,6 +128,7 @@ class SpecTree:
         # print(f"Position ids: {position_ids}", "Storage ids", storage_ids)
         
         draft_logits = self.graph_engine.inference(
+        # draft_logits = self.graph_engine.graph_inference(
             input_ids = new_tokens_set,
             storage_ids=storage_ids,
             position_ids=position_ids,

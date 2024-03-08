@@ -64,7 +64,7 @@ with torch.inference_mode():
 tree_size_list = [4, 8, 16, 32, 64, 128, 256, 512]
 
 for tree_size in tree_size_list:
-    path = f'/home/hanshis/workspace/Sequoia/long_tree-{tree_size}.pt'
+    path = f'/var/cr06_data/beidic/LongContextInfer/tree/long_tree-{tree_size}.pt'
     grow_map = torch.load(path)
     depth = grow_map['depth']
     tree_size = grow_map["size"]
