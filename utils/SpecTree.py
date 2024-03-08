@@ -151,7 +151,7 @@ class SpecTree:
             q = softmax(draft_logits / self.temperature, dim=-1)
             r = torch.rand(1, device=self.graph_engine.engine.model.device)
             
-            if p[token] >= r * q[token]:
+            if p[token] > r * q[token]:
                 # print(p[token], q[token])
                 return (pos, None)
             else:
@@ -218,6 +218,7 @@ class SpecTree:
         
         if terminal:
             print(f"Terminal: {terminal}, Accept list: {accept_list}, Accept count: {acc_count}")
+            return None, acc_count
 
         # assert len(accept_list) == acc_count, f"Accept list: {accept_list}, Accept count: {acc_count}"
         accept_tokens = self.verify_tokens[accept_list]

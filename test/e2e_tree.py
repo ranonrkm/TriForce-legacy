@@ -4,13 +4,13 @@ import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 import time
-
+import gc
 import torch
 from transformers import AutoTokenizer
 from termcolor import colored
 from tqdm import tqdm
 from models.modeling_llama_tree import LlamaForCausalLM
-from models.cache_utils import TREEChunkTopKCache, TREESimpleCache, OffloadingTREESimpleCache
+from models.cache_utils import TREEChunkTopKCache, TREESimpleCache, OffloadingTREESimpleCache, PartialOffloadingTREESimpleCache
 from utils.decoding import TreeBaseline
 from utils.misc import print_config, setup_seed, spec_stream
 from utils.tree_infer import GraphInferenceEngine, get_sampling_logits, cuda_graph_for_residual, cuda_graph_for_sampling_without_replacement
@@ -109,12 +109,34 @@ idx_lists = grow_map["roots"]
 branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
-# cache = TREESimpleCache(target, prefill+gen_len+tree_size+16)
+
+cache = PartialOffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16, gpu_layer=14)
+graph_engine = GraphInferenceEngine(target, cache, graph_cache=None)
+
+###### Warm up for TreeBaseline ########
+n_warmups = 1
+input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
+for i in tqdm(range(n_warmups), desc="TreeBaseline Warmup"):
+    TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+
+all_speed = []
+for input_ids in tqdm(tokenized_prompts[:1], desc="TreeBaseline Test"):
+    input_ids = input_ids.to(target.device)[:,:prefill]
+    speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+    all_speed.append(speed)
+TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
+print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
+
+del cache
+del graph_engine
+torch.cuda.empty_cache()
+gc.collect()
+torch.cuda.synchronize()
+time.sleep(60)
+
 cache = OffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16)
 graph_cache = TREEChunkTopKCache(target, max_budget=max_budget, prefill=prefill, tree_size=tree_size, chunk_size=chunk_size)
-
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
-# graph_engine.initialize_cuda_graph(list(range(1, tree_size)))
 
 sampling_callables = {}
 sample_gather_indices = {}
@@ -139,26 +161,7 @@ cache.print_status()
 graph_cache.print_status()
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
-
-
-###### Warm up for TreeBaseline ########
-# n_warmups = 1
-# input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
-# for i in tqdm(range(n_warmups), desc="TreeBaseline Warmup"):
-#     TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
-
-all_speed = []
-for input_ids in tqdm(tokenized_prompts[:1], desc="TreeBaseline Test"):
-    input_ids = input_ids.to(target.device)[:,:prefill]
-    speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
-    all_speed.append(speed)
-
-TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
-print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
-
-
 ######## Our method ########
-
 all_speed_up = []
 all_acc_list = []
 for input_ids in tokenized_prompts:
@@ -182,13 +185,15 @@ for input_ids in tokenized_prompts:
         while n < gen_len:
             spectree.construct_grow_map(next_token=next_token)
             next_token, acc_count = spectree.verify()
+            if next_token is None:
+                break
             next_token = next_token.unsqueeze(0)
             n += acc_count
             acc_count_list.append(acc_count)
         time2 = time.time()
         method_latency = (time2 - time1)/n
         print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
-        # TreeBaseline_latency = 3.829643356800079
+        TreeBaseline_latency = 3.829643356800079
         print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
         print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))
 
