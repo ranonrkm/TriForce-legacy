@@ -34,6 +34,8 @@ def parse_arguments():
     parser.add_argument('--gamma', type=int, default=6, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
+    parser.add_argument('--tree_size', type=str, default='128')
+
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--budget', type=float, default='0.1')
@@ -99,7 +101,7 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 ####### cache init #######
 residual_graph = cuda_graph_for_residual()
-path = '/var/cr06_data/beidic/LongContextInfer/tree/256.pt'
+path = f'/var/cr06_data/beidic/LongContextInfer/tree/{args.tree_size}.pt'
 
 grow_map = torch.load(path)
 tree_size = grow_map["size"]
@@ -139,49 +141,58 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 
 
-####### Warm up for TreeBaseline ########
+###### Warm up for TreeBaseline ########
 # n_warmups = 1
 # input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 # for i in tqdm(range(n_warmups), desc="TreeBaseline Warmup"):
 #     TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
 
-# all_speed = []
-# for input_ids in tqdm(tokenized_prompts[:6], desc="TreeBaseline Test"):
-#     input_ids = input_ids.to(target.device)[:,:prefill]
-#     speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
-#     all_speed.append(speed)
+all_speed = []
+for input_ids in tqdm(tokenized_prompts[:1], desc="TreeBaseline Test"):
+    input_ids = input_ids.to(target.device)[:,:prefill]
+    speed = TreeBaseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+    all_speed.append(speed)
 
-# TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
-# print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
+TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
+print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
 
 
 ######## Our method ########
-input_ids = tokenized_prompts[0][0,:args.prefill].to(target.device)
-dtype = torch.float16
-max_length = prefill+gen_len
-spectree = SpecTree(engine=graph_engine, device='cuda:0', temperature=args.temp, top_p=top_p,
-                    max_length=prefill+gen_len, grow_map=grow_map,
-                    residual_graph = residual_graph,
-                    sampling_callables=sampling_callables,
-                    sample_gather_indices = sample_gather_indices,
-                    tokenizer=tokenizer)
+
+all_speed_up = []
+all_acc_list = []
+for input_ids in tokenized_prompts:
+    input_ids = input_ids[0,:args.prefill].to(target.device)
+    dtype = torch.float16
+    max_length = prefill+gen_len
+    spectree = SpecTree(engine=graph_engine, device='cuda:0', temperature=args.temp, top_p=top_p,
+                        max_length=prefill+gen_len, grow_map=grow_map,
+                        residual_graph = residual_graph,
+                        sampling_callables=sampling_callables,
+                        sample_gather_indices = sample_gather_indices,
+                        tokenizer=tokenizer)
 
 
-with torch.inference_mode():
-    n=0
-    next_token = spectree.prefill(prefix=input_ids)
-    acc_count_list = []
+    with torch.inference_mode():
+        n=0
+        next_token = spectree.prefill(prefix=input_ids)
+        acc_count_list = []
 
-    time1 = time.time()
-    while n < gen_len:
-        spectree.construct_grow_map(next_token=next_token)
-        next_token, acc_count = spectree.verify()
-        next_token = next_token.unsqueeze(0)
-        n += acc_count
-        acc_count_list.append(acc_count)
-    time2 = time.time()
-    method_latency = (time2 - time1)/n
-    print(np.array(acc_count_list).mean())
-    TreeBaseline_latency = 3.829643356800079
-    print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
-    print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))
+        time1 = time.time()
+        while n < gen_len:
+            spectree.construct_grow_map(next_token=next_token)
+            next_token, acc_count = spectree.verify()
+            next_token = next_token.unsqueeze(0)
+            n += acc_count
+            acc_count_list.append(acc_count)
+        time2 = time.time()
+        method_latency = (time2 - time1)/n
+        print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
+        # TreeBaseline_latency = 3.829643356800079
+        print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
+        print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))
+
+    all_acc_list.append(np.array(acc_count_list).mean())
+    all_speed_up.append(TreeBaseline_latency / method_latency)
+print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
+print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")

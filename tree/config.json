@@ -1,0 +1,9 @@
+{
+    "acceptance_rate_vector": "acceptance-rate-vector.pt",
+    "max_depth": 20,
+    "max_budget": 512,
+    "draft_time": 0.03,
+    "valid_budget": [1, 4,8,16,32,64,128,256, 512],
+    "target_time":[3.83, 3.953, 3.956, 4.1174, 4.1469, 4.18894,4.1747,4.3349, 4.6],
+    "dst": "512.pt"
+}

@@ -151,6 +151,8 @@ class LlamaAttention(nn.Module):
         value_states = repeat_kv(value_states, self.num_key_value_groups)
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
         
+        # if self.layer_idx == 0:
+        #     print(spec, value_states.shape, key_states.shape, query_states.shape, attention_mask.shape, position_ids)
         if attention_mask is None:
             assert spec == False, "Attention mask is None only for the last prefill"
             assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"

@@ -1,6 +1,7 @@
 import os
 import sys
-sys.path.append("..")
+root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.append(root_dir)
 from transformers import AutoTokenizer
 from models.modeling_llama_tree_test import LlamaForCausalLM
 from models.cache_utils import TREEChunkTopKCache, TREESimpleCache, OffloadingTREESimpleCache
@@ -17,9 +18,7 @@ parser.add_argument('--T', type=float, default=0.6, help='temperature')
 parser.add_argument('--P', type=float, default=1.0, help='top_p')
 parser.add_argument('--DP', type=float, default=1.1, help='draft_top_p')
 parser.add_argument('--W', type=int, default=16, help='max width')
-parser.add_argument('--start', type=int, default=0, help='start')
-parser.add_argument('--end', type=int, default=200, help='end')
-parser.add_argument('--dst', type=str, default="../acceptance-rate-vector.pt", help='destination for accepetance rate vector')
+parser.add_argument('--dst', type=str, default="acceptance-rate-vector.pt", help='destination for accepetance rate vector')
 args = parser.parse_args()
 print(args)
 def get_residual(p: torch.Tensor, q:torch.Tensor):
@@ -38,7 +37,10 @@ def evaluate(target, cache, graph_cache, prompts, prefill, k:int, T=0.6, top_p=0
     sampled_token_sets = []
     real_budget = 0
     with torch.no_grad():
-        for input_ids in tqdm(enumerate(prompts), total=num_eval_steps):
+        for input_ids in prompts:
+            cache.reset()
+            graph_cache.reset()
+            input_ids = input_ids.to(target.device)
             prefill_ids = input_ids[:, :prefill-1]
             init_ids = input_ids[:, prefill-1:prefill]
             input_ids = input_ids[:, prefill:prefill+256]
@@ -55,10 +57,9 @@ def evaluate(target, cache, graph_cache, prompts, prefill, k:int, T=0.6, top_p=0
             cache.print_status()
             graph_cache.print_status()
 
-            target_logits : torch.Tensor = target(input_ids).logits
-            cache.seq_len = cache.seq_len - 256
+            target_logits : torch.Tensor = target(input_ids=input_ids, kv_cache=cache).logits
+            cache.seq_len = prefill
             cache.print_status()
-            exit()
 
             if top_p < 1.0:
                 sorted_logits, sorted_indices = torch.sort(target_logits, descending=True)
@@ -70,14 +71,24 @@ def evaluate(target, cache, graph_cache, prompts, prefill, k:int, T=0.6, top_p=0
                 indices_to_remove = filter.scatter(-1, sorted_indices, filter)
                 target_logits[indices_to_remove] = float('-inf')
 
-            draft_logits : torch.Tensor = target(input_ids).logits
+            device="cuda:0"
+            dtype = torch.float16
+            bsz, tgt_len = 1, 256
+            mask = torch.full((tgt_len, tgt_len), torch.tensor(torch.finfo(dtype).min, device=device), device=device)
+            mask_cond = torch.arange(mask.size(-1), device=device)
+            mask.masked_fill_(mask_cond < (mask_cond + 1).view(mask.size(-1), 1), 0)
+            mask = mask.to(dtype)
+
+            attention_mask = torch.cat([torch.zeros(256, graph_cache.max_budget, device='cuda:0'), mask],dim=-1)
+
+            storage_ids = torch.arange(graph_cache.max_budget, graph_cache.real_budget).to(target.device)
+            draft_logits : torch.Tensor = target(input_ids=input_ids, kv_cache=cache, graph_cache=graph_cache, spec=True, storage_ids=storage_ids, attention_mask=attention_mask).logits
             target_prob = softmax(target_logits / T, dim=-1).squeeze(0)
             q = softmax(draft_logits / T, dim=-1).squeeze(0)
             
-            for i in range(128, target_prob.shape[0]):
+            for i in range(20):
                 token_acceptance_rate = torch.zeros(k)
                 draft_tokens = []
-                if batch['labels'][0][i] == -100 or batch['labels'][0][i] == 0: continue
                 num_samples = num_samples + 1
                 token_target_prob = target_prob[i]
                 # token_draft_prob = q[i]
@@ -120,16 +131,17 @@ def evaluate(target, cache, graph_cache, prompts, prefill, k:int, T=0.6, top_p=0
                 token_accept_rate.append(token_acceptance_rate.cpu())
                 sampled_token_sets.append(draft_tokens)
                 draft_model_prob.append(q[i][draft_tokens].cpu()) 
+            print(acceptance_rate, num_samples)
     return acceptance_rate / num_samples
 
 
 
-prefill=130752
+prefill=122880
 gen_len=256
 target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
 target = target.eval()
 tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", use_fast=True, legacy=False)
-tokenized_prompts = get_dataset(dataset_name='gs', tokenizer=tokenizer, datalen=130752)
+tokenized_prompts = get_dataset(dataset_name='128k', tokenizer=tokenizer, datalen=prefill)
 
 acceptance_rate_list = [0]
 branch_acceptance_rate_list = [0]

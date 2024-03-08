@@ -39,6 +39,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         host = socket.gethostname()
         if 'lovelace' in host:
             datasetparent = f"/home/hanshis/workspace/LongContextInfer/data/pg19/"
+        elif 'cr-a100-80-0004' in host:
+            datasetparent = f"/var/cr06_data/beidic/LongContextInfer/data/pg19/"
         else:
             datasetparent = "/data/home/beidic/hanshi/LongContextInfer/data/pg19/"
         d_files = os.listdir(datasetparent)

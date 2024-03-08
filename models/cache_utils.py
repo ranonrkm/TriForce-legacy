@@ -2062,6 +2062,7 @@ class TREEChunkTopKCache:
     def reset(self):
         self.key_cache.zero_()
         self.value_cache.zero_()
+        self.init_graph = False
 
 
 class TREESimpleCache(Cache):
