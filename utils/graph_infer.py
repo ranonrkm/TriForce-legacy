@@ -41,8 +41,8 @@ class InferenceEngine:
 def capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3):
     device = engine.model.device
     
-    static_input_ids = torch.full((1, gamma_offset+1), 0, dtype=torch.long, device=device)
-    static_storage_ids = torch.arange(gamma_offset+1, device=device)
+    static_input_ids = torch.full((1, 1), 0, dtype=torch.long, device=device)
+    static_storage_ids = torch.arange(1, device=device)
     static_position_ids = static_storage_ids.clone().unsqueeze(0)
     
     s = torch.cuda.Stream()

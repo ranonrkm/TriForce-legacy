@@ -49,3 +49,6 @@ CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation.py --prefill 98304 --budget 4096
 CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation.py --prefill 114688 --budget 4096 --chunk_size 8 --top_p 0.9 --temp 0.6 --gamma 6
 CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation.py --prefill 122880 --budget 4096 --chunk_size 8 --top_p 0.9 --temp 0.6 --gamma 6
 
+
+# without chain
+CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation_wo_chain.py --prefill 122880 --gamma 6
