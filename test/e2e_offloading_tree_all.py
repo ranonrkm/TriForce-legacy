@@ -83,9 +83,9 @@ verbose = args.verbose
 
 if args.log_csv:
     if 'lovelace' in host:
-        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_E2E_graph_chain_retrieval.csv"
+        file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_E2E_offloading_graph_chain_retrieval.csv"
     else:
-        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_E2E_graph_chain_retrieval.csv"
+        file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_E2E_offloading_graph_chain_retrieval.csv"
 else:
     file_path = None
 
@@ -127,7 +127,6 @@ for input_ids in tqdm(tokenized_prompts[:1], desc="TreeBaseline Test"):
     all_speed.append(speed)
 TreeBaseline_latency = 1/(sum(all_speed) / len(all_speed))
 print(colored(f"[TreeBaseline-Autoregressive] average latency: {TreeBaseline_latency} s", "red"))
-
 
 sampling_callables = {}
 sample_gather_indices = {}

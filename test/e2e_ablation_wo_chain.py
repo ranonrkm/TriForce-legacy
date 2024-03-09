@@ -76,7 +76,7 @@ if 'lovelace' in host:
 else:
     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_wo_chain.csv"
 
-chunk_size = 8
+chunk_size = args.chunk_size
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Retrieval", spec_args={'budget': 4096, 'chunk_size': chunk_size}, dataset=args.dataset)
 
 budget = 4096
