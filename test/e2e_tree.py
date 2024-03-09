@@ -110,7 +110,7 @@ branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
 
-cache = PartialOffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16, gpu_layer=14)
+cache = PartialOffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16, gpu_layer=13)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache=None)
 
 ###### Warm up for TreeBaseline ########
@@ -193,7 +193,7 @@ for input_ids in tokenized_prompts:
         time2 = time.time()
         method_latency = (time2 - time1)/n
         print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
-        TreeBaseline_latency = 3.829643356800079
+        # TreeBaseline_latency = 3.829643356800079
         print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
         print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))
 

@@ -1764,8 +1764,8 @@ def Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
     if file_path is not None:
-        header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
-        entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
+        header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle,latency\n"
+        entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()},{(time2 - time1)/n}\n"
         # add sepc_args
         if spec_args is not None:
             for k, v in spec_args.items():
