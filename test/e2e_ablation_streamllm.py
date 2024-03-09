@@ -9,8 +9,8 @@ from termcolor import colored
 from tqdm import tqdm
 from models.modeling_llama import LlamaForCausalLM
 from models.modeling_llama_68m import LlamaForCausalLM as LlamaForCausalLM_68M
-from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache, GraphFlashStreamLLMVerificationCache
-from utils.decoding import Graph_Chain_Spec, Baseline
+from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache, GraphFlashStreamLLMVerificationCache, GraphFlashStreamEvictionCache_V2
+from utils.decoding import Graph_Chain_Spec, Baseline, Graph_Chain_V2
 from utils.misc import print_config
 from utils.chain_graph_infer import GraphInferenceEngine
 
@@ -80,14 +80,13 @@ budget=args.budget
 start_size = 20
 recent_size = budget - start_size
 
-# draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
-
 draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 
 ####### cache init #######
 cache = FlashSimpleCache(target, prefill+gen_len+16)
 graph_cache = GraphFlashStreamLLMVerificationCache(target, max_budget=start_size+recent_size, prefill=prefill, gamma=gamma, start_size=start_size)
-draft_cache = GraphFlashStreamEvictionCache(draft, start_size=16, recent_size=250-16, gamma=gamma)
+draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=250-16, gamma=gamma)
+
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(gamma)
@@ -117,15 +116,15 @@ print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms
 n_warmups = 1
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
-    Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
+    Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
 
 
 all_acceptance_rate = []
 all_speed = []
-for input_ids in tokenized_prompts:
+for input_ids in tokenized_prompts[:1]:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate, speed = Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
+    acceptance_rate, speed = Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
     all_acceptance_rate.append(acceptance_rate)
     all_acceptance_rate.append(acceptance_rate)
     all_speed.append(speed)

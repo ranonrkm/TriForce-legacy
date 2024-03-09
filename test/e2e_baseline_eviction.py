@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from termcolor import colored
 from tqdm import tqdm
 from models.modeling_llama_torch import LlamaForCausalLM
+from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
 from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache
 from utils.decoding import Evict_Spec_cache
 from utils.misc import print_config
