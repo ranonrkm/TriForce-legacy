@@ -48,7 +48,7 @@ from transformers.utils import (
 )
 from transformers.utils.import_utils import is_torch_fx_available
 from .configuration_llama import LlamaConfig
-
+from flash_attn import flash_attn_with_kvcache
 import time
 
 from models.cache_utils import EvictStreamLLMCache
@@ -775,8 +775,9 @@ class LlamaAttention(nn.Module):
 
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
 
-        with torch.backends.cuda.sdp_kernel(enable_math=False):
-            attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask)
+        attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
+        # with torch.backends.cuda.sdp_kernel(enable_math=False):
+        #     attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask)
 
         attn_output = attn_output.transpose(1, 2).contiguous()
 

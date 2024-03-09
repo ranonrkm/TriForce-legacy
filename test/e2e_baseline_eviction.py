@@ -86,6 +86,8 @@ import socket
 host = socket.gethostname()
 if 'lovelace' in host:
     file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_Ablation_baseline_evict_streamllm.csv"
+elif 'cr-a100-80-0004' in host:
+    file_path = "/var/cr06_data/beidic/LongContextInfer/test/report/A100_fake_Ablation_baseline_evict_streamllm.csv"
 else:
     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_baseline_evict_streamllm.csv"
 
