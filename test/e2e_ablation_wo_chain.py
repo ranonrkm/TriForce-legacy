@@ -29,7 +29,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
     parser.add_argument('--budget', type=float, default='0.1')
-    parser.add_argument('--chunk_size', type=int, default=8, help='chunk size')
+    parser.add_argument('--chunk_size', type=int, default=128, help='chunk size')
     args = parser.parse_args()
     
     return args
