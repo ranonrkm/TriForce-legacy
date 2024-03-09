@@ -52,3 +52,6 @@ CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation.py --prefill 122880 --budget 409
 
 # without chain
 CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation_wo_chain.py --prefill 122880 --gamma 6
+
+# middle streamllm
+CUDA_VISIBLE_DEVICES=0 python test/e2e_ablation_streamllm.py --prefill 122880 --gamma 6 --dataset gs

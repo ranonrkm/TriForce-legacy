@@ -1,0 +1,2 @@
+target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,latency,budget,baseline
+NousResearch/Yarn-Llama-2-7b-128k,0.64,24.140778532822047,3.84,32768,262,benchmark,0.04142368476809436,4096,0.04575956054031849

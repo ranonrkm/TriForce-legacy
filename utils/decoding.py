@@ -1093,8 +1093,8 @@ def Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, t
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset\n"
-    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset}\n"
+    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,latency\n"
+    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{(time2 - time1)/n}\n"
     # add sepc_args
     if spec_args is not None:
         for k, v in spec_args.items():
@@ -1104,7 +1104,7 @@ def Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, t
     if file_path is not None:
         log_csv(file_path, header, entry)
 
-    return acceptance_rate
+    return acceptance_rate, n / (time2 - time1)
 
 @torch.inference_mode()
 def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec_args=None):
