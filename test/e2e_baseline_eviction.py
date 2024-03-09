@@ -39,21 +39,7 @@ def parse_arguments():
 args = parse_arguments()
 
 ######## model initialization ########
-
-if args.draft == 'llama-68m-256':
-    draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
-    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-160m':
-    draft = LlamaForCausalLM.from_pretrained("JackFram/llama-160m", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-1.1b':
-    draft = LlamaForCausalLM.from_pretrained("TinyLlama/TinyLlama-1.1B-intermediate-step-1431k-3T", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-1.3b':
-    draft = LlamaForCausalLM.from_pretrained("princeton-nlp/Sheared-LLaMA-1.3B", torch_dtype=torch.float16, device_map="auto")
-elif args.draft == 'llama-7B':
-    # draft = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:1")
-    draft = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:1")
-else:
-    draft = LlamaForCausalLM.from_pretrained(args.draft, torch_dtype=torch.float16, device_map="auto")
+draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
@@ -100,7 +86,6 @@ draft_cache_budget = args.draft_cache_budget
 recent_size = draft_cache_budget - 16
 draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=recent_size)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
-# target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
 
 
 ####### Warm up for baseline ########

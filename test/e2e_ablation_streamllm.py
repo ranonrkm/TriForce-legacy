@@ -12,7 +12,7 @@ from models.modeling_llama_68m import LlamaForCausalLM as LlamaForCausalLM_68M
 from models.cache_utils import FlashSimpleCache, GraphFlashStreamEvictionCache, GraphFlashStreamLLMVerificationCache, GraphFlashStreamEvictionCache_V2
 from utils.decoding import Graph_Chain_Spec, Baseline, Graph_Chain_V2
 from utils.misc import print_config
-from utils.chain_graph_infer import GraphInferenceEngine
+from utils.chain_infer import GraphInferenceEngine
 
 import argparse
 def parse_arguments():
@@ -71,6 +71,8 @@ import socket
 host = socket.gethostname()
 if 'lovelace' in host:
     file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_Ablation_graph_chain_streamllm.csv"
+elif 'cr-a100-80-0004' in host:
+    file_path = "/var/cr06_data/beidic/LongContextInfer/test/report/A100_fake_Ablation_graph_chain_streamllm.csv"
 else:
     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_graph_chain_streamllm.csv"
 
@@ -89,7 +91,7 @@ draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size
 
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache, draft, draft_cache)
-graph_engine.initialize_cuda_graph(gamma)
+graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=0.6, top_p=0.9)
 
 cache.print_status()
 graph_cache.print_status()
@@ -121,7 +123,7 @@ for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
 
 all_acceptance_rate = []
 all_speed = []
-for input_ids in tokenized_prompts[:1]:
+for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
     acceptance_rate, speed = Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})

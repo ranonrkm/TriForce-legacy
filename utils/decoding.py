@@ -1120,9 +1120,9 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
     # init graph cache
     graph_engine.init_graph_cache()
 
-    graph_engine.engine.kv_cache.print_status()
-    graph_engine.engine.graph_cache.print_status()
-    graph_engine.engine.draft_cache.print_status()
+    # graph_engine.engine.kv_cache.print_status()
+    # graph_engine.engine.graph_cache.print_status()
+    # graph_engine.engine.draft_cache.print_status()
 
     resample_count = 0
     accepted_count = 0
@@ -1233,8 +1233,8 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {graph_engine.engine.kv_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle\n"
-    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()}\n"
+    header = "target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,acc_rate_middle,lantency\n"
+    entry = f"{graph_engine.engine.model.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{np.array(acc_rate_middle_list).mean()},{(time2 - time1)/n}\n"
     # add sepc_args
     if spec_args is not None:
         for k, v in spec_args.items():
@@ -1244,7 +1244,7 @@ def Graph_Chain_V2(tokenizer, graph_engine, input_ids, gamma=4, max_len=256, top
     if file_path is not None:
         log_csv(file_path, header, entry)
 
-    return acceptance_rate
+    return acceptance_rate, n / (time2 - time1)
 
 def Spec_Tiny_for_streamllm(next_token, graph_engine, gamma, temperature, top_k, top_p, verbose, tokenizer):
 
@@ -1372,6 +1372,7 @@ def Spec_Tiny_for_streamllm_V2(next_token, graph_engine, gamma, verbose, tokeniz
     while n < gamma:
         speculation_prob = graph_engine.graph_draft_inference(input_ids=verify_tokens[:,:n+1], gamma_offset = n)
         
+        # print(speculation_prob.shape)
         pred_token_idx = sample(speculation_prob)
         token_idx = pred_token_idx.item()
         draft_count += 1

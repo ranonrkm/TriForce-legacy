@@ -1523,13 +1523,13 @@ class GraphFlashStreamLLMVerificationCache(Cache):
     def print_status(self):
         print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Start Size:", self.start_size, " | Recent Size:", self.recent_size)
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None, gamma_offset=0):
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int):
 
-        input_length = len(storage_ids)
+        # input_length = len(storage_ids)
 
-        assert input_length == self.gamma + 1 # extra 1 is for spec
-        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
-        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        # assert input_length == self.gamma + 1 # extra 1 is for spec
+        # assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        # assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
         self.key_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_k_cache.clone()
         self.value_cache[layer_idx][:, self.real_budget-self.gamma-1:] = new_v_cache.clone()
@@ -1552,8 +1552,8 @@ class GraphFlashStreamLLMVerificationCache(Cache):
 
     def update_graph_cache(self, kv_cache):
         # !!! can be optimized (we can only replace one part of it!)
-        self.key_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.key_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len].clone()
-        self.value_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.value_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len].clone()
+        self.key_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.key_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len]#.clone()
+        self.value_cache[:,:, self.start_size:-self.gamma-1] = kv_cache.value_cache[:,:, -self.recent_size + kv_cache.seq_len:kv_cache.seq_len]#.clone()
 
 class GraphFlashChunkTopKVerificationCache(Cache):
     def __init__(self, model, max_budget=1024, prefill=1024, chunk_size=8, gamma=6) -> None:
