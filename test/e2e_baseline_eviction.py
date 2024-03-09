@@ -13,6 +13,7 @@ from models.modeling_llama_torch import LlamaForCausalLM
 from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache
 from utils.decoding import Evict_Spec_cache
 from utils.misc import print_config
+from utils.sampling import max_fn, sample, norm_logits
 
 import argparse
 def parse_arguments():
@@ -89,7 +90,7 @@ if 'lovelace' in host:
 elif 'cr-a100-80-0004' in host:
     file_path = "/var/cr06_data/beidic/LongContextInfer/test/report/A100_fake_Ablation_baseline_evict_streamllm.csv"
 else:
-    file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_baseline_evict_streamllm.csv"
+    file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_REAL_Ablation_baseline_evict_streamllm.csv"
 
 
 print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
@@ -100,11 +101,55 @@ draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=recent_size)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 # target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=16, recent_size=512-16, gamma=gamma)
 
+
+####### Warm up for baseline ########
+import math
+import time
+def baseline(target, target_cache, max_len):
+    iter_prefill = math.ceil(input_ids.shape[1] / 100)
+    for i in (range(iter_prefill)):
+        # print(f"prefill {i}, {iter_prefill}, {input_ids[:, i*100:(i+1)*100]}")
+        outputs = target(
+            input_ids=input_ids[:, i*100:(i+1)*100].to(target.device),
+            past_key_values=target_cache,
+        )
+    
+    next_token = sample(norm_logits(outputs.logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+
+    n = 0
+    time1 = time.time()
+    while n < max_len:
+        logits = target(
+            input_ids=next_token,
+            past_key_values=target_cache,
+        ).logits
+        # print(next_token)
+        next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+        n += 1
+    time2 = time.time()
+    # print(n, n / (time2 - time1))
+    return n / (time2 - time1)
+
+n_warmups = 1
+input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
+for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
+    baseline(target, target_cache, gen_len)
+
+all_speed = []
+for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
+    input_ids = input_ids.to(target.device)[:,:prefill]
+    speed = baseline(target, target_cache, gen_len)
+    all_speed.append(speed)
+
+baseline_latency = 1/(sum(all_speed) / len(all_speed))
+print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} s", "red"))
+
+
 all_acceptance_rate = []
 all_latency = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
-for input_ids in tokenized_prompts:
+for input_ids in tqdm(tokenized_prompts):
     if prefill < 4096:
         if prefill == 1:
             input_ids = input_ids.to(draft.device)[:,2048:prefill+2048]
@@ -113,9 +158,10 @@ for input_ids in tokenized_prompts:
     else:
         input_ids = input_ids.to(draft.device)[:,:prefill]
 
-    acceptance_rate, latency = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset)
+    acceptance_rate, latency = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, baseline=baseline_latency)
     all_acceptance_rate.append(acceptance_rate)
     all_latency.append(latency)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
 print(colored(f"average latency: {sum(all_latency) / len(all_latency)}", "red"))
+print(colored(f"[E2E Speedup]: {baseline_latency / (sum(all_latency) / len(all_latency))}", "red"))

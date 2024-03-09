@@ -281,7 +281,7 @@ def KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=4, max_len=2
     return acceptance_rate
 
 @torch.inference_mode()
-def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec=False):
+def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, baseline=False):
     # reset cache
     target_cache.reset()
     draft_cache.reset()
@@ -346,7 +346,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
             outputs = target(
                 input_ids=verify_tokens,
                 past_key_values=target_cache,
-                speculation=spec,
+                speculation=False,
             )
 
         count = 0
@@ -415,8 +415,8 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {target_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency\n"
-    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature},{(time2 - time1)/n}\n"
+    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency,baseline\n"
+    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature},{(time2 - time1)/n},{baseline}\n"
 
     if file_path is not None:
         log_csv(file_path, header, entry)

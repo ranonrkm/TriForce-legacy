@@ -2263,3 +2263,44 @@ class PartialOffloadingTREESimpleCache(Cache):
             self.seq_len += key_states.shape[-2]
 
         return key, value
+
+
+####################### Batch KV cache #######################
+
+class GraphFlashSimpleCache(Cache):
+
+    def __init__(self, model, max_budget=1024, bsz=2) -> None:
+
+        self.max_budget = max_budget
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        device=model.device
+        dtype=torch.float16
+        self.key_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        self.value_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+    
+    def print_status(self):
+        print("Max Budget:", self.max_budget)
+
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int):
+
+        input_length = len(storage_ids)
+
+        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        # assert storage_ids[0].item() == gamma_offset, f"expected {gamma_offset}, got {storage_ids[0].item()}"
+        
+        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
+        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
+
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        self.key_cache.zero_()
+        self.value_cache.zero_()
