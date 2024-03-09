@@ -90,7 +90,7 @@ if 'lovelace' in host:
 elif 'cr-a100-80-0004' in host:
     file_path = "/var/cr06_data/beidic/LongContextInfer/test/report/A100_fake_Ablation_baseline_evict_streamllm.csv"
 else:
-    file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_REAL_Ablation_baseline_evict_streamllm.csv"
+    file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_real_Ablation_baseline_evict_streamllm.csv"
 
 
 print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
@@ -105,6 +105,8 @@ target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 ####### Warm up for baseline ########
 import math
 import time
+
+@torch.inference_mode()
 def baseline(target, target_cache, max_len):
     target_cache.reset()
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
