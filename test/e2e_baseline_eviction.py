@@ -106,6 +106,7 @@ target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 import math
 import time
 def baseline(target, target_cache, max_len):
+    target_cache.reset()
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in (range(iter_prefill)):
         # print(f"prefill {i}, {iter_prefill}, {input_ids[:, i*100:(i+1)*100]}")
@@ -157,7 +158,8 @@ for input_ids in tqdm(tokenized_prompts):
             input_ids = torch.cat([torch.LongTensor([[1]]).to(draft.device), input_ids.to(draft.device)[:,2048:prefill-1+2048]], dim=-1)
     else:
         input_ids = input_ids.to(draft.device)[:,:prefill]
-
+    target_cache.reset()
+    draft_cache.reset()
     acceptance_rate, latency = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, baseline=baseline_latency)
     all_acceptance_rate.append(acceptance_rate)
     all_latency.append(latency)
