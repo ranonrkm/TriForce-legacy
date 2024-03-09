@@ -289,6 +289,7 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
     ############ Iterative Pre-fill ############
     iter_prefill = math.ceil(input_ids.shape[1] / 100)
     for i in (range(iter_prefill)):
+        # print(f"prefill {i}, {iter_prefill}, {input_ids[:, i*100:(i+1)*100]}")
         outputs = target(
             input_ids=input_ids[:, i*100:(i+1)*100].to(target.device),
             past_key_values=target_cache,
@@ -414,13 +415,13 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {target_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature\n"
-    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature}\n"
+    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency\n"
+    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature},{(time2 - time1)/n}\n"
 
     if file_path is not None:
         log_csv(file_path, header, entry)
 
-    return acceptance_rate
+    return acceptance_rate, (time2 - time1)/n
 
 @torch.inference_mode()
 def Evict_Spec_Evict(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec=False):
@@ -844,8 +845,8 @@ def Recomp_Spec(tokenizer, target, target_cache, draft, input_ids, gamma=4, max_
         print(f"Use {time2 - time1} sec to generate {n} tokens (now {target_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
         print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
 
-    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature\n"
-    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature}\n"
+    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency\n"
+    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature},{(time2 - time1)/n}\n"
 
     if file_path is not None:
         log_csv(file_path, header, entry)

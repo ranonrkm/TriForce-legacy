@@ -1,0 +1,4 @@
+draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency
+JackFram/llama-68m,NousResearch/Yarn-Llama-2-7b-128k,0.28771929824561404,29.55294499150471,1.7263157894736842,32768,259,benchmark,0.6,0.033837575249690346
+JackFram/llama-68m,NousResearch/Yarn-Llama-2-7b-128k,0.1,40.82837589738982,0.6000000000000001,4,256,benchmark,0.6,0.02449276950210333
+JackFram/llama-68m,NousResearch/Yarn-Llama-2-7b-128k,0.6907894736842105,59.61732743687821,0.6907894736842105,4,257,benchmark,0.6,0.016773646907583747
