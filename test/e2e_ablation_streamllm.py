@@ -27,6 +27,7 @@ def parse_arguments():
     parser.add_argument('--gamma', type=int, default=6, help='gamma')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--budget', type=int,  default=4096)
     args = parser.parse_args()
     
     return args
@@ -75,8 +76,9 @@ else:
 
 # print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
+budget=args.budget
 start_size = 20
-recent_size = 4096 - start_size
+recent_size = budget - start_size
 
 # draft = LlamaForCausalLM_68M.from_pretrained("/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125", torch_dtype=torch.float16, device_map="auto")
 
@@ -115,7 +117,7 @@ print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms
 n_warmups = 1
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
-    Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': 4096, 'baseline': baseline_latency/1000})
+    Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
 
 
 all_acceptance_rate = []
@@ -123,7 +125,7 @@ all_speed = []
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate, speed = Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': 4096, 'baseline': baseline_latency/1000})
+    acceptance_rate, speed = Graph_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': budget, 'baseline': baseline_latency/1000})
     all_acceptance_rate.append(acceptance_rate)
     all_acceptance_rate.append(acceptance_rate)
     all_speed.append(speed)
