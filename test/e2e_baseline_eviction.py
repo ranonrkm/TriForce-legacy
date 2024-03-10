@@ -141,7 +141,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 graph_engine=GraphInferenceEngine(target, target_cache, draft, draft_cache)
 graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=args.temp, top_p=0.9)
 
-for input_ids in tqdm(tokenized_prompts[:1]):
+for input_ids in tqdm(tokenized_prompts):
     if prefill < 4096:
         if prefill == 1:
             input_ids = input_ids.to(draft.device)[:,2048:prefill+2048]
