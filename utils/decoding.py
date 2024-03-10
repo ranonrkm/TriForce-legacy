@@ -424,6 +424,133 @@ def Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_
     return acceptance_rate, (time2 - time1)/n
 
 @torch.inference_mode()
+def Graph_Evict_Spec_cache(graph_engine, tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, baseline=False):
+    # reset cache
+    target_cache.reset()
+    draft_cache.reset()
+    
+    ############ Iterative Pre-fill ############
+    iter_prefill = math.ceil(input_ids.shape[1] / 100)
+    for i in (range(iter_prefill)):
+        # print(f"prefill {i}, {iter_prefill}, {input_ids[:, i*100:(i+1)*100]}")
+        outputs = target(
+            input_ids=input_ids[:, i*100:(i+1)*100].to(target.device),
+            past_key_values=target_cache,
+        )
+
+    _ = graph_engine.graph_draft_prefill(input_ids=input_ids)
+
+    resample_count = 0
+    accepted_count = 0
+    target_sample_count = 0
+    draft_count = 0
+
+    next_token = sample(norm_logits(outputs.logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+    
+    if verbose:
+        spec_stream(next_token[0], tokenizer, 'cyan')
+
+    n = 0
+    time1 = time.time()
+    
+    ############ Spec Decoding ############
+    while n < max_len:
+        if next_token.shape == torch.Size([1]):
+            next_token = next_token.unsqueeze(0)
+        
+        pred_token_idx = next_token
+
+        speculation_probs = []
+        generated_ids = []
+        
+        for kk in range(gamma):
+            probs = graph_engine.graph_draft_inference(input_ids=pred_token_idx, gamma_offset = kk)
+            pred_token_idx = sample(probs)
+            speculation_probs.append(probs)
+            
+            generated_ids.append(pred_token_idx.item())
+            draft_count += 1
+
+            # verification
+        verify_tokens = torch.cat([next_token.to(target.device), torch.LongTensor([generated_ids]).to(target.device)], dim=1)
+
+        with torch.no_grad():
+            outputs = target(
+                input_ids=verify_tokens,
+                past_key_values=target_cache,
+                speculation=False,
+            )
+
+        count = 0
+        verify_probs = []
+    
+        for i in range(gamma + 1):
+            assert outputs.logits.shape[1] == gamma + 1
+            verify_probs.append(norm_logits(outputs.logits[:, i, :], temperature=temperature ,top_k=top_k, top_p=top_p)[0])
+
+
+        correct_ids = []
+        for i, speculation_prob, verify_prob in zip(generated_ids, speculation_probs, verify_probs[:-1]):
+            r = torch.rand(1, device = draft.device)
+
+            if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[i].to(draft.device) / speculation_prob[i])):
+                count += 1
+                accepted_count += 1
+                n += 1
+                pred_token_idx = torch.tensor([[i]]).to(draft.device)
+                correct_ids.append(i)
+
+                if verbose:
+                    spec_stream(i, tokenizer, 'green')
+
+                # if eos
+                if tokenizer.eos_token_id == i:
+                    draft_count -= gamma - count
+                    break
+
+            else:
+                resample_count += 1
+                n += 1
+                pred_token_idx = sample(max_fn(verify_prob.to(draft.device)-speculation_prob))
+                if verbose:
+                    spec_stream(pred_token_idx, tokenizer, 'red')
+                break
+
+        # if eos
+        if tokenizer.eos_token_id == pred_token_idx:
+            break
+
+        if count == len(generated_ids):
+            target_sample_count += 1
+            n += 1
+            pred_token_idx = sample(verify_probs[-1])
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'blue')
+
+            graph_engine.graph_draft_inference(input_ids=torch.tensor([[generated_ids[-1]]]).to(draft.device), gamma_offset = gamma)
+
+        target_cache.seq_len -= (gamma - count)
+        current_seq_len = graph_engine.engine.draft_cache.start_size + graph_engine.engine.draft_cache.recent_size + count + 1
+        graph_engine.engine.draft_cache.evict_for_spec(current_seq_len)
+        
+        next_token = pred_token_idx
+
+    time2 = time.time()
+    acceptance_rate = accepted_count / draft_count
+    avg_tokens = accepted_count / draft_count * gamma
+    if verbose:
+        print(f"Use {time2 - time1} sec to generate {n} tokens (now {target_cache.seq_len} tokens), Tokens/s: {n / (time2 - time1)}", flush=True)
+        print(f"accepted rate {acceptance_rate}, avg generated tokens {avg_tokens}")
+
+    header = "draft,target,acceptance_rate,token/s,avg_tokens,prefill,gen_len,dataset,temperature,latency,baseline\n"
+    entry = f"{draft.config._name_or_path},{target.config._name_or_path},{acceptance_rate},{n / (time2 - time1)},{avg_tokens},{input_ids.shape[1]},{n},{dataset},{temperature},{(time2 - time1)/n},{baseline}\n"
+
+    if file_path is not None:
+        log_csv(file_path, header, entry)
+
+    return acceptance_rate, (time2 - time1)/n
+
+@torch.inference_mode()
 def Evict_Spec_Evict(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=4, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None, spec=False):
     # reset cache
     target_cache.reset()

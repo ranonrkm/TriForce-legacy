@@ -133,13 +133,10 @@ class LlamaAttention(nn.Module):
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
 
         cos, sin = self.rotary_emb(value_states)
-        # if spec:
-        #     print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
 
         if spec: # spec decoding: graph cache
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids)
-            # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
         else:
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
@@ -151,24 +148,34 @@ class LlamaAttention(nn.Module):
         value_states = repeat_kv(value_states, self.num_key_value_groups)
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
         
-        if attention_mask is None:
-            assert spec == False, "Attention mask is None only for the last prefill"
-            assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
+        # if attention_mask is None:
+        #     assert spec == False, "Attention mask is None only for the last prefill"
+        #     assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
         
-            attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-            attn_output = torch.matmul(attn_weights, value_states)
+        #     attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
+        #     attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        #     attn_output = torch.matmul(attn_weights, value_states)
 
+        # else:
+
+        ############ SDPA ############
+        if attention_mask is None:
+            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
+                attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states)
         else:
-            with torch.backends.cuda.sdp_kernel(enable_math=False):
+            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
                 attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
 
-            # attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
+        ############ Flash Attn ############
+        # attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
 
-            # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-            # attn_weights = attn_weights + attention_mask
-            # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-            # attn_output = torch.matmul(attn_weights, value_states)
+
+        ############ Original ############
+        # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
+        # if attention_mask is not None:
+        #     attn_weights = attn_weights + attention_mask
+        # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        # attn_output = torch.matmul(attn_weights, value_states)
 
 
         # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)

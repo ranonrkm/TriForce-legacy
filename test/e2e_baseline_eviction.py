@@ -10,12 +10,12 @@ from transformers import AutoTokenizer
 from termcolor import colored
 from tqdm import tqdm
 from models.modeling_llama_torch import LlamaForCausalLM
-from models.modeling_llama_68m_v2 import LlamaForCausalLM as LlamaForCausalLM_68M
-from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache
-from utils.decoding import Evict_Spec_cache
+from models.modeling_llama_68m_v3 import LlamaForCausalLM as LlamaForCausalLM_68M
+from models.cache_utils import SimpleCache, EvictStreamLLMCache, StreamLLMCache, GraphFlashStreamEvictionCache_V3
+from utils.decoding import Graph_Evict_Spec_cache
 from utils.misc import print_config
 from utils.sampling import max_fn, sample, norm_logits
-
+from utils.baseline_evict_infer import GraphInferenceEngine
 import argparse
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
@@ -39,7 +39,7 @@ def parse_arguments():
 args = parse_arguments()
 
 ######## model initialization ########
-draft = LlamaForCausalLM.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
+draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=torch.float16, device_map="auto")
 
 if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="auto")
@@ -80,11 +80,12 @@ else:
     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_real_Ablation_baseline_evict_streamllm.csv"
 
 
-print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 512-16}, dataset=args.dataset)
+print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 256-16}, dataset=args.dataset)
 
 draft_cache_budget = args.draft_cache_budget
 recent_size = draft_cache_budget - 16
-draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=recent_size)
+# draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=recent_size)
+draft_cache=GraphFlashStreamEvictionCache_V3(draft, start_size=16, recent_size=recent_size, gamma=gamma)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)
 
 
@@ -133,12 +134,14 @@ for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
 baseline_latency = 1/(sum(all_speed) / len(all_speed))
 print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} s", "red"))
 
-
 all_acceptance_rate = []
 all_latency = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
-for input_ids in tqdm(tokenized_prompts):
+graph_engine=GraphInferenceEngine(target, target_cache, draft, draft_cache)
+graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=args.temp, top_p=0.9)
+
+for input_ids in tqdm(tokenized_prompts[:1]):
     if prefill < 4096:
         if prefill == 1:
             input_ids = input_ids.to(draft.device)[:,2048:prefill+2048]
@@ -148,7 +151,7 @@ for input_ids in tqdm(tokenized_prompts):
         input_ids = input_ids.to(draft.device)[:,:prefill]
     target_cache.reset()
     draft_cache.reset()
-    acceptance_rate, latency = Evict_Spec_cache(tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, baseline=baseline_latency)
+    acceptance_rate, latency = Graph_Evict_Spec_cache(graph_engine, tokenizer, target, target_cache, draft, draft_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, baseline=baseline_latency)
     all_acceptance_rate.append(acceptance_rate)
     all_latency.append(latency)
 

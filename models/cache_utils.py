@@ -59,6 +59,7 @@ class SimpleCache(Cache):
         layer_idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
 
+        # print(self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]].shape, self.seq_len)
         self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
 
@@ -1893,7 +1894,7 @@ class GraphFlashStreamEvictionCache_V3(Cache):
         self.gamma = gamma
         self.start_size = start_size
         self.recent_size = recent_size
-        self.real_budget = self.start_size + self.recent_size + self.gamma + 1 + 1 # (gamma+1 is for spec and bonus sample, another 1 for hint)
+        self.real_budget = self.start_size + self.recent_size + self.gamma + 1 # (gamma+1 is for spec and bonus sample, another 1 for hint)
 
         self.seq_len = 0 # just for prefill usage
 
@@ -1928,8 +1929,8 @@ class GraphFlashStreamEvictionCache_V3(Cache):
 
     def spec_update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, gamma_offset=0):
 
-        start = self.real_budget-self.gamma-1 - 1
-        end = self.real_budget-self.gamma-1- 1+new_k_cache.shape[-3]
+        start = self.real_budget-self.gamma-1 + gamma_offset
+        end = self.real_budget-self.gamma-1+new_k_cache.shape[-3] + gamma_offset
 
         self.key_cache[layer_idx][:, start:end] = new_k_cache.clone()
         self.value_cache[layer_idx][:, start:end] = new_v_cache.clone()
@@ -1955,6 +1956,7 @@ class GraphFlashStreamEvictionCache_V3(Cache):
     def evict_for_spec(self, current_seq_len):
         self.key_cache[:,:,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
         self.value_cache[:,:, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,:, current_seq_len-self.recent_size:current_seq_len].clone()
+
 
 
 ####################### TREE OFFLOADING ##########################
@@ -2267,7 +2269,7 @@ class PartialOffloadingTREESimpleCache(Cache):
 
 ####################### Batch KV cache #######################
 
-class GraphFlashSimpleCache(Cache):
+class BatchSimpleCache(Cache):
 
     def __init__(self, model, max_budget=1024, bsz=2) -> None:
 
@@ -2279,27 +2281,28 @@ class GraphFlashSimpleCache(Cache):
             self.num_heads = model.config.num_attention_heads
         self.head_dim = self.hidden_size // model.config.num_attention_heads
         self.layers = model.config.num_hidden_layers
-
+        self.bsz = bsz
+        self.seq_len = 0
         device=model.device
         dtype=torch.float16
-        self.key_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-        self.value_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        self.key_cache=torch.zeros([self.layers, bsz, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device)
+        self.value_cache=torch.zeros([self.layers, bsz, self.num_heads, self.max_budget, self.head_dim], dtype=dtype).to(device)
     
     def print_status(self):
-        print("Max Budget:", self.max_budget)
+        print("Max Budget:", self.max_budget, f"| bsz: {self.bsz}", f"| Cached: {self.seq_len}")
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int):
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int):
 
-        input_length = len(storage_ids)
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
 
-        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
-        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
-        # assert storage_ids[0].item() == gamma_offset, f"expected {gamma_offset}, got {storage_ids[0].item()}"
+        key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+        value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-2]
         
-        self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
-        self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
-
-        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+        return key, value
 
     def reset(self):
         self.key_cache.zero_()
