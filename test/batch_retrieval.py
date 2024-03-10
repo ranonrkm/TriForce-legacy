@@ -62,6 +62,7 @@ tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", u
 bsz = args.bsz
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
+tokenized_prompts = [i[:,:args.prefill] for i in tokenized_prompts]
 tokenized_prompts = [torch.cat(tokenized_prompts[i:i+bsz], dim=0) for i in range(0, len(tokenized_prompts), bsz)]
 
 ######## sampling parameters ########
