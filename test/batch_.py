@@ -136,7 +136,7 @@ for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     if input_ids.size(0) != bsz:
         break
-    acceptance_rate, avg_tokens, latency, gen_tokens = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset)
+    acceptance_rate, avg_tokens, latency = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset)
     all_acceptance_rate.append(acceptance_rate)
     all_latency.append(latency)
 
