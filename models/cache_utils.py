@@ -2066,7 +2066,6 @@ class TREEChunkTopKCache:
         self.value_cache.zero_()
         self.init_graph = False
 
-
 class TREESimpleCache(Cache):
     def __init__(self, model, max_budget=1024) -> None:
         self.key_cache: List[torch.Tensor] = []
@@ -2122,7 +2121,6 @@ class TREESimpleCache(Cache):
         self.value_cache[..., offset + len(indices):, :] = 0.0
 
         self.seq_len = offset + len(indices)
-
 
 class OffloadingTREESimpleCache(Cache):
     def __init__(self, model, max_budget=1024) -> None:
@@ -2192,7 +2190,6 @@ class OffloadingTREESimpleCache(Cache):
         self.value_cache[..., offset + len(indices):, :] = 0.0
 
         self.seq_len = offset + len(indices)
-
 
 class PartialOffloadingTREESimpleCache(Cache):
     def __init__(self, model, max_budget=1024, gpu_layer=10) -> None:

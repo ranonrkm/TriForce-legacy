@@ -26,7 +26,7 @@ from transformers.models.llama.modeling_llama import(
 
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from .configuration_llama import LlamaConfig
-from models.cache_utils import Cache, TREEChunkTopKCache, TREESimpleCache
+from models.cache_utils import Cache
 
 
 class LlamaRMSNorm(nn.Module):
@@ -120,6 +120,7 @@ class LlamaAttention(nn.Module):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = -1,
         spec=False,
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, _ = hidden_states.size()
@@ -139,12 +140,13 @@ class LlamaAttention(nn.Module):
         key_states = key_states.transpose(1, 2)
 
         if spec: # spec decoding: graph cache
-            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids)
+            # print(position_ids, gamma_offset)
+            key_states, value_states = graph_cache.update(key_states=key_states, value_states=value_states, layer_idx=self.layer_idx, gamma_offset= gamma_offset)
         else:
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx, storage_ids=position_ids)
             # init graph cache (last prefill)
-            if query_states.shape[2] == 1 and graph_cache is not None:
+            if graph_cache is not None and query_states.shape[1] == 1:
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
         key_states = repeat_kv(key_states, self.num_key_value_groups)
@@ -172,7 +174,12 @@ class LlamaAttention(nn.Module):
         #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
 
         ############ Flash Attn ############
-        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        # print(query_states.shape, key_states.shape, value_states.shape, position_ids, kv_cache.seq_len)
+        if spec: # spec do not need kv_cache.seq_len, just full
+            # print(query_states.shape, key_states.shape, value_states.shape)
+            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+        else:
+            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
 
 
         ############ Original ############
@@ -219,7 +226,7 @@ class LlamaDecoderLayer(nn.Module):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
-
+        gamma_offset: int = -1,
         spec=False,
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
 
@@ -234,6 +241,7 @@ class LlamaDecoderLayer(nn.Module):
             kv_cache=kv_cache,
             graph_cache=graph_cache,
             storage_ids=storage_ids,
+            gamma_offset=gamma_offset,
             spec=spec,
         )
         hidden_states = residual + hidden_states
@@ -290,7 +298,7 @@ class LlamaModel(LlamaPreTrainedModel):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
-
+        gamma_offset: int = -1,
         spec=False,
     ):
         batch_size, seq_length = input_ids.shape[:2]
@@ -319,6 +327,7 @@ class LlamaModel(LlamaPreTrainedModel):
                 kv_cache=kv_cache,
                 graph_cache=graph_cache,
                 storage_ids=storage_ids,
+                gamma_offset=gamma_offset,
                 spec=spec,
             )
 
@@ -348,6 +357,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         kv_cache: Cache = None,
         graph_cache: Optional[Cache] = None,
         storage_ids: Optional[torch.LongTensor] = None,
+        gamma_offset: int = -1,
         spec=False,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
@@ -358,6 +368,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             kv_cache=kv_cache,
             graph_cache=graph_cache,
             storage_ids=storage_ids,
+            gamma_offset=gamma_offset,
             spec=spec,
         )
 

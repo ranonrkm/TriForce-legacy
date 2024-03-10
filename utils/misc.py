@@ -28,6 +28,12 @@ def spec_stream(pred_token_idx, tokenizer, color='blue'):
 
     print(colored(decoded_token, color), flush=True, end=" ")
 
+def batch_spec_stream(pred_token_idx, tokenizer):
+    color_list = ['red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'light_grey', 'dark_grey', 'light_red', 'light_green', 'light_yellow', 'light_blue', 'light_magenta', 'light_cyan', 'white']
+    for i in range(pred_token_idx.size(0)):
+        spec_stream(pred_token_idx[i], tokenizer, color_list[i])
+    print()
+
 def log_csv(file_path, header, entry):
     try:
         with open(file_path, 'r') as f:

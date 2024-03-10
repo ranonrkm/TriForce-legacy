@@ -8,8 +8,8 @@ from transformers import AutoTokenizer
 from termcolor import colored
 from tqdm import tqdm
 from models.modeling_batch_llama import LlamaForCausalLM
-from models.batch_cache import BatchSimpleCache
-from utils.batch_decoding import Baseline
+from models.batch_cache import BatchSimpleCache, BatchRetrievalCache
+from utils.batch_decoding import Baseline, Retrieval_Spec
 from utils.misc import print_config
 from utils.batch_infer import GraphInferenceEngine
 import socket
@@ -34,7 +34,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--top_p', type=float, default=0.9, help='top p')
-    parser.add_argument('--budget', type=int, default=4096)
+    parser.add_argument('--budget', type=int, default=512)
     parser.add_argument('--draft_cache_budget', type=int, default=256, help='draft cache budget')
     parser.add_argument('--chunk_size', type=int, default=8, help='chunk size')
     args = parser.parse_args()
@@ -94,129 +94,53 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 draft_cache_budget = args.draft_cache_budget
 recent_size = draft_cache_budget - 16 - gamma
 
-cache = BatchSimpleCache(target, prefill+gen_len+16, bsz=bsz)
-graph_cache = None
+cache = BatchSimpleCache(target, int(prefill+gen_len*2), bsz=bsz)
+graph_cache = BatchRetrievalCache(target, max_budget, bsz=bsz, prefill=prefill, chunk_size=8, gamma=6)
 
-graph_engine = GraphInferenceEngine(target, cache)
-# graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature, top_p=top_p)
+graph_engine = GraphInferenceEngine(target, cache, graph_cache=graph_cache, bsz=bsz)
+graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature, top_p=top_p)
 cache.reset()
 cache.print_status()
 # graph_cache.print_status()
 # draft_cache.print_status()
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
-graph_engine.engine.kv_cache.seq_len = torch.full((bsz,), prefill, dtype=torch.int32).cuda()
-
-with torch.inference_mode():
-    sentence = torch.randint(low=3, high=30000, size=(bsz, 1)).cuda()
-    total_time = 0.0
-    torch.cuda.synchronize()
-    t1 = time.time()
-    for _ in range(100):
-        graph_engine.inference(sentence)
-        graph_engine.engine.kv_cache.seq_len -= 1
-    torch.cuda.synchronize()
-    t2 = time.time()
-    total_time += (t2 - t1)
-
-    print(total_time *10, 1, prefill, 100, "warm up done")
-
-
-LEN = [1]
-
-with torch.no_grad():
-    for l in LEN:
-        sentence = torch.randint(low=3, high=30000, size=(bsz, l)).cuda()
-        torch.cuda.synchronize()
-        t1 = time.time()
-        for _ in range(100):
-            graph_engine.inference(sentence)
-            graph_engine.engine.kv_cache.seq_len -= l
-        torch.cuda.synchronize()
-        t2 = time.time()
-        foward_time = (t2 - t1) / 100 * 1000
-
-        logits = torch.randn(bsz, l, 32000).half().cuda()
-        torch.cuda.synchronize()
-        t1 = time.time()
-        for _ in range(100):
-            next_token = sample(norm_logits(logits[:,-1,:], temperature=0.6 ,top_k=-1, top_p=0.9))
-        torch.cuda.synchronize()
-        t2 = time.time()
-        sampling_time = (t2 - t1) / 100 * 1000
-
-        torch.cuda.synchronize()
-        t1 = time.time()
-        for _ in range(256):
-            logits = graph_engine.inference(next_token)
-            next_token = sample(norm_logits(logits[:,-1,:], temperature=0.6 ,top_k=-1, top_p=0.9))
-        torch.cuda.synchronize()
-        t2 = time.time()
-        all_time = (t2 - t1) / 256 * 1000
-
-        print(f"bsz={bsz}, verify_len={l}, data_len={prefill}, foward_time={foward_time}, sampling_time={sampling_time}, all_time={all_time}")
-
-
-with torch.inference_mode():
-    graph_engine.engine.kv_cache.seq_len = torch.full((bsz,), prefill, dtype=torch.int32).cuda()
-    next_token= torch.randint(low=3, high=30000, size=(bsz, 1)).cuda()
-    torch.cuda.synchronize()
-    t1 = time.time()
-    for _ in range(256):
-        logits = graph_engine.inference(next_token)
-        # next_token = sample(norm_logits(logits[:,-1,:], temperature=0.6 ,top_k=-1, top_p=0.9))
-    torch.cuda.synchronize()
-    t2 = time.time()
-    all_time = (t2 - t1) / 256 * 1000
-
-print(f"all_time={all_time}")
-
-######## Warm up for baseline ########
-n_warmups = 1
+####### Warm up for baseline ########
+n_warmups = 3
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
-    Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
-
-with torch.inference_mode():
-    graph_engine.engine.kv_cache.seq_len = torch.full((bsz,), prefill, dtype=torch.int32).cuda()
-    next_token= torch.randint(low=3, high=30000, size=(bsz, 1)).cuda()
-    torch.cuda.synchronize()
-    t1 = time.time()
-    for _ in range(256):
-        logits = graph_engine.inference(next_token)
-        # next_token = sample(norm_logits(logits[:,-1,:], temperature=0.6 ,top_k=-1, top_p=0.9))
-    torch.cuda.synchronize()
-    t2 = time.time()
-    all_time = (t2 - t1) / 256 * 1000
-
-print(f"all_time={all_time}")
+    Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
 
 with torch.no_grad():
     all_latency = []
     for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
         input_ids = input_ids.to(target.device)[:,:prefill]
-        latency = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose)
+        latency, gen_tokens = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
         all_latency.append(latency)
 
     baseline_latency = (sum(all_latency) / len(all_latency)) * 1000
     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
 
+# DEBUG: inspect the generated tokens quality
+# print(tokenizer.batch_decode(gen_tokens))
+
 # ######## Warm up for our method ########
-# n_warmups = 6
-# input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
-# for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
-#     Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset, spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size, 'baseline': baseline_latency/1000})
+n_warmups = 3
+input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
+for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
+    acceptance_rate, avg_tokens, latency, gen_tokens = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=True, file_path=None, dataset=args.dataset)
+# print(tokenizer.batch_decode(gen_tokens))
+all_acceptance_rate = []
+all_latency = []
+for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
+    input_ids = input_ids.to(target.device)[:,:prefill]
+    if input_ids.size(0) != bsz:
+        break
+    acceptance_rate, avg_tokens, latency, gen_tokens = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset)
+    all_acceptance_rate.append(acceptance_rate)
+    all_latency.append(latency)
 
-# all_acceptance_rate = []
-# all_speed = []
-# for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
-#     input_ids = input_ids.to(target.device)[:,:prefill]
-
-#     acceptance_rate, speed = Graph_Chain_Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget, 'draft': args.draft, 'chunk_size': chunk_size, 'gamma': gamma, 'temperature': temperature, 'top_p': top_p, 'baseline': baseline_latency/1000})
-#     all_acceptance_rate.append(acceptance_rate)
-#     all_speed.append(speed)
-
-# method_latency = 1000/(sum(all_speed) / len(all_speed))
-# print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
-# print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} ms", "red"))
-# print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))
+method_latency = (sum(all_latency) / len(all_latency))
+print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
+print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} ms", "red"))
+print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))
