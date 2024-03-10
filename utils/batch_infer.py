@@ -12,7 +12,7 @@ from tqdm import tqdm
 from .sampling import norm_logits
 
 class InferenceEngine:
-    def __init__(self, model, cache, graph_cache, draft, draft_cache) -> None:
+    def __init__(self, model, cache, graph_cache=None, draft=None, draft_cache=None) -> None:
 
         ###### 7B ######
         self.model = model
@@ -21,17 +21,18 @@ class InferenceEngine:
         self.graph_cache = graph_cache
 
         ###### 68 MB ######
-        self.draft = draft
-        self.draft.eval()
-        self.draft_cache = draft_cache
+        if draft is not None:
+            self.draft = draft
+            self.draft.eval()
+            self.draft_cache = draft_cache
 
     @torch.inference_mode()
     def model_run(self, input_ids: torch.LongTensor):
         if input_ids.shape[-1] > 64: # prefill
-            iter_prefill = math.ceil(input_ids.shape[1] / 100)
+            iter_prefill = math.ceil(input_ids.shape[1] / 64)
             for i in range(iter_prefill):
                 logits = self.model(
-                    input_ids=input_ids[:, i*100:(i+1)*100],
+                    input_ids=input_ids[:, i*64:(i+1)*64],
                     kv_cache=self.kv_cache,
                     graph_cache=None,
                 ).logits
@@ -128,7 +129,7 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     return run
 
 class GraphInferenceEngine:
-    def __init__(self, model, cache, graph_cache, draft, draft_cache) -> None:
+    def __init__(self, model, cache, graph_cache=None, draft=None, draft_cache=None) -> None:
 
         self.engine = InferenceEngine(model, cache, graph_cache, draft, draft_cache)
         self.callables = {}

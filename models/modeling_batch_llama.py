@@ -130,16 +130,19 @@ class LlamaAttention(nn.Module):
 
         query_states = query_states.view(bsz, q_len, self.num_heads, self.head_dim).transpose(1, 2)
         key_states = key_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
-        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim).transpose(1, 2)
+        value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
 
         cos, sin = self.rotary_emb(value_states)
+        # print(position_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+        query_states = query_states.transpose(1, 2)
+        key_states = key_states.transpose(1, 2)
 
         if spec: # spec decoding: graph cache
             key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, storage_ids=storage_ids)
         else:
             # update kv cache first
-            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)
+            key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx, storage_ids=position_ids)
             # init graph cache (last prefill)
             if query_states.shape[2] == 1 and graph_cache is not None:
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
@@ -159,15 +162,17 @@ class LlamaAttention(nn.Module):
         # else:
 
         ############ SDPA ############
-        if attention_mask is None:
-            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
-                attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states)
-        else:
-            with torch.backends.cuda.sdp_kernel(enable_math=False, enable_flash=True, enable_mem_efficient=False):
-                attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
+        # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
+        # print(attention_mask.shape if attention_mask is not None else None)
+        # if attention_mask is None:
+        #     with torch.backends.cuda.sdp_kernel(enable_math=False):
+        #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states)
+        # else:
+        #     with torch.backends.cuda.sdp_kernel(enable_math=False):
+        #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
 
         ############ Flash Attn ############
-        # attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
+        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
 
 
         ############ Original ############
@@ -188,7 +193,7 @@ class LlamaAttention(nn.Module):
         # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         # attn_output = torch.matmul(attn_weights, value_states)
         
-        attn_output = attn_output.transpose(1, 2).contiguous()
+        # attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
         return attn_output
@@ -290,20 +295,21 @@ class LlamaModel(LlamaPreTrainedModel):
     ):
         batch_size, seq_length = input_ids.shape[:2]
         if position_ids is None:
-            kv_cache_length = kv_cache.seq_len
             device = input_ids.device if input_ids is not None else inputs_embeds.device
-            position_ids = torch.arange(kv_cache_length, seq_length + kv_cache_length, dtype=torch.long, device=device)
-            position_ids = position_ids.unsqueeze(0)
+            range_tensor = torch.arange(seq_length, dtype=torch.long, device=device)
+            # print(kv_cache.seq_len, range_tensor)
+            position_ids = kv_cache.seq_len[:, None] + range_tensor
 
         inputs_embeds = self.embed_tokens(input_ids)
         hidden_states = inputs_embeds
 
-        if attention_mask is None and spec==False:
-            # casual mask for prefilling
-            past_key_values_length = kv_cache.seq_len
-            attention_mask = _prepare_4d_causal_attention_mask(
-                attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
-            )
+        # if attention_mask is None and spec==False:
+        #     # casual mask for prefilling
+        #     past_key_values_length = kv_cache.seq_len
+        #     print(kv_cache.seq_len)
+        #     attention_mask = _prepare_4d_causal_attention_mask(
+        #         attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
+        #     )
 
         for decoder_layer in self.layers:
             layer_outputs = decoder_layer(

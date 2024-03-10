@@ -23,7 +23,6 @@ def parse_arguments():
     parser.add_argument('--draft', type=str, default='llama-68M-align', help='draft model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
-    parser.add_argument('--seed', type=int, default=42, help='seed')
 
     parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
@@ -40,7 +39,6 @@ def parse_arguments():
     return args
 
 args = parse_arguments()
-setup_seed(args.seed)
 
 ######## model initialization ########
 if args.target == 'llama-7B':
@@ -69,7 +67,6 @@ prefill = args.prefill
 gen_len = args.gen_len
 gamma = args.gamma
 verbose = args.verbose
-
 
 if 'lovelace' in host:
     file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_Ablation_graph_chain_retrieval.csv"
