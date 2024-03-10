@@ -43,8 +43,8 @@ cache.reset()
 T=args.T
 graph_engine = GraphInferenceEngine(model, cache, None, model, None)
 # set kv length
-# seq_len = torch.full((bsz,), data_len, dtype=torch.int32).cuda()
-seq_len = torch.randint(low=data_len-256, high=data_len, size=(bsz,), dtype=torch.int32).cuda()
+seq_len = torch.full((bsz,), data_len, dtype=torch.int32).cuda()
+# seq_len = torch.randint(low=data_len-256, high=data_len, size=(bsz,), dtype=torch.int32).cuda()
 graph_engine.engine.kv_cache.set_len(seq_len)
 cache.print_status()
 
