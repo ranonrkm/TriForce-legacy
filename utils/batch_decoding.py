@@ -4,8 +4,6 @@ import time
 import numpy as np
 import os
 import sys
-
-from zmq import device
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 

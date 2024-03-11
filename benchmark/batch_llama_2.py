@@ -14,7 +14,7 @@ from tqdm import tqdm
 import time
 
 from data.dataset import get_dataset
-from models.batch_cache import BatchSimpleCache
+from models.batch_cache import BatchSimpleCache, BatchRetrievalCache
 from models.modeling_batch_llama import LlamaForCausalLM
 from utils.batch_infer import GraphInferenceEngine
 from utils.sampling import sample, norm_logits, max_fn
@@ -34,14 +34,16 @@ def parse_arguments():
 
 args = parse_arguments()
 
+T=args.T
+gamma=6
 bsz = args.bsz
-data_len = int(1024*120 / bsz)
+data_len = int(1024*110 / bsz)
 cache = BatchSimpleCache(model, data_len+256+16, bsz=bsz)
+graph_cache = BatchRetrievalCache(model, 512, bsz=bsz, prefill=data_len, chunk_size=8, gamma=gamma)
 cache.reset()
 
-
-T=args.T
-graph_engine = GraphInferenceEngine(model, cache, None, model, None)
+graph_engine = GraphInferenceEngine(model, cache, graph_cache, None, None, bsz)
+graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=0.6, top_p=0.9)
 # set kv length
 seq_len = torch.full((bsz,), data_len, dtype=torch.int32).cuda()
 # seq_len = torch.randint(low=data_len-256, high=data_len, size=(bsz,), dtype=torch.int32).cuda()
@@ -55,7 +57,7 @@ with torch.inference_mode():
     torch.cuda.synchronize()
     t1 = time.time()
     for _ in range(100):
-        graph_engine.inference(sentence)
+        graph_engine.engine.model(input_ids=sentence, kv_cache=graph_engine.engine.kv_cache, graph_cache=None).logits
         graph_engine.engine.kv_cache.seq_len -= 1
     torch.cuda.synchronize()
     t2 = time.time()
@@ -72,11 +74,20 @@ with torch.inference_mode():
         torch.cuda.synchronize()
         t1 = time.time()
         for _ in range(T):
-            graph_engine.inference(sentence)
+            graph_engine.engine.model(input_ids=sentence, kv_cache=graph_engine.engine.kv_cache, graph_cache=None).logits
             graph_engine.engine.kv_cache.seq_len -= l
         torch.cuda.synchronize()
         t2 = time.time()
         foward_time = (t2 - t1) / T * 1000
+
+        torch.cuda.synchronize()
+        t1 = time.time()
+        position_ids = graph_engine.engine.kv_cache.seq_len[:, None] + gamma -1
+        for _ in range(T):
+            graph_engine.graph_retrieval_inference(input_ids=next_token, gamma_offset=gamma -1, position_ids=position_ids)
+        torch.cuda.synchronize()
+        t2 = time.time()
+        draft_time = (t2 - t1) / T * 1000
 
         logits = torch.randn(bsz, l, 32000).half().cuda()
         torch.cuda.synchronize()
@@ -96,5 +107,6 @@ with torch.inference_mode():
         t2 = time.time()
         all_time = (t2 - t1) / 256 * 1000
 
-        print(f"bsz={bsz}, prefill={data_len}, verify_len={l}, foward_time={foward_time}, sampling_time={sampling_time}, decoding_time={all_time}")
+
+        print(f"bsz={bsz}, prefill={data_len}, verify_len={l}, foward_time={foward_time}, sampling_time={sampling_time}, decoding_time={all_time}, draft_time={draft_time}")
 
