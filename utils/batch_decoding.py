@@ -10,6 +10,11 @@ sys.path.append(root_dir)
 from utils.misc import batch_spec_stream, spec_stream
 from utils.sampling import sample, norm_logits, max_fn
 
+def get_residual(p: torch.Tensor, q:torch.Tensor):
+    residual = (p - q).relu_()
+    residual = residual / residual.sum(dim=-1, keepdim=True)
+    return residual
+
 @torch.inference_mode()
 def Baseline(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False):
     graph_engine.engine.kv_cache.reset()
@@ -109,7 +114,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
                     resample_count += 1
                     n[j] += 1
                     # pred_token_idx = resample[j, i].unsqueeze(0)
-                    pred_token_idx = sample(max_fn(verify_probs[j, i]-speculation_probs[j, i]))
+                    pred_token_idx = sample(get_residual(verify_probs[j, i],speculation_probs[j, i]))
                     if verbose:
                         # spec_stream(pred_token_idx, tokenizer, 'red')
                         gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()

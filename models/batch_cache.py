@@ -134,6 +134,10 @@ class BatchRetrievalCache:
         self.key_cache.zero_()
         self.value_cache.zero_()
 
+    def normal_(self):
+        self.key_cache.normal_()
+        self.value_cache.normal_()
+
 
 ########### Chain Spec Cache ############
 class BatchRetrievalVerificationCache:
