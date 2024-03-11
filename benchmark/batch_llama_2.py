@@ -62,7 +62,7 @@ with torch.inference_mode():
     total_time += (t2 - t1)
 
 
-LEN = [1,2,4,5,6,7,8,16,32,64,96,128]
+LEN = [1,2,4,5,6,7,8,9,10,11,12,12,13,14,15,16,32,64,96,128]
 
 with torch.inference_mode():
     for l in LEN:

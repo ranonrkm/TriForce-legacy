@@ -35,7 +35,6 @@ def parse_arguments():
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--top_p', type=float, default=0.9, help='top p')
     parser.add_argument('--budget', type=int, default=512)
-    parser.add_argument('--draft_cache_budget', type=int, default=256, help='draft cache budget')
     parser.add_argument('--chunk_size', type=int, default=8, help='chunk size')
     args = parser.parse_args()
     
@@ -92,15 +91,11 @@ max_budget = args.budget
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Batch Spec (Retrieval)", spec_args={'budget': args.budget, 'chunk_size': chunk_size}, dataset=args.dataset)
 
 ####### cache init #######
-draft_cache_budget = args.draft_cache_budget
-recent_size = draft_cache_budget - 16 - gamma
-
 cache = BatchSimpleCache(target, int(prefill+gen_len*2), bsz=bsz)
-graph_cache = BatchRetrievalCache(target, max_budget, bsz=bsz, prefill=prefill, chunk_size=8, gamma=6)
+graph_cache = BatchRetrievalCache(target, max_budget, bsz=bsz, prefill=prefill, chunk_size=chunk_size, gamma=gamma)
 
 graph_engine = GraphInferenceEngine(target, cache, graph_cache=graph_cache, bsz=bsz)
 graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature, top_p=top_p)
-cache.reset()
 cache.print_status()
 # graph_cache.print_status()
 # draft_cache.print_status()
@@ -125,7 +120,7 @@ with torch.no_grad():
 # DEBUG: inspect the generated tokens quality
 # print(tokenizer.batch_decode(gen_tokens))
 
-# ######## Warm up for our method ########
+######### Warm up for our method ########
 n_warmups = 3
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):

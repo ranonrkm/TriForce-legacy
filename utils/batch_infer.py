@@ -26,6 +26,9 @@ class InferenceEngine:
             self.draft = draft
             self.draft.eval()
             self.draft_cache = draft_cache
+        else:
+            self.draft = None
+            self.draft_cache = None
 
     @torch.inference_mode()
     def model_run(self, input_ids: torch.LongTensor):
@@ -55,40 +58,38 @@ class InferenceEngine:
         else: # decoding
             logits = self.draft(input_ids=input_ids, kv_cache=self.draft_cache, graph_cache=self.draft_cache, gamma_offset=gamma_offset).logits
 
-        if probs: # without top_p
-            # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0, -1, :]
-            return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=top_p)[-1]
+        if probs:
+            return norm_logits(logits[:,-1,:], temperature=temperature, top_k=-1, top_p=top_p)
         return logits
 
     @torch.inference_mode()
     def model_verify(self, input_ids: torch.LongTensor, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6, top_p=0.9):
-        # graph verification (used for cuda graph capture)
+        # graph verification
         logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, position_ids=position_ids, spec=True).logits
-        if probs: # without top_p
-            # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
-            return norm_logits(logits[0], temperature=temperature, top_k=-1, top_p=top_p)
+        if probs:
+            bsz, gamma = input_ids.size()
+            return norm_logits(logits.view(-1, 32000), temperature=temperature ,top_k=-1, top_p=top_p).view(bsz, gamma, 32000)
         return logits
-    
+
     @torch.inference_mode()
     def retrieval_run(self, input_ids: torch.LongTensor, gamma_offset: int=0, position_ids: Optional[torch.LongTensor]=None, probs=False, temperature=0.6, top_p=0.9):
         # 7B model run with retrieval kv cache
         logits = self.model(input_ids=input_ids, gamma_offset=gamma_offset, position_ids=position_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, spec=True).logits
-        if probs: # without top_p
-            # return torch.nn.functional.softmax(logits/0.6, dim=-1)[0]
+        if probs:
             return norm_logits(logits[:,-1,:], temperature=temperature, top_k=-1, top_p=top_p)
         return logits
 
     def clear_kv(self):
         self.kv_cache.reset()
         self.graph_cache.reset()
-        # if self.draft_cache is not None:
-        #     self.draft_cache.reset()
+        if self.draft_cache is not None:
+            self.draft_cache.reset()
 
 def draft_run_capture_graph(engine :InferenceEngine, gamma_offset :int =0, mempool=None, n_warmups :int=3, probs=False, temperature=0.6, top_p=0.9):
     device = engine.draft.device
     
     # draft run is incremental decoding
-    static_input_ids = torch.full((1, gamma_offset+1), 0, dtype=torch.long, device=device)
+    static_input_ids = torch.full((engine.bsz, gamma_offset+1), 0, dtype=torch.long, device=device)
     s = torch.cuda.Stream()
     s.wait_stream(torch.cuda.current_stream())
     with torch.cuda.stream(s):
@@ -113,8 +114,7 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     device = engine.model.device
     
     # model_verify is verifying gamma tokens
-    static_input_ids = torch.full((1, gamma+1), 0, dtype=torch.long, device=device)
-    # static_storage_ids = torch.arange(gamma+1, device=device)
+    static_input_ids = torch.full((engine.bsz, gamma+1), 0, dtype=torch.long, device=device)
     static_position_ids = torch.arange(gamma+1, device=device).unsqueeze(0)
     
     s = torch.cuda.Stream()
@@ -132,7 +132,6 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     
     def run(input_ids, position_ids):
         static_input_ids.copy_(input_ids)
-        # static_storage_ids.copy_(storage_ids)
         static_position_ids.copy_(position_ids)
         graph.replay()
         return static_logits.clone()
@@ -164,6 +163,8 @@ def retrieval_run_capture_graph(engine :InferenceEngine, mempool=None, n_warmups
         return static_logits.clone()
 
     return run
+
+
 class GraphInferenceEngine:
     def __init__(self, model, cache, graph_cache=None, draft=None, draft_cache=None, bsz=2) -> None:
 
@@ -172,42 +173,43 @@ class GraphInferenceEngine:
         self.mempool = None
 
     @torch.inference_mode()
-    def initialize_cuda_graph(self, gamma=6, probs=False, temperature=0.6, top_p=0.9):
+    def initialize_cuda_graph(self, gamma=6, probs=False, temperature=0.6, top_p=0.9, chain=False):
         gc.collect()
         self.mempool = torch.cuda.graphs.graph_pool_handle()
-        
 
 
-        # for gamma_offset in range(gamma+1):
-        #     self.callables[gamma_offset] = draft_run_capture_graph(
-        #                                         engine=self.engine,
-        #                                         gamma_offset=gamma_offset,
-        #                                         mempool=self.mempool,
-        #                                         n_warmups=3,
-        #                                         probs=probs,
-        #                                         temperature=temperature,
-        #                                         top_p=top_p
-        #                                     )
+        if chain:
+            for gamma_offset in range(gamma+1):
+                self.callables[gamma_offset] = draft_run_capture_graph(
+                                                    engine=self.engine,
+                                                    gamma_offset=gamma_offset,
+                                                    mempool=self.mempool,
+                                                    n_warmups=3,
+                                                    probs=probs,
+                                                    temperature=temperature,
+                                                    top_p=top_p
+                                                )
 
-        # self.callable_model_verify = model_verify_capture_graph(
-        #                                 engine=self.engine,
-        #                                 mempool=self.mempool,
-        #                                 n_warmups=3,
-        #                                 gamma=gamma,
-        #                                 probs=probs,
-        #                                 temperature=temperature,
-        #                                 top_p=top_p
-        #                             )
-        for gamma_offset in range(gamma):
-            self.callables[gamma_offset] = retrieval_run_capture_graph(
-                                                engine=self.engine,
-                                                gamma_offset=gamma_offset,
-                                                mempool=self.mempool,
-                                                n_warmups=3,
-                                                probs=probs,
-                                                temperature=temperature,
-                                                top_p=top_p
-                                            )
+            self.callable_model_verify = model_verify_capture_graph(
+                                            engine=self.engine,
+                                            mempool=self.mempool,
+                                            n_warmups=3,
+                                            gamma=gamma,
+                                            probs=probs,
+                                            temperature=temperature,
+                                            top_p=top_p
+                                        )
+        else:
+            for gamma_offset in range(gamma):
+                self.callables[gamma_offset] = retrieval_run_capture_graph(
+                                                    engine=self.engine,
+                                                    gamma_offset=gamma_offset,
+                                                    mempool=self.mempool,
+                                                    n_warmups=3,
+                                                    probs=probs,
+                                                    temperature=temperature,
+                                                    top_p=top_p
+                                                )
 
         self.engine.clear_kv()
 
@@ -223,7 +225,6 @@ class GraphInferenceEngine:
     def graph_retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int=0, position_ids: torch.LongTensor=None):
         # 7B model run with retrieval kv cache
         return self.callables[gamma_offset](input_ids, position_ids)
-
 
     @torch.inference_mode()
     def graph_draft_prefill(self, input_ids: torch.LongTensor):

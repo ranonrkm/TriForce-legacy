@@ -4,6 +4,8 @@ import time
 import numpy as np
 import os
 import sys
+
+from zmq import device
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
@@ -38,7 +40,7 @@ def Baseline(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top_p=0.
 @torch.inference_mode()
 def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None):
     graph_engine.clear_kv()
-    bsz = input_ids.size(0)
+    bsz, prefill = input_ids.size()
     graph_engine.inference(input_ids=input_ids[:,:-1])
     logits = graph_engine.inference(input_ids=input_ids[:,-1:])
     next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
@@ -80,7 +82,124 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
         verify_probs = norm_logits(logits.view(-1, 32000), temperature=temperature ,top_k=top_k, top_p=top_p).view(bsz, gamma+1, -1) # (bsz, gamma+1, 32000)
 
         # pre-compute residual for resampling
-        # !!!TODO
+        # !!!TODO: using cuda graph to speed up sampling
+        # residual = (verify_probs[:,:-1] - speculation_probs).relu_() # (bsz, gamma, 32000)
+        # residual = residual / (residual.sum(dim=-1, keepdim=True) + 1e-9)
+        # resample = sample(residual.view(-1, 32000)).view(bsz, gamma)
+
+        # accept step
+        next_token = torch.zeros((bsz,1), dtype=torch.long, device=input_ids.device)
+        for j in range(bsz): # bsz
+            for i in range(gamma):
+                token = generated_ids[j, i]
+                spec_prob = speculation_probs[j, i, token]
+                verify_prob = verify_probs[j, i, token]
+            
+                r = torch.rand(1, device = graph_engine.engine.model.device)
+                if r < torch.min(torch.tensor([1], device=r.device), (verify_prob / spec_prob)):
+                    accepted_count_list[j] += 1
+                    accepted_count += 1
+                    n[j] += 1
+                    pred_token_idx = token
+                    if verbose:
+                        # spec_stream(pred_token_idx, tokenizer, 'green')
+                        gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+                    # if eos
+                    if tokenizer.eos_token_id == token.item():
+                        break
+                else:
+                    resample_count += 1
+                    n[j] += 1
+                    # pred_token_idx = resample[j, i].unsqueeze(0)
+                    pred_token_idx = sample(max_fn(verify_probs[j, i]-speculation_probs[j, i]))
+                    if verbose:
+                        # spec_stream(pred_token_idx, tokenizer, 'red')
+                        gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+                    break
+
+                if tokenizer.eos_token_id == pred_token_idx.item():
+                    break
+
+            if accepted_count_list[j] == gamma:
+                bonus_count += 1
+                n[j] += 1
+                pred_token_idx = sample(verify_probs[j, -1])
+                if verbose:
+                    # spec_stream(pred_token_idx, tokenizer, 'blue')
+                    gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+
+            next_token[j] = pred_token_idx.unsqueeze(0)
+            # if verbose:
+            #     print()
+        
+        # print(accepted_count_list, n, next_token)
+
+        # rollback kv cache
+        graph_engine.engine.kv_cache.seq_len -= (gamma - accepted_count_list)
+        graph_engine.update_graph_cache()
+        accepted_count_list.zero_()
+
+    time2 = time.time()
+    # collect stats
+    total_count = accepted_count + resample_count + bonus_count
+    avg_tokens = total_count / (draft_count/gamma)
+    acceptance_rate = accepted_count / draft_count
+    assert round(acceptance_rate*gamma +1,2)  == round(avg_tokens,2), f"{acceptance_rate*gamma +1} != {avg_tokens}"
+    assert total_count == n.sum().item(), f"{total_count} != {n.sum().item()}"
+    latency = (time2 - time1) / (total_count / bsz) *1000
+    graph_engine.engine.kv_cache.print_status()
+    print(f"acceptance rate: {acceptance_rate:.4f} | avg tokens: {avg_tokens:.4f} | latency: {latency:.4f} ms")
+    if verbose:
+        return acceptance_rate, avg_tokens, latency, gen_tokens
+    else:
+        return acceptance_rate, avg_tokens, latency
+
+@torch.inference_mode()
+def Retrieval_Chain_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None):
+    graph_engine.clear_kv()
+    bsz = input_ids.size(0)
+    graph_engine.inference(input_ids=input_ids[:,:-1])
+    logits = graph_engine.inference(input_ids=input_ids[:,-1:])
+    next_token = sample(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p))
+
+    n = torch.zeros((bsz,), dtype=torch.long)
+    
+    resample_count = 0
+    bonus_count = 0
+    accepted_count = 0
+    draft_count = 0
+    speculation_probs = torch.zeros((input_ids.size(0), gamma, 32000), dtype=torch.float16, device=input_ids.device)
+    generated_ids = torch.zeros((input_ids.size(0), gamma), dtype=torch.long, device=input_ids.device)
+    accepted_count_list = torch.zeros((bsz,), dtype=torch.long, device=input_ids.device)
+    
+    if verbose:
+        gen_tokens = torch.zeros((input_ids.size(0), max_len*2), dtype=torch.long, device=input_ids.device)
+
+    time1 = time.time()
+    while n.min() < max_len:
+        pred_token_idx = next_token
+        
+        # speculative decoding
+
+        verify_tokens, speculation_probs, acc_rate_middle = Spec_Tiny_for_Middle(next_token, graph_engine, gamma, True, tokenizer)
+
+        # for gamma_offset in range(gamma):
+        #     position_ids = graph_engine.engine.kv_cache.seq_len[:, None] + gamma_offset
+        #     probs = graph_engine.graph_retrieval_inference(input_ids=pred_token_idx, gamma_offset=gamma_offset, position_ids=position_ids)
+        #     pred_token_idx = sample(probs)
+            
+        #     speculation_probs[:, gamma_offset] = probs
+        #     generated_ids[:, gamma_offset] = pred_token_idx.squeeze()
+
+        #     draft_count += bsz
+
+        # verification
+        verify_tokens = torch.cat([next_token, generated_ids], dim=1)
+        logits = graph_engine.inference(input_ids=verify_tokens)
+        verify_probs = norm_logits(logits.view(-1, 32000), temperature=temperature ,top_k=top_k, top_p=top_p).view(bsz, gamma+1, -1) # (bsz, gamma+1, 32000)
+
+        # pre-compute residual for resampling
+        # !!!TODO: using cuda graph to speed up sampling
         # residual = (verify_probs[:,:-1] - speculation_probs).relu_() # (bsz, gamma, 32000)
         # residual = residual / (residual.sum(dim=-1, keepdim=True) + 1e-9)
         # resample = sample(residual.view(-1, 32000)).view(bsz, gamma)
@@ -150,3 +269,74 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
         return acceptance_rate, avg_tokens, latency, gen_tokens
     else:
         return acceptance_rate, avg_tokens, latency
+
+
+def Spec_Tiny_for_Middle(next_token, graph_engine, gamma, verbose, tokenizer):
+
+    bsz = next_token.size(0)
+    n = torch.zeros((bsz,), dtype=torch.long)
+    
+    speculation_probs = torch.zeros((bsz, gamma, 32000), dtype=torch.float16, device=next_token.device)
+    return_probs = torch.zeros((bsz, gamma+1, 32000), dtype=torch.float16, device=next_token.device)
+    return_ids = torch.zeros((bsz, gamma+1), dtype=torch.long, device=next_token.device)
+    accepted_count_list = torch.zeros((bsz,), dtype=torch.long, device=next_token.device)
+
+    pred_token_idx = next_token
+
+    return_ids
+
+    verify_tokens = torch.full((bsz, gamma + 1), 100, device=graph_engine.engine.model.device)
+    verify_tokens[:, 0] = next_token
+
+    position_ids = graph_engine.engine.kv_cache.seq_len[:, None] + (gamma+1)
+
+    # time1 = time.time()
+    while n.min() < gamma:
+        speculation_prob = graph_engine.graph_draft_inference(input_ids=verify_tokens[:,:n+1], gamma_offset = n)
+        
+        # print(speculation_prob.shape) # (bsz, 32000)
+        pred_token_idx = sample(speculation_prob)
+        verify_tokens[:, n+1:n+2] = pred_token_idx
+        # print(verify_tokens)
+        # print(verify_tokens, storage_ids, position_ids)
+        verify_prob = graph_engine.graph_verify(input_ids=verify_tokens, position_ids=position_ids)
+
+        # print(verify_prob.shape, speculation_prob.shape)
+
+        r = torch.rand(1, device = graph_engine.engine.model.device)
+        # print(n, verify_prob[n, token_idx],  speculation_prob[token_idx])
+        if r < torch.min(torch.tensor([1], device=r.device), (verify_prob[n, token_idx] / speculation_prob[token_idx])):
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(token_idx)
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'green')
+            accepted_count += 1
+            n += 1
+        
+            pred_token_idx = sample(verify_prob[n])
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(pred_token_idx.item())
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'blue')
+            target_sample_count += 1
+            n += 1
+
+            verify_tokens[:, n:n+1] = pred_token_idx
+        
+        else:
+            # pred_token_idx = sample(max_fn(verify_prob[n]-speculation_prob))
+            pred_token_idx = sample(verify_prob[n])
+            return_speculation_probs.append(verify_prob[n])
+            return_generated_ids.append(pred_token_idx.item())
+            if verbose:
+                spec_stream(pred_token_idx, tokenizer, 'red')
+            resample_count += 1
+            n += 1
+
+            verify_tokens[:, n:n+1] = pred_token_idx
+
+    # update 68m cache
+    graph_engine.graph_draft_inference(input_ids=verify_tokens, gamma_offset = gamma)
+
+    acceptance_rate = accepted_count / draft_count
+    return return_generated_ids, return_speculation_probs, acceptance_rate
