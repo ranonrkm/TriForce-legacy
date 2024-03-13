@@ -117,7 +117,7 @@ def model_verify_capture_graph(engine :InferenceEngine, mempool=None, n_warmups 
     with torch.cuda.graph(graph, pool=mempool):
         static_logits = engine.model_verify(input_ids=static_input_ids, position_ids=static_position_ids, probs=probs, temperature=temperature)
     
-    def run(input_ids, storage_ids, position_ids):
+    def run(input_ids, position_ids):
         static_input_ids.copy_(input_ids)
         static_position_ids.copy_(position_ids)
         graph.replay()
@@ -182,7 +182,7 @@ class GraphInferenceEngine:
     @torch.inference_mode()
     def graph_verify(self, input_ids: torch.LongTensor, position_ids: torch.LongTensor):
         # model verify
-        return self.callable_model_verify(input_ids, position_ids)
+        return self.callable_model_verify(input_ids=input_ids, position_ids=position_ids)
 
     def init_graph_cache(self):
         self.engine.graph_cache.init_graph_cache(kv_cache=self.engine.kv_cache)
