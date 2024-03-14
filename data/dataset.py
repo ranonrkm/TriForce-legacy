@@ -36,13 +36,13 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == '128k':
         import socket
         import os
-        host = socket.gethostname()
-        if 'lovelace' in host:
-            datasetparent = f"/home/hanshis/workspace/LongContextInfer/data/pg19/"
-        elif 'cr-a100-80-0004' in host:
-            datasetparent = f"/var/cr06_data/beidic/LongContextInfer/data/pg19/"
-        else:
-            datasetparent = "/data/home/beidic/hanshi/LongContextInfer/data/pg19/"
+        # host = socket.gethostname()
+        # if 'lovelace' in host:
+        #     datasetparent = f"/home/hanshis/workspace/LongContextInfer/data/pg19/"
+        # elif 'cr-a100-80-0004' in host:
+        #     datasetparent = f"/var/cr06_data/beidic/LongContextInfer/data/pg19/"
+        # else:
+        datasetparent = "data/pg19/"
         d_files = os.listdir(datasetparent)
         dataset = load_dataset("json", data_files = [datasetparent + name for name in d_files], split = "train")
         tokenized_prompts = []
@@ -56,13 +56,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == 'gs':
         import socket
         import os
-        host = socket.gethostname()
-        if 'lovelace' in host:
-            datasetparent = f"/home/hanshis/workspace/LongContextInfer/data/pg19/"
-        elif 'cr-a100-80-0004' in host:
-            datasetparent = f"/var/cr06_data/beidic/LongContextInfer/data/pg19/"
-        else:
-            datasetparent = "/data/home/beidic/hanshi/LongContextInfer/data/pg19/"
+        datasetparent = "data/pg19/"
         d_files = os.listdir(datasetparent)
         dataset = load_dataset("json", data_files = [datasetparent + name for name in d_files], split = "train")
         tokenized_prompts = []

@@ -87,7 +87,7 @@ else:
 
 chunk_size = args.chunk_size
 max_budget = args.budget
-
+file_path = None
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Batch Spec (Retrieval)", spec_args={'budget': args.budget, 'chunk_size': chunk_size}, dataset=args.dataset)
 
 ####### cache init #######
