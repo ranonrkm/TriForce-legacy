@@ -117,7 +117,7 @@ else:
 draft_cache_budget = args.draft_cache_budget
 recent_size = draft_cache_budget - 16 - gamma
 
-cache = OffloadingFlashSimpleCache(target, prefill+gen_len+16)
+cache = OffloadingFlashSimpleCache(target, prefill+gen_len+32)
 graph_cache = GraphFlashChunkTopKVerificationCache(target, max_budget=max_budget, prefill=prefill, gamma=gamma, chunk_size=chunk_size)
 draft_cache = GraphFlashStreamEvictionCache_V2(draft, start_size=16, recent_size=recent_size, gamma=gamma)
 

@@ -1,7 +1,7 @@
 >>>> Flash Attention installed
 >>>> Flash RoPE installed
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.96s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.16s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.13s/it]
-  0%|          | 0/101 [00:00<?, ?it/s]  1%|          | 1/101 [00:12<20:58, 12.59s/it]  2%|▏         | 2/101 [00:28<23:59, 14.54s/it]  3%|▎         | 3/101 [00:42<23:25, 14.34s/it]  4%|▍         | 4/101 [00:56<23:11, 14.35s/it]  5%|▍         | 5/101 [01:11<22:47, 14.25s/it]  6%|▌         | 6/101 [01:24<22:17, 14.08s/it]  7%|▋         | 7/101 [01:37<21:28, 13.71s/it]  8%|▊         | 8/101 [01:50<20:49, 13.43s/it]  9%|▉         | 9/101 [02:03<20:16, 13.22s/it] 10%|▉         | 10/101 [02:16<19:54, 13.12s/it] 11%|█         | 11/101 [02:29<19:43, 13.15s/it] 12%|█▏        | 12/101 [02:40<18:25, 12.42s/it] 13%|█▎        | 13/101 [02:50<17:18, 11.80s/it] 14%|█▍        | 14/101 [03:06<18:55, 13.05s/it] 15%|█▍        | 15/101 [03:18<18:24, 12.84s/it] 16%|█▌        | 16/101 [03:31<17:59, 12.70s/it] 17%|█▋        | 17/101 [03:45<18:37, 13.30s/it] 18%|█▊        | 18/101 [03:57<17:45, 12.84s/it] 19%|█▉        | 19/101 [04:11<17:52, 13.08s/it] 20%|█▉        | 20/101 [04:24<17:34, 13.02s/it] 21%|██        | 21/101 [04:36<17:06, 12.83s/it] 22%|██▏       | 22/101 [04:50<17:16, 13.12s/it] 23%|██▎       | 23/101 [05:02<16:45, 12.89s/it] 24%|██▍       | 24/101 [05:14<15:56, 12.42s/it] 25%|██▍       | 25/101 [05:26<15:42, 12.40s/it] 26%|██▌       | 26/101 [05:36<14:43, 11.78s/it] 27%|██▋       | 27/101 [05:48<14:31, 11.77s/it] 28%|██▊       | 28/101 [06:01<14:47, 12.15s/it] 29%|██▊       | 29/101 [06:20<17:09, 14.29s/it] 30%|██▉       | 30/101 [06:34<16:49, 14.22s/it] 31%|███       | 31/101 [06:45<15:11, 13.02s/it] 32%|███▏      | 32/101 [06:58<14:56, 12.99s/it] 33%|███▎      | 33/101 [07:10<14:32, 12.83s/it] 34%|███▎      | 34/101 [07:23<14:19, 12.83s/it] 35%|███▍      | 35/101 [07:36<14:03, 12.78s/it] 36%|███▌      | 36/101 [07:47<13:23, 12.36s/it] 37%|███▋      | 37/101 [07:57<12:36, 11.83s/it] 38%|███▊      | 38/101 [08:11<12:52, 12.25s/it] 39%|███▊      | 39/101 [08:23<12:45, 12.34s/it] 40%|███▉      | 40/101 [08:37<12:53, 12.67s/it] 41%|████      | 41/101 [08:47<12:01, 12.02s/it] 42%|████▏     | 42/101 [08:56<11:00, 11.19s/it] 43%|████▎     | 43/101 [09:08<11:02, 11.42s/it] 44%|████▎     | 44/101 [09:21<11:10, 11.76s/it] 45%|████▍     | 45/101 [09:33<11:00, 11.79s/it] 46%|████▌     | 46/101 [09:46<11:08, 12.16s/it] 47%|████▋     | 47/101 [09:58<10:57, 12.17s/it] 48%|████▊     | 48/101 [10:08<10:10, 11.51s/it] 49%|████▊     | 49/101 [10:19<09:56, 11.48s/it] 50%|████▉     | 50/101 [10:32<09:59, 11.75s/it] 50%|█████     | 51/101 [10:44<09:53, 11.86s/it] 51%|█████▏    | 52/101 [10:54<09:13, 11.29s/it] 52%|█████▏    | 53/101 [11:07<09:24, 11.76s/it] 53%|█████▎    | 54/101 [11:20<09:31, 12.16s/it] 54%|█████▍    | 55/101 [11:32<09:25, 12.29s/it] 55%|█████▌    | 56/101 [11:45<09:13, 12.31s/it] 56%|█████▋    | 57/101 [11:56<08:52, 12.10s/it] 57%|█████▋    | 58/101 [12:09<08:43, 12.18s/it] 58%|█████▊    | 59/101 [12:22<08:40, 12.39s/it] 59%|█████▉    | 60/101 [12:35<08:37, 12.62s/it] 60%|██████    | 61/101 [12:48<08:34, 12.87s/it] 61%|██████▏   | 62/101 [12:59<07:58, 12.28s/it] 62%|██████▏   | 63/101 [13:13<08:02, 12.69s/it] 63%|██████▎   | 64/101 [13:24<07:36, 12.33s/it] 64%|██████▍   | 65/101 [13:38<07:36, 12.67s/it] 65%|██████▌   | 66/101 [13:52<07:42, 13.21s/it] 66%|██████▋   | 67/101 [14:04<07:17, 12.87s/it] 67%|██████▋   | 68/101 [14:13<06:22, 11.59s/it] 68%|██████▊   | 69/101 [14:25<06:20, 11.88s/it] 69%|██████▉   | 70/101 [14:38<06:13, 12.05s/it] 70%|███████   | 71/101 [14:51<06:06, 12.21s/it] 71%|███████▏  | 72/101 [15:04<06:02, 12.51s/it] 72%|███████▏  | 73/101 [15:17<05:53, 12.63s/it] 73%|███████▎  | 74/101 [15:28<05:26, 12.11s/it] 74%|███████▍  | 75/101 [15:42<05:32, 12.77s/it] 75%|███████▌  | 76/101 [15:56<05:30, 13.23s/it] 76%|███████▌  | 77/101 [16:08<05:10, 12.94s/it] 77%|███████▋  | 78/101 [16:22<05:01, 13.12s/it] 78%|███████▊  | 79/101 [16:36<04:51, 13.26s/it] 79%|███████▉  | 80/101 [16:48<04:31, 12.95s/it] 80%|████████  | 81/101 [17:00<04:12, 12.62s/it] 81%|████████  | 82/101 [17:11<03:52, 12.24s/it] 82%|████████▏ | 83/101 [17:23<03:39, 12.22s/it] 83%|████████▎ | 84/101 [17:35<03:26, 12.17s/it] 84%|████████▍ | 85/101 [17:47<03:13, 12.12s/it] 85%|████████▌ | 86/101 [18:00<03:05, 12.36s/it] 86%|████████▌ | 87/101 [18:10<02:41, 11.52s/it] 87%|████████▋ | 88/101 [18:23<02:37, 12.15s/it] 88%|████████▊ | 89/101 [18:36<02:27, 12.26s/it] 89%|████████▉ | 90/101 [18:49<02:19, 12.68s/it] 90%|█████████ | 91/101 [19:03<02:08, 12.88s/it] 91%|█████████ | 92/101 [19:17<01:59, 13.23s/it] 92%|█████████▏| 93/101 [19:31<01:48, 13.57s/it] 93%|█████████▎| 94/101 [19:43<01:30, 12.94s/it] 94%|█████████▍| 95/101 [19:55<01:15, 12.62s/it] 95%|█████████▌| 96/101 [20:07<01:03, 12.68s/it] 96%|█████████▌| 97/101 [20:19<00:49, 12.27s/it] 97%|█████████▋| 98/101 [20:32<00:37, 12.66s/it] 98%|█████████▊| 99/101 [20:46<00:25, 12.98s/it] 99%|█████████▉| 100/101 [20:59<00:12, 12.85s/it]100%|██████████| 101/101 [21:09<00:00, 12.01s/it]100%|██████████| 101/101 [21:09<00:00, 12.57s/it]
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.95s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.20s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.31s/it]
+  0%|          | 0/101 [00:00<?, ?it/s]  1%|          | 1/101 [00:11<19:40, 11.80s/it]  2%|▏         | 2/101 [00:26<22:26, 13.60s/it]  3%|▎         | 3/101 [00:39<21:54, 13.41s/it]  4%|▍         | 4/101 [00:53<21:40, 13.41s/it]  5%|▍         | 5/101 [01:06<21:20, 13.34s/it]  6%|▌         | 6/101 [01:19<20:51, 13.17s/it]  7%|▋         | 7/101 [01:31<20:07, 12.84s/it]  8%|▊         | 8/101 [01:43<19:28, 12.57s/it]  9%|▉         | 9/101 [01:55<18:57, 12.37s/it] 10%|▉         | 10/101 [02:07<18:36, 12.27s/it] 11%|█         | 11/101 [02:19<18:26, 12.29s/it] 12%|█▏        | 12/101 [02:29<17:13, 11.61s/it] 13%|█▎        | 13/101 [02:39<16:11, 11.04s/it] 14%|█▍        | 14/101 [02:54<17:41, 12.20s/it] 15%|█▍        | 15/101 [03:05<17:12, 12.00s/it] 16%|█▌        | 16/101 [03:17<16:48, 11.87s/it] 17%|█▋        | 17/101 [03:31<17:23, 12.42s/it] 18%|█▊        | 18/101 [03:42<16:35, 11.99s/it] 19%|█▉        | 19/101 [03:54<16:41, 12.22s/it] 20%|█▉        | 20/101 [04:06<16:19, 12.10s/it] 21%|██        | 21/101 [04:18<15:54, 11.93s/it] 22%|██▏       | 22/101 [04:31<16:05, 12.22s/it] 23%|██▎       | 23/101 [04:42<15:37, 12.02s/it] 24%|██▍       | 24/101 [04:53<14:51, 11.58s/it] 25%|██▍       | 25/101 [05:04<14:39, 11.57s/it] 26%|██▌       | 26/101 [05:14<13:44, 11.00s/it] 27%|██▋       | 27/101 [05:25<13:33, 10.99s/it] 28%|██▊       | 28/101 [05:37<13:48, 11.34s/it] 29%|██▊       | 29/101 [05:55<16:00, 13.34s/it] 30%|██▉       | 30/101 [06:08<15:42, 13.28s/it] 31%|███       | 31/101 [06:18<14:11, 12.16s/it] 32%|███▏      | 32/101 [06:30<13:56, 12.12s/it] 33%|███▎      | 33/101 [06:42<13:34, 11.98s/it] 34%|███▎      | 34/101 [06:54<13:22, 11.98s/it] 35%|███▍      | 35/101 [07:05<13:07, 11.93s/it] 36%|███▌      | 36/101 [07:16<12:29, 11.53s/it] 37%|███▋      | 37/101 [07:26<11:46, 11.04s/it] 38%|███▊      | 38/101 [07:38<12:00, 11.44s/it] 39%|███▊      | 39/101 [07:50<11:54, 11.52s/it] 40%|███▉      | 40/101 [08:03<12:03, 11.86s/it] 41%|████      | 41/101 [08:12<11:12, 11.20s/it] 42%|████▏     | 42/101 [08:21<10:16, 10.45s/it] 43%|████▎     | 43/101 [08:32<10:20, 10.70s/it] 44%|████▎     | 44/101 [08:44<10:28, 11.03s/it] 45%|████▍     | 45/101 [08:55<10:18, 11.05s/it] 46%|████▌     | 46/101 [09:07<10:26, 11.39s/it] 47%|████▋     | 47/101 [09:19<10:15, 11.39s/it] 48%|████▊     | 48/101 [09:28<09:31, 10.78s/it] 49%|████▊     | 49/101 [09:39<09:18, 10.74s/it] 50%|████▉     | 50/101 [09:50<09:20, 11.00s/it] 50%|█████     | 51/101 [10:02<09:14, 11.09s/it] 51%|█████▏    | 52/101 [10:11<08:37, 10.56s/it] 52%|█████▏    | 53/101 [10:23<08:48, 11.00s/it] 53%|█████▎    | 54/101 [10:35<08:54, 11.37s/it] 54%|█████▍    | 55/101 [10:47<08:48, 11.49s/it] 55%|█████▌    | 56/101 [10:59<08:37, 11.51s/it] 56%|█████▋    | 57/101 [11:09<08:18, 11.32s/it] 57%|█████▋    | 58/101 [11:21<08:10, 11.40s/it] 58%|█████▊    | 59/101 [11:33<08:06, 11.58s/it] 59%|█████▉    | 60/101 [11:45<08:03, 11.80s/it] 60%|██████    | 61/101 [11:58<08:01, 12.04s/it] 61%|██████▏   | 62/101 [12:08<07:27, 11.49s/it] 62%|██████▏   | 63/101 [12:21<07:30, 11.87s/it] 63%|██████▎   | 64/101 [12:32<07:06, 11.53s/it] 64%|██████▍   | 65/101 [12:44<07:06, 11.84s/it] 65%|██████▌   | 66/101 [12:58<07:12, 12.34s/it] 66%|██████▋   | 67/101 [13:09<06:48, 12.03s/it] 67%|██████▋   | 68/101 [13:17<05:57, 10.84s/it] 68%|██████▊   | 69/101 [13:29<05:55, 11.11s/it] 69%|██████▉   | 70/101 [13:40<05:49, 11.27s/it] 70%|███████   | 71/101 [13:52<05:42, 11.41s/it] 71%|███████▏  | 72/101 [14:05<05:39, 11.69s/it] 72%|███████▏  | 73/101 [14:17<05:30, 11.79s/it] 73%|███████▎  | 74/101 [14:27<05:04, 11.28s/it] 74%|███████▍  | 75/101 [14:40<05:09, 11.90s/it] 75%|███████▌  | 76/101 [14:53<05:08, 12.33s/it] 76%|███████▌  | 77/101 [15:05<04:49, 12.06s/it] 77%|███████▋  | 78/101 [15:17<04:41, 12.25s/it] 78%|███████▊  | 79/101 [15:30<04:32, 12.38s/it] 79%|███████▉  | 80/101 [15:42<04:13, 12.09s/it] 80%|████████  | 81/101 [15:53<03:55, 11.79s/it] 81%|████████  | 82/101 [16:03<03:37, 11.43s/it] 82%|████████▏ | 83/101 [16:15<03:25, 11.41s/it] 83%|████████▎ | 84/101 [16:26<03:13, 11.37s/it] 84%|████████▍ | 85/101 [16:37<03:01, 11.32s/it] 85%|████████▌ | 86/101 [16:49<02:53, 11.55s/it] 86%|████████▌ | 87/101 [16:58<02:30, 10.76s/it] 87%|████████▋ | 88/101 [17:11<02:27, 11.35s/it] 88%|████████▊ | 89/101 [17:22<02:17, 11.45s/it] 89%|████████▉ | 90/101 [17:35<02:10, 11.84s/it] 90%|█████████ | 91/101 [17:48<02:00, 12.03s/it] 91%|█████████ | 92/101 [18:01<01:51, 12.36s/it] 92%|█████████▏| 93/101 [18:14<01:41, 12.68s/it] 93%|█████████▎| 94/101 [18:25<01:24, 12.09s/it] 94%|█████████▍| 95/101 [18:36<01:10, 11.79s/it] 95%|█████████▌| 96/101 [18:48<00:59, 11.84s/it] 96%|█████████▌| 97/101 [18:59<00:45, 11.46s/it] 97%|█████████▋| 98/101 [19:11<00:35, 11.76s/it] 98%|█████████▊| 99/101 [19:24<00:24, 12.07s/it] 99%|█████████▉| 100/101 [19:36<00:11, 11.97s/it]100%|██████████| 101/101 [19:45<00:00, 11.20s/it]100%|██████████| 101/101 [19:45<00:00, 11.74s/it]
 ####################################### Config #######################################
 Method: Graph Chain Spec (Retrieval)
 Dataset: 128k
@@ -33,11 +33,11 @@ Log CSV: None
 [draft run] capturing graph for 15 (probs=True, temp=0.6)...
 [draft run] capturing graph for 16 (probs=True, temp=0.6)...
 [model verify] capturing graph for spec len 16 (probs=True, temp=0.6)...
-[Offloading Flash Simple Cache] Cached Size: 0 | Max Budget: 131024
+[Offloading Flash Simple Cache] Cached Size: 0 | Max Budget: 131040
 Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
 Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 0
 tokenized_prompts length: 101
-Baseline Warmup:   0%|          | 0/1 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+Baseline Warmup:   0%|          | 0/1 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 B le eding Heart ," and " B le eding Heart " " Re vis ited ," and " B le eding 
  He art " " Re vis ited Again ," are far better than anything in the way of 
  po etry which the medical novel ist has yet produced . But there are 
@@ -52,8 +52,8 @@ B le eding Heart ," and " B le eding Heart " " Re vis ited ," and " B le eding
  who have written pro se well , and who have written it well , who have 
  written poetry , and who have written it well , and who have written it 
  well , and who have written pro se well , and who have written it well , 
- who have written poetry , and who have written it well Baseline Warmup: 100%|██████████| 1/1 [18:55<00:00, 1135.07s/it]Baseline Warmup: 100%|██████████| 1/1 [18:55<00:00, 1135.07s/it]
-Baseline Test:   0%|          | 0/6 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ who have written poetry , and who have written it well Baseline Warmup: 100%|██████████| 1/1 [18:56<00:00, 1136.23s/it]Baseline Warmup: 100%|██████████| 1/1 [18:56<00:00, 1136.23s/it]
+Baseline Test:   0%|          | 0/6 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 B irth - day O de " is a good example of the kind of poetry which 
  the phys ician of the sevent e enth century was expected to write . The 
  " An atom y of Mel anch oly ," " Rel ig io Med ici ," " H yd ri ot aph ia ," " U rn - bur ial ," 
@@ -70,7 +70,7 @@ B irth - day O de " is a good example of the kind of poetry which
  has not been so successful as the phys ician of the sevent e enth . 
  
  The phys ician of the nin ete enth century , however , is not a man of 
- gen ius at all . He is a man of science , and Baseline Test:  17%|█▋        | 1/6 [18:53<1:34:28, 1133.69s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ gen ius at all . He is a man of science , and Baseline Test:  17%|█▋        | 1/6 [18:54<1:34:34, 1134.87s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 But the Court of App e als 
  has no right to assume that there is a difference , or that it is the 
  bus iness of the jud ges to determine what difference there should be in 
@@ -90,7 +90,7 @@ But the Court of App e als
  The Court of App e als has no right to assume that it is the business of 
  the jud ges to determine what difference there should be in their 
  tre at ment . And it has no right to assume that it is the business of the 
- jud ges to determine what difference there should be Baseline Test:  33%|███▎      | 2/6 [37:46<1:15:32, 1133.08s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ jud ges to determine what difference there should be Baseline Test:  33%|███▎      | 2/6 [37:50<1:15:40, 1135.21s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 ,' which he has translated from 
  the Greek .  It is very possible that Ch au cer may have read 
  this book ; but , as he has not followed the original , it is not 
@@ -106,7 +106,7 @@ But the Court of App e als
  H is third wife was Philipp a , daughter of Sir Hugh Sw yn ford , 
  by whom he had two sons , Thomas and Henry , and one daughter , 
  M ary , who died in  1 3 9 4 .  His fourth wife was Alice , daughter 
- of Sir John de la P ole , by whom he had two sons Baseline Test:  50%|█████     | 3/6 [56:40<56:41, 1133.72s/it]  [Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ of Sir John de la P ole , by whom he had two sons Baseline Test:  50%|█████     | 3/6 [56:46<56:47, 1135.70s/it]  [Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 France was the Rh ine , and the Convention had decided to recognize 
  this by a treat y of peace with the Emperor of Austria . The 
  A ust ro - F rench arm ist ice was signed at Bas el on April twenty - four th , 
@@ -121,7 +121,7 @@ France was the Rh ine , and the Convention had decided to recognize
  English from C ors ica . The republic an gener als were , therefore , 
  comp elled to divide their forces . They were in a position to do so 
  because of the recent success es of the arm ies of the north and of the 
- Sam bre and Me use . The arm ies of the Rh ine and of the Mos elle had been Baseline Test:  67%|██████▋   | 4/6 [1:15:33<37:46, 1133.38s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ Sam bre and Me use . The arm ies of the Rh ine and of the Mos elle had been Baseline Test:  67%|██████▋   | 4/6 [1:15:42<37:51, 1135.91s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 which the dark and the light were so in ext ric ably inter w oven as to 
  render it impossible to distinguish one from the other . And we have 
  seen , in the same way , that the same facts of history are so various ly 
@@ -137,7 +137,7 @@ which the dark and the light were so in ext ric ably inter w oven as to
  that the moral and philosoph ical less on taught by the Gree ks to the 
  G ree ks was , that the best and wis est government is not the government of 
  the people , but the government of a select body of men . 
- Baseline Test:  83%|████████▎ | 5/6 [1:34:27<18:53, 1133.64s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ Baseline Test:  83%|████████▎ | 5/6 [1:34:35<18:54, 1134.91s/it][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 ulse in Women _ 
  
     " The artist is a man who is not afraid of being a woman ." -- H EN RY 
@@ -161,9 +161,9 @@ ulse in Women _
  how ever , not to be dis reg arded , but to be accepted as a basis for 
  fur ther investigation . 
  
- It is necessary Baseline Test: 100%|██████████| 6/6 [1:53:22<00:00, 1133.88s/it]Baseline Test: 100%|██████████| 6/6 [1:53:22<00:00, 1133.69s/it]
-[Baseline-Autoregressive] average latency: 2.8272937548175947 s
-Graph Chain Spec Warmup:   0%|          | 0/1 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+ It is necessary Baseline Test: 100%|██████████| 6/6 [1:53:34<00:00, 1136.06s/it]Baseline Test: 100%|██████████| 6/6 [1:53:34<00:00, 1135.71s/it]
+[Baseline-Autoregressive] average latency: 2.8292792843562977 s
+Graph Chain Spec Warmup:   0%|          | 0/1 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
 Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
 Dr . Syntax " was the most popular of the po etic works of 
@@ -181,168 +181,11 @@ Dr . Syntax " was the most popular of the po etic works of
  med ical nov els which dece ived the public . It was followed by " Dr . 
  M u eller ," which was not the work of a phys ician , and was not the first 
  of the medical nov els which dece ived the public . It was followed by 
- Use 67.64374256134033 sec to generate 262 tokens (now 131014 tokens), Tokens/s: 3.8732333558039693
-Graph Chain Spec Warmup: 100%|██████████| 1/1 [08:08<00:00, 488.92s/it]Graph Chain Spec Warmup: 100%|██████████| 1/1 [08:08<00:00, 488.92s/it]
+ Use 67.70550107955933 sec to generate 262 tokens (now 131014 tokens), Tokens/s: 3.869700331914378
+Graph Chain Spec Warmup: 100%|██████████| 1/1 [08:08<00:00, 488.77s/it]Graph Chain Spec Warmup: 100%|██████████| 1/1 [08:08<00:00, 488.77s/it]
 accepted rate 0.7067448680351907, avg generated tokens 11.30791788856305
-Graph Chain Spec Test:   0%|          | 0/101 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
+Graph Chain Spec Test:   0%|          | 0/101 [00:00<?, ?it/s][Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131040
 Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
 Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
 W ild Sports of the West ," " The Sh adow of the Sea ," " The 
- M is cell aneous Po ems ," and " The F ug itive Le aves " are by phys icians . 
- 
- The most famous of the modern phys ician - po ets , however , is Oliver 
- W end ell Hol mes , who has been the most pro l ific of the American po ets , 
- and has written with the most of the simplicity of the old - f ashion ed 
- English po ets . 
- 
- In his " Po ems ," published in  1 8 5 5 , Hol mes made the first appearance of 
- his peculiar ly American style . It is a style of the most simple and 
- natural , and is not the least remarkable for its absence of all 
- con vent ional ism and affect ation . It is a style which is like the 
- con vers ation of the New England country people , and which is full of 
- that curious ly old - f ashion ed and qu aint phrase ology which is often 
- found in the writ ings of the country people of England . 
- 
- In his " Po ems " the poet showed the influence of his medical studies . 
- The volume is full of the most tender and human sympathy with the 
- s uffer ings of the human race . It is a Use 86.02083945274353 sec to generate 259 tokens (now 131011 tokens), Tokens/s: 3.010898308453319
-Graph Chain Spec Test:   1%|          | 1/101 [08:26<14:03:45, 506.26s/it]accepted rate 0.5469483568075117, avg generated tokens 8.751173708920188
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-But in dec iding the 
- question of the constitution ality of the Work man ' s Comp ens ation Act the 
- C ourt of App e als of New York seems to have been blind to the fact that 
- the Constitution of the United States is not a contract between the 
- ind ividual and the state , but is a contract between the individual and 
- the state . The Constitution , as the Supreme Court has said , is not 
- " an instrument for the government of the states , but an instrument for 
- the government of the nation ." It is not a contract between the state 
- and the individual , but a contract between the individual and the state . 
- The individual is not a party to the Constitution . The state is a party 
- to it . The state is the party to the contract . The state is the party to 
- it . The state is the party to it . The state is the party to it . The state 
- is the party to it . The state is the party to it . 
- 
- In the contract between the individual and the state the individual is 
- not to be dep riv ed of life , liberty , or property without due process of 
- law . The Constitution is not a contract between the individual and the 
- state , but a contract between the individual and the state . The state is 
- Use 73.99436783790588 sec to generate 263 tokens (now 131015 tokens), Tokens/s: 3.5543245747586507
-Graph Chain Spec Test:   2%|▏         | 2/101 [17:35<14:36:58, 531.50s/it]accepted rate 0.7870967741935484, avg generated tokens 12.593548387096774
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-de Nu pt i is ,' (' A ure ol us The op hr ast us 
- on Mar riage , ')  a work of a much later date , and which , in the 
- pro port ion of its inve ct ives against the sex , is not unlike the 
- ' W ife of Bath ' s Pro log ue .' " 
- 
- 2 . Her fifth husband was a cl erk , who was called " J enk in ," 
- pro bably because he was a " John ," the name of the Virgin Mary . 
- 
- 3 . The pro verb is in the " R om ance of the Rose ," and runs thus : 
- " A man that hath a wife , hath a fo e ; a man that hath a fo e , hath a 
- friend ; a man that hath a friend , hath a fo e ; a man that hath a 
- fo e , hath a wife ; a man that hath a wife , hath a fo e ." 
- 
- 4 . St . Thomas was a Jew , and was called by the Jews " D ou b h ," 
- which is the Heb rew for " d ove ." 
- 
- 5 . The Fri ar , in his turn , repro aches the W ife of Bath with 
- h aving been married five times , and with having been so sh Use 102.65386009216309 sec to generate 256 tokens (now 131008 tokens), Tokens/s: 2.4938175707193286
-Graph Chain Spec Test:   3%|▎         | 3/101 [27:22<15:09:38, 556.92s/it]accepted rate 0.5424528301886793, avg generated tokens 8.679245283018869
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-France should be the Al ps , and the French arm ies were accordingly 
- ordered to advance from the Rh one to the Var . The Aust ri ans , however , 
- w ere not to be driven out of Italy . The French were therefore 
- comp elled to make an effort to force the passage of the Al ps . The 
- G erman princes and the Pope were in fact the al lies of England and 
- Sp ain . The French were therefore to be forced to attack the 
- co al ition in the rear , and a demonstr ation was to be made in the 
- R hen ish provinces . The scheme was not without its ris ks , for the 
- English were in command of the sea , and the French had no fleet . The 
- F rench government had no money , and the al lies had both . But the 
- F rench were to be vict orious . In the spring of  1 7 9 5 the campaign of 
- the Rh ine was opened , and in the summer the arm ies of the Rh ine and 
- of Italy were to be brought together in a j unction on the Swiss 
- front ier . The two arm ies were to co oe perate in the invasion of 
- Sw itzerland , and the French were to force the passes of the Al ps . The 
- F rench arm ies were to march into P ied mont , and the arm ies Use 106.15693855285645 sec to generate 270 tokens (now 131022 tokens), Tokens/s: 2.5434041682123745
-Graph Chain Spec Test:   4%|▍         | 4/101 [37:10<15:20:20, 569.29s/it]accepted rate 0.5586206896551724, avg generated tokens 8.937931034482759
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-the course of the work mans hip of the stone , assume an effect of 
- trans par ency , and a light ness of texture , that seemed to def y the 
- material of which they were composed . And we have seen the same effect 
- ass ume to the same material when it was applied to the purpose of a 
- column , or of a door . And in the same manner , from the light of the 
- new ly - ar isen science of government , the same material of history , 
- _ i . e ._ , the same facts of history , seem to assume a new trans par ency , 
- and to def y the conditions of their original nature . And this 
- trans par ency is not the mere trans par ency of the mar ble - worker , but 
- something that is quite in separ able from the subject ive nature of the 
- spect ator . And the same phenomen on is repeated in the case of the 
- material s of the social sciences . We may have read the same fact of 
- history in one point of view , and in another in a totally different 
- light . And so , in the case of the same fact , we may have read it in 
- one point of view , and in another in a totally different light . 
- 
- But the new est light , or the most recent , is the best . And the new est 
- Use 94.93650341033936 sec to generate 272 tokens (now 131024 tokens), Tokens/s: 2.865072866907135
-Graph Chain Spec Test:   5%|▍         | 5/101 [46:49<15:16:17, 572.68s/it]accepted rate 0.6424870466321243, avg generated tokens 10.279792746113989
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-ulse in Women _ 
- 
-  The mental and psych ical sexual differences -- In er adic ability of 
-      these -- Can they be modified or dis reg arded ? -- The error in the 
-      common opinion of the true relationship of the sex es -- The male 
-      active and seeking -- The female pass ive and receiving -- Is this 
-      true ? -- An exam ination of the pass ivity of the female -- The 
-      del usion that man is the active partner in the sexual 
-      relationship -- The economic factor in marriage -- The conventional 
-      mod esty of woman -- Con ce al ments and ev as ions -- The feeling of 
-      shame in love -- W oman ' s right of selection -- How this must be 
-      reg ained by women -- The new eth ic -- The pre - n atal claims of the 
-      child -- The question of parent hood as a religious question -- The 
-      responsibility of the mother as the child ' s supre me 
-      parent -- The m ating of the future -- An other question -- W oman ' s 
-      superior moral virtue -- I ts fundamental error -- W oman ' s imper ative 
-      need of love -- The mat ernal instinct -- N ature ' s experiments -- The 
-      establishment of two sex es -- The femin ine Use 92.89847373962402 sec to generate 259 tokens (now 131011 tokens), Tokens/s: 2.787989829907492
-Graph Chain Spec Test:   6%|▌         | 6/101 [56:26<15:08:51, 574.01s/it]accepted rate 0.6344086021505376, avg generated tokens 10.150537634408602
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-
- od ds . 
- 
- 
- [ Sidenote : _ Pr ince ' s Gate July  1 1 ,  1 8 8 5 _ ] 
- 
- The first and second volumes of the _ N in ete enth Century _ are quite 
- ex cell ent .  But the third is bad , and the fourth very bad .  The 
- _ N in ete enth Century _ is now a very superior paper .  The _ Ed inburgh _ 
- is not so good .  The _ Ed inburgh _ is too much occupied with the ology , 
- and the _ N in ete enth Century _ with politics .  The _ Ed inburgh _ is 
- ex cell ent in the ology , but the ology is a great deal more than the ology , 
- and the _ N in ete enth Century _ is excellent in politics , but politics is 
- a great deal more than politics .  The _ Ed inburgh _ is not so good in 
- liter ature , and the _ N in ete enth Century _ is very good in literature . 
- 
- 
- [ Sidenote : _ Pr ince ' s Gate July  1 2 ,  1 8 8 5 _ ] 
- 
- I am so glad to have your letter , and to know that you are so well , and 
- so much in the thick of the struggle .  I am so glad that the last Use 120.55246639251709 sec to generate 265 tokens (now 131017 tokens), Tokens/s: 2.19821300990362
-Graph Chain Spec Test:   7%|▋         | 7/101 [1:06:30<15:14:45, 583.89s/it]accepted rate 0.4642857142857143, avg generated tokens 7.428571428571429
-[Offloading Flash Simple Cache] Cached Size: 130752 | Max Budget: 131024
-Max Budget: 13072  | Real Budget: 13089  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634
-Start Size: 16 | Recent Size: 224 | Gamma: 16 | Real Budget: 257 | Cached: 240
-killing him with sick les . In the latter case the 
- custom is explained as a rain - 
+ M is cell aneous Po ems ," and " The F ug itive Le aves " are by 
