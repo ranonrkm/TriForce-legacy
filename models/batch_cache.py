@@ -264,8 +264,8 @@ class BatchStreamEvictionCache:
 
     def spec_update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, gamma_offset=0):
 
-        start = self.real_budget-self.gamma-1
-        end = self.real_budget-self.gamma-1+new_k_cache.shape[-3]
+        start = self.real_budget-self.gamma-1 + gamma_offset
+        end = self.real_budget-self.gamma-1+new_k_cache.shape[-3] + gamma_offset
 
         self.key_cache[layer_idx][:, start:end] = new_k_cache.clone()
         self.value_cache[layer_idx][:, start:end] = new_v_cache.clone()
