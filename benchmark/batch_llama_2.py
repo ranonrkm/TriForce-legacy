@@ -37,7 +37,7 @@ args = parse_arguments()
 T=args.T
 gamma=6
 bsz = args.bsz
-data_len = int(1024*110 / bsz)
+data_len = int(1024*110 // bsz)//8*8
 cache = BatchSimpleCache(model, data_len+256+16, bsz=bsz)
 graph_cache = BatchRetrievalCache(model, 512, bsz=bsz, prefill=data_len, chunk_size=8, gamma=gamma)
 cache.reset()
