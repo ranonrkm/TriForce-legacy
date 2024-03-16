@@ -295,3 +295,54 @@ class BatchStreamEvictionCache:
         for i in range(self.bsz):
             self.key_cache[:,i,self.start_size:self.start_size+self.recent_size] = self.key_cache[:,i, current_seq_len[i]-self.recent_size:current_seq_len[i]].clone()
             self.value_cache[:,i, self.start_size:self.start_size+self.recent_size] = self.value_cache[:,i, current_seq_len[i]-self.recent_size:current_seq_len[i]].clone()
+
+
+
+################### Distributed KV cache ####################
+class DistributedBatchSimpleCache:
+
+    def __init__(self, config, max_budget=1024, bsz=1, device=None) -> None:
+        
+        self.config = config
+        self.world_size = self.config.world_size
+        self.local_rank = self.config.local_rank
+        self.device  = device
+        
+        self.max_budget = max_budget
+        self.hidden_size = self.config.hidden_size
+        if hasattr(self.config, 'num_key_value_heads'):
+            self.num_heads = self.config.num_key_value_heads // self.world_size
+        else:
+            self.num_heads = self.config.num_attention_heads // self.world_size
+        
+        self.head_dim = self.hidden_size // self.config.num_attention_heads
+        self.layers = self.config.num_hidden_layers
+        self.bsz = bsz
+        self.seq_len = torch.zeros(bsz, dtype=torch.int32).to(self.device)
+        dtype=torch.float16
+        self.key_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
+        self.value_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
+        print(f"Distributed Cache Initiated for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+    
+    def print_status(self):
+        print("Budget:", self.max_budget, f"| bsz: {self.bsz}", f"| Cached: {self.seq_len.cpu().numpy()}")
+
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int, storage_ids :torch.Tensor):
+        indices_expanded = storage_ids.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, self.num_heads, self.head_dim)
+        self.key_cache[layer_idx].scatter_(1, indices_expanded, key_states)
+        self.value_cache[layer_idx].scatter_(1, indices_expanded, value_states)
+
+        if layer_idx == 0:
+            self.seq_len += key_states.shape[-3]
+        
+        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+
+    def reset(self):
+        self.key_cache.zero_()
+        self.value_cache.zero_()
+        self.seq_len.zero_()
+
+    def set_len(self, length):
+        self.key_cache.normal_()
+        self.value_cache.normal_()
+        self.seq_len = length.clone()

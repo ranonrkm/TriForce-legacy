@@ -113,5 +113,5 @@ with torch.inference_mode():
         all_time = (t2 - t1) / 256 * 1000
 
 
-        print(f"bsz={bsz}, prefill={data_len}, verify_len={l}, foward_time={foward_time}, draft_time={draft_time}, sampling_time={sampling_time}, decoding_time={all_time}")
+        print(f"bsz={bsz}, prefill={data_len}, verify_len={l}, foward_time={foward_time}, draft_time={draft_time}, sampling_time={sampling_time}, decoding_time={all_time}", flush=True)
 

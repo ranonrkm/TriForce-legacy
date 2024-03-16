@@ -100,6 +100,8 @@ class FlashSimpleCache(Cache):
         self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
         self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
 
+        self.scores = []
+
         # for i in range(self.layers):
         #     if hasattr(model, 'gpt_neox'):
         #         device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
@@ -112,6 +114,73 @@ class FlashSimpleCache(Cache):
         #     # print(device, dtype)
         #     self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
         #     self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+
+    def print_status(self):
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+    
+    def reset(self):
+        self.seq_len = 0
+        for i in range(self.layers):
+            self.key_cache[i].zero_()
+            self.value_cache[i].zero_()
+
+    def update(
+        self,
+        key_states: torch.Tensor,
+        value_states: torch.Tensor,
+        layer_idx: int,
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
+        self.key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[-3]] = key_states
+        self.value_cache[layer_idx][:, self.seq_len : self.seq_len + value_states.shape[-3]] = value_states
+
+        key = self.key_cache[layer_idx][:, :self.seq_len + value_states.shape[-3]]
+        value = self.value_cache[layer_idx][:, :self.seq_len + value_states.shape[-3]]
+
+        if layer_idx == self.layers-1:
+            self.seq_len += key_states.shape[-3]
+
+        return key, value
+    
+
+class FlashSimpleCacheDist(Cache):
+    def __init__(self, model, max_budget=1024) -> None:
+        # self.key_cache: List[torch.Tensor] = []
+        # self.value_cache: List[torch.Tensor] = []
+        self.seq_len = 0
+        self.max_budget = max_budget
+
+        self.hidden_size = model.config.hidden_size
+        if hasattr(model.config, 'num_key_value_heads'):
+            self.num_heads = model.config.num_key_value_heads
+        else:
+            self.num_heads = model.config.num_attention_heads
+        self.head_dim = self.hidden_size // model.config.num_attention_heads
+        self.layers = model.config.num_hidden_layers
+
+        dtype = model.model.layers[0].self_attn.q_proj.weight.dtype
+
+        # self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+        # self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+
+        self.scores = {}
+        self.chunks = {}
+        
+        self.key_cache = []
+        self.value_cache = []
+        
+        for i in range(self.layers):
+            if hasattr(model, 'gpt_neox'):
+                device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
+                dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
+            else:
+                device = model.model.layers[i].self_attn.q_proj.weight.device
+                dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+                # device = model.device
+                # dtype = torch.float16
+            # print(device, dtype)
+            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.scores[i] = []
 
     def print_status(self):
         print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
