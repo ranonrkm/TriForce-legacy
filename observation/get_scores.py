@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,5,6"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
 import sys
 
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
