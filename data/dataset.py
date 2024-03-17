@@ -127,7 +127,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         tokenized_prompts = []
         hope_datalen = datalen
 
-        for i in range(1):
+        for i in range(100):
             n_garbage = int(3.75 * hope_datalen // 1024 * 1024)
             n_garbage_prefix = n_garbage // 2
             n_garbage_suffix = n_garbage - n_garbage_prefix
