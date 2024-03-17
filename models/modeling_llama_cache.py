@@ -36,6 +36,7 @@ from transformers.modeling_attn_mask_utils import (
     _prepare_4d_causal_attention_mask,
     #_prepare_4d_causal_attention_mask_for_sdpa,
 )
+from flash_attn import flash_attn_with_kvcache
 from transformers.modeling_outputs import BaseModelOutputWithPast, CausalLMOutputWithPast, SequenceClassifierOutputWithPast
 from transformers.modeling_utils import PreTrainedModel
 from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS#, is_torch_greater_or_equal_than_1_13
@@ -758,34 +759,36 @@ class LlamaAttention(nn.Module):
 
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
 
-        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+        # attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
 
-        if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
-            raise ValueError(
-                f"Attention weights should be of size {(bsz, self.num_heads, q_len, kv_seq_len)}, but is"
-                f" {attn_weights.size()}"
-            )
+        # if attn_weights.size() != (bsz, self.num_heads, q_len, kv_seq_len):
+        #     raise ValueError(
+        #         f"Attention weights should be of size {(bsz, self.num_heads, q_len, kv_seq_len)}, but is"
+        #         f" {attn_weights.size()}"
+        #     )
 
-        if attention_mask is not None:
-            if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
-                raise ValueError(
-                    f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
-                )
-            attn_weights = attn_weights + attention_mask
+        # if attention_mask is not None:
+        #     if attention_mask.size() != (bsz, 1, q_len, kv_seq_len):
+        #         raise ValueError(
+        #             f"Attention mask should be of size {(bsz, 1, q_len, kv_seq_len)}, but is {attention_mask.size()}"
+        #         )
+        #     attn_weights = attn_weights + attention_mask
 
-        # upcast attention to fp32
-        attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        # # upcast attention to fp32
+        # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
 
-        if isinstance(past_key_value, H2OCache) and speculation == False:
-            past_key_value.update_hh_score(attn_weights.detach().clone(), self.layer_idx)
+        # if isinstance(past_key_value, H2OCache) and speculation == False:
+        #     past_key_value.update_hh_score(attn_weights.detach().clone(), self.layer_idx)
 
-        attn_output = torch.matmul(attn_weights, value_states)
+        # attn_output = torch.matmul(attn_weights, value_states)
 
-        if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
-            raise ValueError(
-                f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
-                f" {attn_output.size()}"
-            )
+        # if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
+        #     raise ValueError(
+        #         f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
+        #         f" {attn_output.size()}"
+        #     )
+
+        attn_output = flash_attn_with_kvcache(q=query_states.transpose(1, 2), k_cache=key_states.transpose(1, 2), v_cache=value_states.transpose(1, 2), softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True).transpose(1, 2)
 
         attn_output = attn_output.transpose(1, 2).contiguous()
 
