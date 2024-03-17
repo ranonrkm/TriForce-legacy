@@ -28,6 +28,8 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
     parser.add_argument('--budget', type=int, default=128)
+    parser.add_argument('--ssl',type=int, default=-1)
+    parser.add_argument('--temp', type=float, default=0.6)
     args = parser.parse_args()
     
     return args
@@ -55,7 +57,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.6
+    temperature = args.temp
 
 from data.dataset import get_dataset
 
@@ -80,7 +82,7 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 heavy_size = args.budget // 2
 recent_size = args.budget - heavy_size
-target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=-1)
+target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=args.ssl)
 
 target_cache.print_status()
 all_acceptance_rate = []

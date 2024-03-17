@@ -143,7 +143,7 @@ class LlamaAttention(nn.Module):
         key_states = key_states.transpose(1, 2)
 
         if spec: # spec decoding
-            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx)
+            key_states, value_states = graph_cache.update(new_k_cache=key_states, new_v_cache=value_states, layer_idx=self.layer_idx, gamma_offset=gamma_offset)
         else:
             # update kv cache first
             key_states, value_states = kv_cache.update(key_states, value_states, layer_idx=self.layer_idx)

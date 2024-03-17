@@ -28,6 +28,8 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
     parser.add_argument('--budget', type=int, default=128)
+    parser.add_argument('--ssl',type=int, default=-1)
+    parser.add_argument('--temp', type=float, default=0.6)
     args = parser.parse_args()
     
     return args
@@ -60,7 +62,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.6
+    temperature = args.temp
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -87,7 +89,7 @@ else:
     recent_size = args.budget - start_size
 
 # 3200 prefill 32K model ssl=-1 will fail
-target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=-1, gamma=gamma)
+target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=args.ssl, gamma=gamma)
 target_cache.print_status()
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))

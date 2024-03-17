@@ -28,7 +28,10 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
     parser.add_argument('--budget', type=int, default=128)
+    parser.add_argument('--ssl',type=int, default=-1)
+    parser.add_argument('--temp', type=float, default=0.6)
     args = parser.parse_args()
+
     
     return args
 
@@ -57,7 +60,7 @@ if args.greedy:
 else:
     top_k = -1
     top_p = 0.9
-    temperature = 0.6
+    temperature = args.temp
 
 prefill = args.prefill
 gen_len = args.gen_len
@@ -77,7 +80,7 @@ else:
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", spec_args={'budget': args.budget}, dataset=args.dataset)
 
 topk_size = args.budget
-target_cache = DejaVuCache(target, max_budget=prefill+gen_len+16, topk_size=topk_size, skip_start_layers=-1)
+target_cache = DejaVuCache(target, max_budget=prefill+gen_len+16, topk_size=topk_size, skip_start_layers=args.ssl)
 
 target_cache.print_status()
 all_acceptance_rate = []

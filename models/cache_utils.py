@@ -877,8 +877,8 @@ class DejaVuCache(Cache):
         value_states: torch.Tensor,
         layer_idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
         value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
@@ -911,8 +911,8 @@ class DejaVuCache(Cache):
         if self.seq_len <= self.topk_size:
             return self.update(key_states, value_states, layer_idx)
 
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states.clone()
 
         # fake simulation
         attn_weights = torch.matmul(query_states, self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]].transpose(2, 3)) / math.sqrt(self.head_dim) # (bsz, 32, 1, kv_seq_len)
@@ -1169,12 +1169,12 @@ class GraphFlashStreamLLMCache(Cache):
     def print_status(self):
         print("Max Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Start Size:", self.start_size, " | Recent Size:", self.recent_size)
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None, gamma_offset=0):
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, kv_cache=None, query_states=None, gamma_offset=0):
 
-        input_length = len(storage_ids)
+        # input_length = len(storage_ids)
 
-        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
-        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        # assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        # assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
         
         # self.key_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_k_cache)
         # self.value_cache[layer_idx].index_copy_(dim=-3, index=storage_ids, source=new_v_cache)
@@ -1466,12 +1466,12 @@ class GraphFlashTopKCache(Cache):
         self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len]
         self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len]
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids :torch.LongTensor, kv_cache=None, query_states=None, gamma_offset=0):
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, storage_ids=None, kv_cache=None, query_states=None, gamma_offset=0):
 
-        input_length = len(storage_ids)
+        # input_length = len(storage_ids)
 
-        assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
-        assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
+        # assert input_length == new_k_cache.shape[-3], (input_length, new_k_cache.shape[-3])
+        # assert input_length == new_v_cache.shape[-3], (input_length, new_v_cache.shape[-3])
 
         self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_k_cache
         self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = new_v_cache
@@ -1696,7 +1696,7 @@ class GraphFlashChunkTopKVerificationCache(Cache):
         self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:, self.prefill:kv_cache.seq_len].clone()
         self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:, self.prefill:kv_cache.seq_len].clone()
 
-    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int):
+    def update(self, new_k_cache :torch.Tensor, new_v_cache :torch.Tensor, layer_idx :int, gamma_offset=-1):
 
         # input_length = len(storage_ids)
 

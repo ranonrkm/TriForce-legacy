@@ -28,7 +28,7 @@ def parse_arguments():
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
 
-    parser.add_argument('--budget', type=float, default='0.1')
+    parser.add_argument('--budget', type=int, default=128)
     args = parser.parse_args()
     
     return args
@@ -78,10 +78,10 @@ if args.log_csv:
 else:
     file_path = None
 
-print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
+print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", spec_args={'budget': args.budget}, dataset=args.dataset)
 
 cache = FlashSimpleCache(target, prefill+gen_len+16)
-graph_cache = GraphFlashTopKCache(target, max_budget=2048, prefill=prefill, gamma=gamma)
+graph_cache = GraphFlashTopKCache(target, max_budget=args.budget, prefill=prefill, gamma=gamma)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
 graph_engine.initialize_cuda_graph(gamma)
 
@@ -94,7 +94,7 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
 
-    acceptance_rate = Graph_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
+    acceptance_rate, _ = Graph_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
     all_acceptance_rate.append(acceptance_rate)
 
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
