@@ -25,9 +25,9 @@ def parse_arguments():
     parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
-    parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
-    parser.add_argument('--budget', type=float, default='0.1')
+    parser.add_argument('--budget', type=int, default=128)
     args = parser.parse_args()
     
     return args
@@ -79,12 +79,15 @@ else:
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-start_size = 16 + prefill // 1024
-recent_size = int(args.budget * prefill) - start_size
+if args.budget > 1024:
+    start_size = 16 + prefill // 1024
+    recent_size = args.budget - start_size
+else:
+    start_size = 4
+    recent_size = args.budget - start_size
+
 # 3200 prefill 32K model ssl=-1 will fail
 target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=-1, gamma=gamma)
-print(target_cache.skip_start_layers)
-
 target_cache.print_status()
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))

@@ -25,9 +25,9 @@ def parse_arguments():
     parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
-    parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
-    parser.add_argument('--budget', type=float, default=0.1, help='budget')
+    parser.add_argument('--budget', type=int, default=128)
     args = parser.parse_args()
     
     return args
@@ -78,9 +78,9 @@ else:
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="H2O", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-heavy_size = int(args.budget * prefill // 2)
-recent_size = int(args.budget * prefill) - heavy_size
-target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=1)
+heavy_size = args.budget // 2
+recent_size = args.budget - heavy_size
+target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=-1)
 
 target_cache.print_status()
 all_acceptance_rate = []
@@ -88,7 +88,6 @@ print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids.to(target.device)[:,:prefill]
-
     acceptance_rate = KV_Spec_cache(tokenizer, target, target_cache, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=file_path, dataset=args.dataset, spec_args={'budget': args.budget})
     all_acceptance_rate.append(acceptance_rate)
 

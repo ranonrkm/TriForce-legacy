@@ -20,14 +20,14 @@ def parse_arguments():
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--greedy', action='store_true', help='greedy')
 
-    parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
+    parser.add_argument('--prefill', type=int, default=122880, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
     parser.add_argument('--gamma', type=int, default=1, help='gamma')
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
-    parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--dataset', type=str, default='gs', help='dataset')
 
-    parser.add_argument('--budget', type=float, default='0.1')
+    parser.add_argument('--budget', type=int, default=128)
     args = parser.parse_args()
     
     return args
@@ -76,8 +76,8 @@ else:
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="TopK", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-topk_size = int(args.budget * prefill)
-target_cache = DejaVuCache(target, max_budget=prefill+gen_len+16, topk_size=topk_size, skip_start_layers=1)
+topk_size = args.budget
+target_cache = DejaVuCache(target, max_budget=prefill+gen_len+16, topk_size=topk_size, skip_start_layers=-1)
 
 target_cache.print_status()
 all_acceptance_rate = []
