@@ -80,7 +80,7 @@ else:
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="H2O", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-heavy_size = args.budget // 2
+heavy_size = args.budget // 4
 recent_size = args.budget - heavy_size
 target_cache = H2OCache(target, max_budget=prefill+gen_len+16, heavy_size=heavy_size, recent_size=recent_size, skip_start_layers=args.ssl)
 

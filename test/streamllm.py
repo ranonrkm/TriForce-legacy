@@ -81,12 +81,8 @@ else:
 
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="StreamLLM", spec_args={'budget': args.budget}, dataset=args.dataset)
 
-if args.budget > 1024:
-    start_size = 16 + prefill // 1024
-    recent_size = args.budget - start_size
-else:
-    start_size = 4
-    recent_size = args.budget - start_size
+start_size = 4
+recent_size = args.budget - start_size
 
 # 3200 prefill 32K model ssl=-1 will fail
 target_cache = StreamLLMCache(target, max_budget=prefill+gen_len+16, start_size=start_size, recent_size=recent_size, skip_start_layers=args.ssl, gamma=gamma)
