@@ -754,7 +754,7 @@ class H2OCache(Cache):
             self.heavy_value_cache.append(torch.zeros([1, self.num_heads, self.heavy_size, self.head_dim], dtype=dtype).to(device))
     
     def print_status(self):
-        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| Heavy Size:", self.heavy_size, "| Recent Size:", self.recent_size, "| Single Layer HH Score:", self.hh_score[0].shape)
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| Heavy Size:", self.heavy_size, "| Recent Size:", self.recent_size, "| Single Layer HH Score:", self.hh_score[0].shape, "| Skip Start Layers:", self.skip_start_layers)
 
     def reset(self):
         self.seq_len = 0
@@ -771,8 +771,8 @@ class H2OCache(Cache):
         value_states: torch.Tensor,
         layer_idx: int,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
         value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
@@ -801,7 +801,7 @@ class H2OCache(Cache):
 
         else:
             # print(attn_weights.shape, self.hh_score[layer_idx][:, :, :attn_weights.shape[-1]].shape)
-            self.hh_score[layer_idx][:, :, :attn_weights.shape[-1]] += attn_weights
+            self.hh_score[layer_idx][:, :, :attn_weights.shape[-1]] += attn_weights.clone()
 
 
     def update_cache(self):
@@ -815,8 +815,8 @@ class H2OCache(Cache):
             mask = torch.zeros(selected_hh_scores.shape, dtype=torch.bool, device=self.hh_score[layer_idx].device)
             mask = mask.scatter(-1, keep_topk, 1)
 
-            self.heavy_key_cache[layer_idx] = self.key_cache[layer_idx][:, :, :self.seq_len - self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim)
-            self.heavy_value_cache[layer_idx] = self.value_cache[layer_idx][:, :, :self.seq_len - self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim)
+            self.heavy_key_cache[layer_idx] = self.key_cache[layer_idx][:, :, :self.seq_len - self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim).clone()
+            self.heavy_value_cache[layer_idx] = self.value_cache[layer_idx][:, :, :self.seq_len - self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim).clone()
 
     def speculation_update(self, 
         key_states: torch.Tensor, 
@@ -830,8 +830,8 @@ class H2OCache(Cache):
         if self.seq_len <= self.heavy_size + self.recent_size:
             return self.update(key_states, value_states, layer_idx, cache_kwargs)
 
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states.clone()
         
         ## [heavy, recent + 1 (new coming, not in cache before)]
         key = torch.cat([
@@ -885,12 +885,11 @@ class DejaVuCache(Cache):
 
         if layer_idx == self.layers-1:
             self.seq_len += key_states.shape[-2]
-            self.speculation_update_times = 0
 
         return key, value
     
     def print_status(self):
-        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| TopK Size:", self.topk_size)
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget, "| TopK Size:", self.topk_size, "| Skip Start Layers:", self.skip_start_layers)
 
     def reset(self):
         self.seq_len = 0
@@ -903,7 +902,7 @@ class DejaVuCache(Cache):
         value_states: torch.Tensor, 
         layer_idx: int, 
         query_states: torch.Tensor,
-        attention_mask: torch.Tensor,
+        attention_mask=None,
     ):
         # Update the cache
         assert key_states.shape[-2] == 1
@@ -915,10 +914,10 @@ class DejaVuCache(Cache):
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + 1] = value_states.clone()
 
         # fake simulation
-        attn_weights = torch.matmul(query_states, self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]].transpose(2, 3)) / math.sqrt(self.head_dim) # (bsz, 32, 1, kv_seq_len)
+        attn_weights = torch.matmul(query_states, self.key_cache[layer_idx][:, :, :self.seq_len + 1].transpose(2, 3)) / math.sqrt(self.head_dim) # (bsz, 32, 1, kv_seq_len)
 
-        if attention_mask is not None:
-            attn_weights = attn_weights + attention_mask
+        # if attention_mask is not None:
+        #     attn_weights = attn_weights + attention_mask
 
         assert attn_weights.shape[2] == 1
         attn_weights = attn_weights.squeeze(2) # (bsz, 32, kv_seq_len)
@@ -929,8 +928,8 @@ class DejaVuCache(Cache):
         mask = torch.zeros(attn_weights.shape, dtype=torch.bool, device=attn_weights.device)
         mask = mask.scatter(-1, topk_idx, 1)
 
-        key = self.key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]][mask].view(1, self.num_heads, -1, self.head_dim)
-        value = self.value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]][mask].view(1, self.num_heads, -1, self.head_dim)
+        key = self.key_cache[layer_idx][:, :, :self.seq_len + 1][mask].view(1, self.num_heads, -1, self.head_dim)
+        value = self.value_cache[layer_idx][:, :, :self.seq_len + 1][mask].view(1, self.num_heads, -1, self.head_dim)
 
         assert key.shape[-2] == self.topk_size
         assert value.shape[-2] == self.topk_size

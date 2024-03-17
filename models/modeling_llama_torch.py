@@ -761,7 +761,7 @@ class LlamaAttention(nn.Module):
             if speculation and self.layer_idx > past_key_value.skip_start_layers:
                 # assert kv_seq_len - past_key_value.seq_len == 1, "Speculation only works for one token at a time"
                 if isinstance(past_key_value, DejaVuCache):
-                    key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states, attention_mask)
+                    key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states)
                 elif isinstance(past_key_value, ChunkCache):
                     key_states, value_states = past_key_value.speculation_update(key_states, value_states, self.layer_idx, query_states)
                 else:
