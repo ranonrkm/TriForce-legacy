@@ -80,10 +80,10 @@ else:
     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_real_Ablation_baseline_evict_streamllm.csv"
 
 
-print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': 256-16}, dataset=args.dataset)
+print_config(draft, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Evict StreamLLM", spec_args={'start_size': 16, 'recent_size': args.draft_cache_budget-16}, dataset=args.dataset)
 
 draft_cache_budget = args.draft_cache_budget
-recent_size = draft_cache_budget - 16
+recent_size = draft_cache_budget - 16 - gamma
 # draft_cache = EvictStreamLLMCache(draft, start_size=16, recent_size=recent_size)
 draft_cache=GraphFlashStreamEvictionCache_V3(draft, start_size=16, recent_size=recent_size, gamma=gamma)
 target_cache = SimpleCache(target, max_budget=prefill+gen_len+16)

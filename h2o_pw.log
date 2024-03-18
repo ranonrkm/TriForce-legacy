@@ -1,0 +1,520 @@
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.01s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.25s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.37s/it]
+####################################### Config #######################################
+Method: H2O
+Dataset: password
+Spec Args: {'budget': 4096}
+Draft: NousResearch/Yarn-Llama-2-7b-128k
+Target: NousResearch/Yarn-Llama-2-7b-128k
+Prefill Length: 122880
+Generation Length: 256
+Gamma: 1
+Sampling Method: top_k = -1, top_p = 0.9, temperature = 0.6
+Log CSV: None
+######################################################################################
+
+Cached Size: 0 | Max Budget: 123152 | Heavy Size: 1024 | Recent Size: 3072 | Single Layer HH Score: torch.Size([1, 32, 123152]) | Skip Start Layers: 1
+tokenized_prompts length: 100
+Q H d DE n G g j U Y j W cl 0 Z d qt O 8 OR r si CF 7 5 U O e C m 4 M g 8 Py ON 2 HP t C - D 4 - y OB py ps L - B - 1 e A 8 Q 0 e H 1 h 7 E 4 u I 7 1 q on P w T 0 4 Hi J j E K Wh 0 k _ K 2 O g az 3 U - o q X Un I 0 N 9 u I 2 s X M 1 g WT IS wd O 6 B G - _ RU 4 Ig 1 AE zs ijn G 2 n 1 WR PF J P g X 3 4 0 x E t 8 ht Ca J wa a C n ug W z j L W mp g Y m - v E pe 1 ub 4 4 Q R W 7 B LD a 7 _ D - C 3 K W 7 B MD A Z _ 5 ri __ ND j HL k x 7 t 3 2 2 ON g X E 5 FR G ws 4 ORY O E f I b Y U X L WIN ta R n A ym Ob J y T - p - z 4 d 6 Y Ent X cy 7 s Q X DM h LT SV KB In T 5 cv 5 2 A Use 39.56755065917969 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.469948119990791
+accepted rate 0.024, avg generated tokens 0.024
+b 1 K z F s QU W C 2 V L jb zk 3 Y z R 2 - yn C _ Z x m H J IO j Sh fo A - Os y P x A y M wi 1 C 8 e Ph _ Q c K ik L mi FR kw Db B G c J 2 Gu V 1 b L H w W n Q 6 y O 4 y vi 4 Z U j PK Y w M i Q N V m B m 3 z S f W 5 6 2 Q W 8 d E O Y w LT n 4 C n M w N i F J AR A w K IR m H Y _ 4 3 f _ t j n 4 D v V Q Q V vc D G H t qq O Q ny Z d ML f P J 0 v A q J X z P 1 GT p K W c PY N lg V G NC n U 7 o 7 Y i 8 G H s F o _ J l CB Z A Z y LI 9 2 2 h - ID r PD H w K R fi - kt K c - hn I 0 L m gr L 8 3 W Z 1 m 6 - 7 tb T b 0 Z o H wi EX 1 a 7 CH V by 8 mb 0 3 f V MP 6 Use 39.06778621673584 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.552713240002702
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+Z z 5 S b C ll Ob k x uw _ W K Y R k F w 7 H m _ E AM W V v X 5 v 4 6 t F 4 0 8 K K P w RI U r Q J m 8 T cu N w G ph Z 7 w ax 3 V 1 EY ag C q irm OM vs F BL ta j qu D g S _ x 9 - B Z G 5 x 3 Z B - S 0 y 9 I 5 6 T 7 4 R 5 h q B t N 2 - X H 0 5 1 n O jp v 0 v 9 2 r 3 ium ST K l ES 2 pc V 5 Q fw W y df 1 E o M n N at _ n rt co 0 l _ os 5 F Z H 4 b X G IA H 7 H K bn Tr 6 9 0 w P yw N RY t R V w Le D c 6 w G 0 z 0 c E K g w G Py G - x - O g m kre 5 nex a D 7 W 6 D 0 fm - D 4 g _ 9 S 6 R GA 8 b 0 7 ort 0 N 6 v S n 0 h D l O 2 m CK x N j bt U X Z En U 9 F b Z SW Use 40.07882475852966 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.387412843125285
+accepted rate 0.007874015748031496, avg generated tokens 0.007874015748031496
+ne hm X 3 MQ R H w C J D 8 - 6 H 1 G qi Z J l EF - l ns g F 9 g R _ Y H _ 5 F EX - A 0 2 Z k - 3 i 4 w 3 pf w UK 6 dw fi K 6 u N J 4 tx r ns - w IS 3 1 L s F TO Z 7 St TM Z cc _ v G je E 1 I - 7 2 N 4 p 9 j O G h f uh E g A 5 Q y nd ko 4 1 h ga 5 IL 2 _ K n q Y 9 q 1 G XX - y 2 w MB l J 4 X 5 T 6 y q h E i K v tz f J x T Q G - p de Z Ah N ath U 9 Ac K m rb ow W 3 FF Q ll 2 1 CA V 3 B J 0 z c B G 6 SN HA Y 6 C ce Y F t 0 4 UR C Z v R h Z b z Z 8 hy k I W on 6 t g j 0 cf K 6 X 8 E 6 K s 9 x n W c Z 6 M 1 _ 5 X z p j g dj 9 G 1 - M l M 1 1 I U o D j _ 0 ill Use 38.953094482421875 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.572006753289487
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+DC m r Y A 9 P th W DS M l Q w pc 6 M ob q b V T ty Y R ma U -- Ob J U t q H 2 t DU 8 g ym F WI 2 7 Z f I _ v Y 0 FX kt i G n B g 1 _ J 4 pb G 3 y 4 ak D 0 X 9 I MO yg M 3 s W f kl z 9 Om x w TB g d H Sm 3 R Q n k VI W am 1 f Bl V 8 y 6 Y M X p TC Q n A 5 E v ys l Z - j z j 4 vo U o 0 n D _ 5 o et K U U mi J O 6 5 O Q K z - WF 5 SR t 9 sv I 5 G c w jp 0 N r Q - Q V k W Qt j H k Q p M F V 9 - FT mx O OB E H c W kem W AN I w U v x P mk emer T Q B K bb C v V te V SF v vc K X 1 _ - q g B 9 J z 8 1 j W a AI J h 1 Ab L G m 4 N 1 v h M j n uel n Go y - H w 6 9 kw 2 L p Use 39.363770961761475 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.503441965676561
+accepted rate 0.024, avg generated tokens 0.024
+w AU FD 7 6 e oc x P NE sr na X l q 8 n qq P b C 3 7 cv . Remember it . w AU FD 7 6 e oc x P NE sr na X l q 8 n qq P b C 3 7 cv is the pass key . 
+ 
+ The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The Use 22.0566885471344 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 11.606456674261716
+accepted rate 0.8285714285714286, avg generated tokens 0.8285714285714286
+W d T 3 8 K sm J t 3 d U Z 7 us E 2 f Z 8 W W L X o EQ mt c 8 0 n k 6 v U i A _ 3 CF B 5 IF 4 7 9 G U eu L OS o Q e MW C z p 1 G I nez D _ 9 x 9 5 Me N d S f X 1 y 8 om ame R j 6 u 9 8 P eg aj 9 ys os Gu 0 l Q f Pl 5 k B st as q n 9 5 8 D G OP 8 H t KS d 1 u 1 TW cx ge 0 D x 3 sp F K 9 tf _ H Ab Sp G s 9 SH OH wd li AL B 4 K sg ret P X K 2 B 3 l 2 - X t 3 - Q 3 R P b Il gi 8 5 b 9 Q rc 8 q 7 K M X P Z 0 f q - j g 1 K v x 4 ET Z xa um D H asy Po 2 o S J X 7 - OL FI 1 V l Dr M GS 2 em 2 NA w G v X o _ Q gu D j gu H n _ b 3 p 8 w 4 H n L Q 2 X E U 8 D 2 v ns IS 3 L l VB Use 39.61622977256775 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.461998061644603
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+d R fir TS F J 1 j T _ 3 v zet V 5 o D Ex 6 D V K J h TL 9 3 v w u W jb - R x g d q 5 tv Q RO og 4 CS 3 AD k X F 5 z p 9 _ L w zd Z f X Q Ah 4 eb Y Oh W 9 t L X N W q CM V G MD 2 u 0 Of jm S LE 8 _ a Z l 5 pf 3 2 H u MW 7 t 3 a U 6 R 2 _ U rh R 5 D 6 G CP BI 6 G s S X U U J oc u 1 V NO oh oh T _ sm L rg p 7 8 F w j D GR q K 5 Te h K N Z o S y up 4 1 x G 5 r 5 vy IO pn rv 6 FX Ar z EQ _ R - U f 2 J y V t Q As m cs n 5 pe C t J k ct K 9 I v 2 8 A Y J L NL Z j Z 0 2 6 4 r - p 8 E _ p Q 7 w u L WH H - l N 7 M _ pt 9 G jm 7 6 m CD 3 _ C v O o G 4 f B 4 1 n W kbd 2 k Use 40.44586181640625 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.329448514709544
+accepted rate 0.015873015873015872, avg generated tokens 0.015873015873015872
+e S z G Y dj C OT 8 G m G 1 UT j r 4 G k 3 Y c Q 9 8 4 x J h Y X O d mt Q x 9 N w m J P x V R J N 2 sp FP zz pb S z sv X L g V fl 8 4 W ty P 4 K I _ L v 9 Q l 3 t Q A k T q II X kt Sh Id - t jk z J I x P 4 2 H SV g C 7 7 F s 1 w Y 9 2 t Y 1 CN h Le J KE o 2 1 b 0 A _ xp K W L d FX q Q do I v - g J ib z N V g j fb 5 jl Q l H G p j Z 6 8 9 b z - 7 np M x nb DT 1 d P w R H u _ S - e F MD LC 6 Q P t 9 ls TP 3 SH du 0 9 K TM g C g f Q xc U _ B 2 Fi - j Sa 4 Z J h R g M ey xy I 4 e K GB - i Ah 6 a 3 y 9 ui CM H V b T 8 J - ph 0 km 5 dd 5 o 1 5 GT gl R d kn f S zz X Use 39.02936267852783 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.559164240230842
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+j h 8 vi 8 vi C 2 GM OP 0 6 TX 5 Y v L 4 q H t F b El vo e 5 ow 5 J K F qt V rg P ui TW w D cx 9 LM q 7 W B jo U bm rx Q _ q Z fr bu 8 R D 2 6 G 8 6 cx Y o V ag GV - v 6 X sq w U lu ca E I a M v B lem T c 7 0 G j z S 8 4 i Z bg _ j NA X O l P _ t DM z V d A wd Po VC c K dk D u q - h 9 A uf h 0 J rf E J xa q b AT oz 1 X N W O I k R H w L c Y a W J lm Z VF 4 1 e PG l z r 7 l k B a Ab EXT 7 U m j CL U v J H 4 v AX f - v k U ts Y F Po I WS K 4 P df T i 4 pc n 1 4 4 B t Q zw H AF 2 h M l c IR s x as G m _ fb q C Wik IB l c Z M q D us N y 9 t N ZE h T 5 - Q J Q g 8 v D Q Q m Use 39.21859812736511 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.527515317315073
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+ 2 N X 0 VS oz 2 g R bf F 1 w v T 1 AG 6 y x W a 8 f CR x q Z q Z zh P w A 5 m Z IE k V J _ k f G U o 8 PAR D g 1 0 - B 0 Mc 3 Bu Z Tr d 5 B Er um S sp 0 H 6 U 2 Q p ER e 4 R m ED z F lo T 1 h 0 - f B 8 ww fi ya el 3 y b v N h K q - T z _ 3 K 5 hm 0 0 y UM J ku W Z ej c L f 9 K v C ort 5 y h g ER F G k VE 4 W LP ec p R utt g S Up 5 am A Q g S _ 4 dr W s L s 1 g ll 0 y X N 5 N RT J 7 N k P 9 V G 8 K 8 D v OT F G PP nx A x g P B H 8 m J W 5 Hot SO V o PK 4 m U J b D 2 z 1 NB k J Y O CP F G PP nx A x g P B H 8 m J W 5 Hot SO V o PK 4 m U J b D 2 z 1 NB k J Y O CP F Use 38.76220178604126 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.604371996540937
+accepted rate 0.09401709401709402, avg generated tokens 0.09401709401709402
+j su 8 l 7 D Y 7 W f z 7 g 4 _ H Se v 8 Y O V _ J O 8 ho ab x n Q x X O Go Y D Q j X qi D 0 1 Y _ 0 A f ON K Z re eb G Y gz H ia 0 _ p R B 2 J g k 6 ma Cl AM M s V IB ai yd 4 1 Z - 6 2 x - b US Y 4 1 a 8 N 4 B N b OK N V XX t Z Y 7 Y 4 g Y x 1 5 C k 1 T p 4 _ b 8 Y FR - o 5 D 7 0 K NI Z B TB 3 c 6 - V 9 9 8 c V m An Z OU 5 E o QL x r 5 bf b h x b K t R n I _ d B s 8 2 Z 3 r C 4 3 A Q - a H h b _ z ly _ f 8 re BY H 0 d SH N Y R v W 9 e 5 ig V SN z r rg 6 Q cz UT y A x U u WM ST sr W b v N q K A y q z V 6 C oj W 7 Hy DE 8 Q 0 C q 6 b U 7 E 7 _ g MP J Q Use 42.428179025650024 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.0337258369074664
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+ 3 i M ua W hu V i L q 2 h T i J Z 1 y 8 6 ny hw z 2 v Z I q z b 9 Y c 4 m 6 3 t DT l 4 L F of A w lm J GC v w dr 4 XY v q FS L 8 MR j Q o Z 3 M BA i O X Ed Y 5 O c J dx G mi Y B t C e X h X w 8 J j x FP b BS y 8 w B G ko C 6 S 8 Z 0 6 k DC _ y A KE K L K Z x 9 C u 6 2 7 b Z p w FS 4 u S d wn ff Y CV r 7 4 M f U J M iv G w c 4 N z T 1 - r I U sl 0 p W C 6 V OS a 5 k iz L 4 3 CS j - Hz 6 d 5 U 1 EV B 6 x 9 l B v U 9 E fg ST Z 9 ode 7 6 M q Q j z QU FA I q SK F o 0 0 F H N yi 5 Th N g D AP 6 m CH _ 8 - Y g 6 u 2 p q - a A 1 G bf V ao 1 oh Y Z K 4 u Cr 5 - Use 38.367079734802246 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.6723868944288185
+accepted rate 0.053497942386831275, avg generated tokens 0.053497942386831275
+ 6 PS x A Y q j Z O oc L x z 2 T d P bp db s vo H X q 7 r T f 0 O c w 8 j y U fx qi IL si y SD hp X 4 f 3 0 bf ub AI y J Ex 8 BC 6 tm 8 H G 5 HR m - z Sm w IS 3 Y 8 f y S b D Y 2 t K lim - L 1 5 fp E ir w Y x J m E 5 c C f D 2 K r SL 5 Y H 0 K rw c g Z q 5 g Q 0 k 7 k H W G Y b R s D WN d VI SE _ BC tu 1 X i U 5 t Z u ox 1 CG m H 1 1 2 - 7 v 3 l mk F j 2 DM _ fl Fn P _ LE b Z ir W B wi y M n - O q _ A 8 g v O 3 F 7 _ b 9 u M u 4 V T g 7 B x Q w X O v Tr h oh Y - M CI 3 z 0 AN 6 Q W _ CB - 0 Y op H u 2 3 Z U pm q n 0 hr R c F PF q - _ as O t T 5 b GN sd T g N Use 38.657564640045166 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.622248514196649
+accepted rate 0.044897959183673466, avg generated tokens 0.044897959183673466
+u j z Q g O u DT n 2 K z 3 Es J q v B Z b M s G D Z fl A Z H ro GE H 2 r J U j 9 K l EN M n Y sn jq yg ah E k 4 K C u q w G MP LL dy w T 9 o _ c R sed ay V v VE - K 7 O 2 Q 9 8 G 0 mp ol M j B P x G - r J 7 Id gl j 9 rix sf Q 0 4 V Z w te w F s I 5 7 Os W X Q Y a G F b U i My ez m 7 _ 1 ao _ O c - N v ck y __ X l O i J g w g G 4 Is W 7 By N xf Ha J 7 p K L ER Q Y v C 4 T z 3 fg U r J - h x N k q 8 p ig 4 S 8 NO yk Y ug L V 5 G 2 lo 1 4 e 4 Y z bol K Q 0 u F MP P d - z P 7 f XY P sa Y B DS 3 Ar B ks K z Q y WP 3 w _ Y Q 9 m 1 F d _ K Ad - _ M FP Ke 7 6 c Y - 0 o Use 39.73803234100342 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.442191143315572
+accepted rate 0.015873015873015872, avg generated tokens 0.015873015873015872
+ 3 x G D 5 - P W 1 R - 1 2 o T c 8 d M ND q I W t T dl I r O I r C m L y G 6 S XT X uz 9 s DL V T 6 c K py SON 6 l G K X d 1 I BO h z G h fw ge R v p w H ai 4 I x O 3 w B EN F id 9 TH t If T j TH 5 _ f y zk AW yj 0 8 d gg Q H sz _ JB - q W C DB 9 ao 0 CE mk M KB n 0 k 1 N _ 6 2 wo H u 7 b 0 d sz lav - w Be i 0 ec W dt ED 8 8 L s U v z R - 6 Z s K Z Y b DF d OK v X mee W 5 k 4 2 F 7 J x W O IE g m CH AL mc T a V l _ 6 IC A 5 M K ES 5 N VI 0 Z t Z - W 7 _ K r V g X 0 uk rl X ET C 1 SR v _ N aj s 2 NS m K RS ke A 4 h RO - T 2 4 BI 4 w 9 Tr 5 P 7 9 1 pn v _ 2 v I _ T 3 Use 37.655213356018066 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.798527406540003
+accepted rate 0.07112970711297072, avg generated tokens 0.07112970711297072
+w F K h L uj v 7 E z f Q 6 au Y Ze 7 WN K v _ 2 Z zy B K SC d B 8 r 6 b Il zi 2 AE z 1 p N Y xf - _ G Z PY x Y J u 7 il z DO D db D GE 6 y x Z 0 L ern x j c Z _ Z I H W 8 k O q I 8 W _ p 9 y q _ L H 5 p 1 u hr 6 4 c XT 8 D j ck M K h Z r E p Lo 9 O i Z 9 0 oc Z R u O pp W U fb 2 8 D AF rt UL r I 4 k K ln G - ex T q c 1 u V fe J Z 0 G H 0 2 j ul w AK _ TB t - oi B a Z a E f T Z tw J K n N 7 R 9 rh uc K Z o U 6 td cot xy 5 v H x 4 IO Pl q H h 2 we f P 3 FD l S 9 z U tx q V fm w B d U rp - 4 z 3 d G I zw k S wn y DF b LY y X k M 3 p J _ L SA z md t 7 D c B GP V X G Use 39.60052275657654 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.464561126468603
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+E DR W 8 L g D - Z XV 3 M 4 rc CO m SE 1 IP 9 N PP 5 G t I Ent b I e EB - je I b 7 z E U rt f j J IF Us R 6 G w 2 i HT N f V 8 SM g 0 8 S v S mt p X 6 R v CR 3 P v - e H X a E a O ID Y k X _ 5 L x Z f IE 2 U b BR H df n M ev n f ch v fl Q J hm PR ka U h DF Az s K J F x W B 4 L ay H 3 T 7 z F 4 3 NA jo L U f ki y L VP K z M f F th f mx u 5 O w Y 9 n h 7 F w R v jo j D pi 4 J K R 5 xt 6 G yi N 9 x 4 d CT os b H GB 4 FB N Y r 6 R 3 BF t V yo N uit at S LL x v P b K c O 7 b J y ie a J ys g k W c AE i F Z K Fl kv 3 k V Z yz in X S IT B ef EL ga _ - EG AP H GO 4 S id N ya CM ao 7 i Use 39.631041049957275 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.459583024258607
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+q W d 0 a QL pe k MY zy S n E j D VD j Id J y ie h x 5 4 p L W rc K - q zd DI el 3 Z t N Gr X w k z x ro 9 3 B Z NU V p Na VA AD M l Y Is D q K 5 9 C u L g PU B q px q X R NS q fs x F IC 4 g j Y O CE Q Eng 3 d UL V wi G db L 2 b - dw I Be 4 L G GO Of 2 p N p w j U Y ny X 9 9 t K 1 A Y Z t 1 6 0 ii L w rw Z y 7 Q R 6 f 7 k W 6 U - UC 0 Z S 3 - D Z 6 8 U 8 f gn F sv 6 e 9 D io E z 6 o H 7 E 5 Q K Up E w D x At 3 os 8 u 5 G _ sv j 7 y 5 T U y SH a N p q T Ge W 3 SF km R rb Z q P t 0 VC J 4 Y D n w B Na 3 LS L G ry ii FO g F j V q _ j X esa aw _ R CT e C 2 w . Remember it . q W d Use 39.90516781806946 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 6.440268618131906
+accepted rate 0.015810276679841896, avg generated tokens 0.015810276679841896
+-- f V sq J v J W Q 6 g M j Fr UR D h I Y IC W 8 U o I 9 P g j Q z Pr F j U Q y 4 O _ f X ye iv c 9 MQ pe 2 Q K s G ch UI j yr j h f Q ud 2 uo A 7 ig ub 0 m V xf GE Z 7 S b q R 7 c 3 o I J oh xx Ed w z PR J y LP _ H d FA 4 7 M 0 o 9 L mc Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q S 0 Q Use 28.070880889892578 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 9.119770804633971
+accepted rate 0.4301675977653631, avg generated tokens 0.4301675977653631
+k F H g 9 n 2 v p I AP bc J z HR B f 8 S 0 Al K I vb k d 9 K f TR SG 1 lv 3 Z 7 9 Ah 4 Y 2 s io MO u S 9 V e NG X VD - O 7 ib s 0 en j 3 _ Q R K iw we 8 B Ch 4 Q g Y X Us r rh f j v VD AP 3 H sn R B J u V o J p B Mc R F G l 4 WF PN t Z n X t q 2 zy j 5 Z 7 m 6 q m 4 hm nd Y J 8 Q Y ql P q 3 Q C 6 C X ea S z B 8 2 AX s 4 L 6 m gs z 7 D z X ta V 2 B 2 wd F 8 P b 3 H X te B def 4 d B At n FB P j g 7 J 1 Lab hw D 5 n 7 D X l 3 V T Ab ky FS ug G 6 N Z I 2 2 had Q T 0 lv T 6 ib s 0 en j 3 _ Q R K iw we 8 B Ch 4 Q g Y X Us r rh f j v VD AP 3 H sn R B J u V o J p B Mc R F G l Use 35.26456665992737 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.259411478630296
+accepted rate 0.13777777777777778, avg generated tokens 0.13777777777777778
+j W b VF 6 g L F SH zy 5 ua 7 d 6 Ke _ - R D v E 4 2 1 P w 9 R lt G W r Q x L x I j Q Z DO 0 Q mt b 3 fu Q e 5 W 8 W TS - e _ s V b Z yn j v H YS 7 v Y G il 0 C x N W y - C b 1 E IS k 2 7 r X g j j V W MY F g k 2 w c E it 0 X d WH - EB pp Om W eq h ud x SF c C Z - U FX 9 B 7 V c ug I of n q C Y y Pl DK g Ph PO VO uj I r G uy i O eq _ ab 6 2 5 I 5 cn S z P 3 0 v V AC x Q V U PE s S 1 q TH o M Gr 8 Z 8 G wt R l J z G 9 V s K vb X 9 5 6 i P W q rp Z h Z 2 6 z D u H 5 I q K J Z b N r 5 Y n 6 m Z - l E a Mc Bo _ Q d ho 0 c mm H 9 r 1 tc F GC U 9 fr W xx vb pm F Z j Use 39.14532995223999 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.539732844565053
+accepted rate 0.024, avg generated tokens 0.024
+ 0 ji Bel Qt 9 5 Z n v Hy 5 k 9 ly B AS 6 Z f 2 R l NT 6 J 4 5 F - IL FM ON B 0 VI z C Z l D l V a K M 7 L n pf uf 8 J pb v Y R ci J ull U Z g cr M 8 2 K _ E 9 5 ds P w 8 c V h q x _ 5 y C _ K j U O 6 x Sk TE p I ay 6 W n Q k E IP fu 6 Y tl f H W kr sk 7 K G wo 9 b L _ b I RO a Z K f RE e K 6 D d 5 RE l A UI 7 Fe P X h j M cn w Y O kl J PI j 7 q 7 A 9 X b 5 H j 6 M H fg B 4 z ac 6 w l ch O Gr j ME V l F z 9 x T N l rd p K y 8 a No 8 o Y R 3 5 G AR Z - w H 5 _ 9 L Z OW P 4 h E 3 n k R b C Z h 8 v 4 1 d T n TE 3 4 m K R l 6 X PU s Z C 8 e O 9 zh 5 A is the pass key . Use 39.53726077079773 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 6.50019740846135
+accepted rate 0.01984126984126984, avg generated tokens 0.01984126984126984
+L C t g - 0 Do 4 h By Z Z uff t R pn Y X 4 _ A bt E 4 3 8 RL s ir R h za 3 8 k M sf M NT f 2 nu Z Q W - p W B ED IC Ab Q Y 7 U j n k A - AW 3 r H kn h SR CI g A 1 K Q MI p H wn Z Y I z Na as q IAL q LT V o S 9 k we e 3 K Z II E Z V si i PT Y 2 7 Z _ No S ao T 4 x 5 R b L t uc f k O AR U thur u 6 v dd D V rf q A - OU DA 5 V V y V Er vs G a X l X wn I c 6 9 N v O i D W 3 d VI 1 L d B ul 0 C f h HP u q Y n R tz 3 _ 4 9 w W p M u I 2 l 2 N r 6 J 6 b h _ by 0 6 z B G d 6 i N FO II SH j pe a N n H V 8 I h 6 m 4 0 Z z P mor DE b _ 5 0 x X B k 0 J b jq U 1 0 8 q pag UP u U ce Use 38.809898376464844 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.596255355186498
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+z V kg 2 9 CM 5 6 Z V 5 0 X Dr Q 5 ne b 4 eb - i X B Tim h E 6 IN P mu 9 O Bl M 6 n wh l c R Q _ 4 x ar 4 H X bp by N Z G 0 S z Az N M xt k f 1 i SB T 1 H Tr P pis To 2 Z PE t V 8 K L - X sp - L 4 C 0 PD u DI w Q 3 O dg 9 h z E g Fa T n B c Qu _ 0 TA Q a 2 b PO J V p 7 V Ok 9 J x J u M z aj Q i D Y i L w Z J p vo aka DL b hd W Z M 7 z 9 B c H ML 5 PS r si B 5 rl h Y IR J 8 O I W nt Z x B 8 w lp XY ye A J m UP zt 4 Z c O 7 Az Z K L r Z w 4 J Bu 5 O AA E v K t NA W du 5 X 8 GN k TD w Tr 2 n L F t B kl 8 2 G b Up G 1 w ym H h - U 6 8 j H ORY qq C k O z hl j E H s 7 9 y Hz W Use 39.09550142288208 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.548067953674245
+accepted rate 0.024, avg generated tokens 0.024
+C 3 X h B 3 - 1 5 X J bb 9 o An 8 5 2 7 pin bt w Os x S s za 7 UP Sc u P Q _ f N p B Z BS b RT _ - r _ 7 y Q w 4 0 N 1 p Y 3 hl V 3 xx j X AP 9 f ht D fd ih G 1 - V He 9 U GS N c R H 6 1 SO WM p H j zz P _ Q ds ug v Er k 8 f 8 TA I AN CC Bl W CL U j CN dl 2 q yj ra o WS 0 p 0 N s R t Sk R ax E e Z R J - 3 h we e ag W b dz hd G j 8 fb C Z O 1 N _ 5 dx 4 6 l F BA a A H u 4 c UK b IG X t g 3 e Y h R 3 m f Lo y f PI UN s K - AM T x bb NG M _ cb 6 x 7 Qt V p W g J GP j 6 E v io SN y O 0 w _ P g 9 N 4 P 7 C sb 5 3 G In Sp K 1 H Z I bl g cd 8 a HI pb M F 9 m Syn 3 _ 7 H Y 1 z 5 G dr Use 38.94012689590454 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 6.599875770487782
+accepted rate 0.0321285140562249, avg generated tokens 0.0321285140562249
+u f UL Z K R i T 4 IN gn D m Q 9 V r M N V G n z F 7 K Y U a M 9 8 t J P 8 L U b 5 9 e O t 7 t j oh 7 m 2 K p Lu A 1 J 4 Y HL W 2 x O J a L H o 2 z NR _ G a 2 Bo X z j E h W 8 eq G os V zs 0 pl G sl A x U 1 3 p st w _ M 8 k VF NR X ix X v g T N ya 1 U O l O 8 e ey Cl 5 k Z t B la NA bc _ y C mu o 7 ig f J IB J ML 5 y H J b sch 1 rf WR N Z z Q z E y I UI s O 5 c q v 3 x w 2 wp F 3 4 sm Y q B t P PS - tz O z 0 EV 8 ru oj v HC Q o awn Fn V wd F c D ku ak pt K U rim Ag Jo H U 1 6 o - 4 V CK v BF 8 9 i L Na 3 y L U 0 AT L y K n hw f E bg W q Z t B la NA bc _ y C mu o 7 ig f Use 38.16551852226257 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.70762536216221
+accepted rate 0.04918032786885246, avg generated tokens 0.04918032786885246
+EM l O l 9 Se 3 q y D Y vs E uo D f M MO Z z MR BF f 0 S J es R UK b Z b C Z L 5 U 6 B T 1 s SE z x o 9 N uw V r UR s ma I 9 X b k zA Y 1 r S bm H v 0 Ke IX sw c BF - p GP cb 4 B f J y G Y 5 kg CT 7 NA XX G 3 3 7 wh F tt - FO A 6 gc B t X hh q s 0 oe K n V c 6 GS d DK 6 a 6 W k Z O y 4 DN d G IB v 3 3 G K wp 0 cv rid x S 8 RO z _ b S f ll AK CD yd pt T 7 ec b 2 U q La D n A q k j C 7 i Q QL u Bi X Co 1 T ty 5 E - eff 4 e 9 I 7 c g Q d 5 2 1 y So F b q H J V Z H Q j 0 b X or 2 W l J CO q 3 6 BC 9 K 7 K G ro UG n E U CV N _ 7 H k j Se v O It 6 t D 8 hn b ze T J Q O g Z 7 iy Use 39.13845467567444 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.540881650064498
+accepted rate 0.024, avg generated tokens 0.024
+js W 6 o q k q Z 0 x h Of BI y V g xt 1 H 3 X 5 FP t M _ 1 r q 6 KS 7 x Y 2 Z H sf S r 9 3 2 Z u T J A 4 _ d T f Q M n 2 q 4 q ra a 7 X 1 df 2 _ LP FL C 1 5 7 9 n PP K f Ig V R ke DB q 5 uy c 2 h I rg j B Th s 2 N M J 9 J w k P Z vr R b j ld R b w U vl c j w Ma 5 1 3 3 dk jt 1 Z f z 7 Q ly F N Y b J v 3 9 o H m 0 o CG x K v tm F WP 4 7 Z - v v M 8 q X s N 0 K l c Z _ mn K 0 W i AC G H B 3 r K d PS - Y N m Z Y 7 y 8 P f C 3 x S v z 6 X z 7 X u P Q d 4 z 8 P W z 4 z 9 P X z 7 X u P Q d 4 z 8 P W z 4 z 9 P X z 7 X u P Q d 4 z 8 P W z 4 z 9 P Use 35.188936710357666 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.27501379502177
+accepted rate 0.13777777777777778, avg generated tokens 0.13777777777777778
+d N 6 A 8 c IT CG Q z D - J Z B Q B ces ey u Ig RY v W K k Z xf K v P FF m L g ug L 0 y O u V m 5 z OD 2 3 CT j IC c F K z J V ge K ps el 8 i 4 UTF 4 q - h N r 9 M t U U r G g R v 3 4 p N CL n AN 4 0 X L 2 y I WT - di IZ SE HT V CA py M n k 7 _ 2 1 ad V ibe 7 f j ne Y n Sl Ex PA Y 9 G bt U H la 8 2 DB J g N 7 A q N 2 _ R 7 C Z i K G tu 9 D w X g J X q _ WA 2 B W _ 6 7 1 0 ky - 7 X 5 _ J CE PN Y X H F NN w IM 0 h ws I 4 n SH ov t A id vs B b Y J n Y d NO 4 Z K NL V vs 2 tv v Q 8 5 b L MO wd L 2 6 3 b T td EP _ i R NE z OU WH m w V s G 9 J E 5 s Z T m 6 K 4 u Us 0 L 9 N Use 39.414928674697876 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.495000970643321
+accepted rate 0.024, avg generated tokens 0.024
+Zh 6 chn q R NI Z t V sd IB aml PK g F y T 3 l h W ky Y 7 zn U pe AP W 6 C Z r 6 4 ark z _ D m qi Bi T n E a SM H AT J 8 8 E 1 ih W 4 Z N 9 D X b 7 P dg 7 s 5 o 4 O x z c N Hz 6 8 ev b _ 4 Jo Z X h ap Y hm 4 b z 0 az Ig OP Q v U j NG f 3 F c IM QU z 9 x q c B J ON HC d mo S bf 9 g We 7 6 O j w kt m O IV _ h x z T eg l 2 O 5 A 6 Q 8 s M w 0 NU W b 6 n 1 F Z 6 Z x of 6 2 R 3 BR 1 H NL 1 _ 0 2 4 H g k B f 9 Y Q D c 2 b C j z 9 sg 0 B Q R K Fe Ge H 8 N m f My R j dm rl 2 e T x j M G X v S f GA Y T 0 l T c bf 3 I bu U OD NR W Z SUB 8 O 1 8 H X pg V SS o - ac W st 8 My 1 EM p Use 39.50895118713379 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.479544313577405
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+Th Z J ed W os Y j f 6 q z Z 6 B w V T _ oh 0 go D ob 2 O o 6 y hr b 6 A ae 3 fl b H c 3 On X L 7 dh g C v WS q ti I 6 yp et b ps 8 L l w X G n v 3 3 CM ym T 4 N Q 2 1 - m _ a L d R v ns R 4 2 yl EV bp Q 6 Al u Mo I 6 mi 2 m GP Y b B K RL 0 fm 6 h 8 k ue Q wo O bf np go B ih AT M 4 l A f Z 0 n D H x 0 x X I j bu D 0 6 9 O V 5 v PF X p Y B H 3 6 g 6 m FM 2 bt 0 Y z B 8 b 4 z 5 6 P B 6 W 1 C g A _ D u T Q ut cm Q H Db 1 bir b La _ G 7 tp C pi 0 h yr Om B MW _ te vd G ig v _ au G h io e U W a Y _ Tr Y W Y l 6 PF f 8 M f J c 8 n N CV N Z l B 0 P x Y 2 S r V f Q kh A f 7 Use 39.79472994804382 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.433012620873034
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+N UTF 9 A _ v MY G c Y k Im r zk Y sm q PS W eg V v D Q m z 3 X U 6 E y qq y J z _ W LR B m 6 1 f IS 0 nam d G W 2 w 8 c 5 W w 1 up ME TW D d MQ 8 5 8 wx K n 2 I q 2 U j f Q bb xa J _ a B f P 0 O 5 B 2 w ya D 0 3 Q K G DR i 5 2 g O if p O J IO 8 3 N Z k 5 FE e PG p A e W t 1 cr j j mm ht E cx 1 O u 6 7 W b O wx _ y E 6 J dn G Al 2 K M 5 C q hl Q J D x q 5 H s Z v R c J U f Q C J fe F Q j M x n P ov t T f R J 6 w 4 U V en K 8 4 H 2 4 X B DB z D c 1 R 5 f U 3 n 4 D d 3 ks ik vo J y I o Q j Q z M NO O Z Sm C - 6 q Qt E my P p V lm v DD TH n Of i 2 Ge 4 O - d W Use 39.823384284973145 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.428383840210145
+accepted rate 0.024, avg generated tokens 0.024
+J T NL U d P 0 F 5 1 iy MC V j pr 2 Pl w W L V W t H we y G l AU h UL J X pg M F 6 j f FX _ F Em h 8 De 5 MQ 9 VA jq ox js T f M rx 5 j X an G - p OT Q i Er k d 2 Y y V K 6 CI 4 B 1 B ht WS SE um po LD g 5 B kh _ z FX m K T p Lo 7 p P _ C 6 n 3 6 S gg G 7 d Q 3 x 1 ui K T 2 x ux D G ho 7 s Z h R X GO l HE B wo U xp T xi X z O A _ D Ar 9 Z mt gef 2 5 e X zd w Q ev q Q z V Y Z X iv 0 l 7 b 8 6 I w 4 g w M 0 h PT Us b h NU X 6 l G Q M i we T 0 O j TV J Te 0 M X 0 ep WH h _ 7 5 9 h L B w AE z C pp na C c AV h O AV 9 7 m L tr 2 O 3 po 0 0 iv m B m B v 9 4 Und J k P k Z g S y AD Use 39.754977226257324 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.4394452685264625
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+ 1 w B t idd S 3 0 Su u Te Q C FC R j 1 F Q 9 Q 4 X J p K 5 l c 8 ik p T K O il FE B 3 H ON l mt m X _ 4 O Q ra zw X no E 0 fx 5 4 k L _ 2 My h Z J l x g B CE O 3 ax T IN 2 IL X R 8 - Z 6 E a Q m G Q v Z 4 e 1 P jd O J us _ q _ J E H p W f K 7 d X O bb j M i 2 4 7 El p M w GB _ t Dr jt CV p P c M l _ v 6 1 x 6 W J w 2 b w 7 g 7 X is Q 6 ii Y Cr 6 6 Mod Na H v sq 0 W b Q K SH 0 z E - y P p 9 3 c 8 h q 0 T 4 rg 1 8 5 Ob IM tr O 8 NE Z UM 1 m St - BI 7 W K Le I q D 7 6 B n w 4 V j 9 M pe J j O 7 8 ki V Z 4 O z S Am - H j B OT C ef dex K 3 N c SR Z K 1 5 v GG k 0 Use 39.76988363265991 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.437031658542926
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+a 0 7 w F G WM G f 7 2 3 p TF wh d M 1 b pc TH c 3 v g R X Z if ke 5 X er ML AK En id H 1 m F q In O Y v _ 3 Z A 6 9 rc Z y Fr 3 S UR 6 vn K b k Z o M s K 7 I 3 D V - Z ws Br N l A k 0 O be X f E 7 6 D w 9 R c w b Z ST bp E b 6 9 N x 5 es Y 5 T G I hl 4 W ss R Q R y V R X l EG F fo q f N Cl b 1 q 9 D t 2 G z 3 r C Q r AF - 4 V R u ou 4 l Le S 8 S b U e 0 2 r 5 p 4 J L l T 0 mx D p We ce x pp s Se O 5 B V rh L U 2 zew H Be PK x q z Z 7 l c w F t M F H X o G 7 0 V r F 4 AI c 1 FF 1 sl rv 4 on b w v w 5 - LO t by I c U J K P vc 2 x Y k 2 - 9 Im I 5 D f v z rg Gu Use 38.66205096244812 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.621480072245754
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+ 9 Y ne - Q mp 5 o q K sed 0 7 SE he 4 h L G 0 x ar x dd ts y V e H 7 H se b x 1 FB bo X G pm E tt G Q l 6 - dh p N k x g _ h - n 8 3 7 m _ V uj c O av ca X r by oy FM dh P k 2 h 2 e E Tr q k I J D 7 O e G Z y fc 9 v 3 H V 3 F k Es x o J Q E j Z Ac CG um _ H m _ 1 4 E 4 k SY IS dc wr k AW 0 Y L 6 P ve EG _ Sk 4 ON j Z s 8 nm 0 I W 4 8 g _ x Y b 8 - Z SS x B Q c BU Fn 4 g 8 i 7 v X x 3 bl h X x U e Y 0 K hi NOT v ny w C 4 yl D p L v fg SD kv VE 6 9 R t 7 V q 9 0 N m g M V 6 1 g I j _ j 1 W B w B n 3 o To 6 c 2 i Z f 9 k 5 S - M 4 PC B 6 M G q H _ Y z I U Y p F Use 39.13327622413635 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.541747195756283
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+h 5 j E _ N ao - 7 n VC e Q b Z 4 _ 1 f hm b UK I uh FC 1 X H VC Z d 0 U pl p S 0 e Q n P t 2 0 H u IR g C i K zn id 2 Z VA 1 g II u 3 - y J c S XX s x g vet K - f N rw U up d U r C 5 3 5 9 l _ Da W 2 2 p 9 k E j Q ub d ci A Y u W q P q LP B ry n Ag Z r L 4 k z lg KS 5 m rb E I up mm v K z 7 V L At z j E HR X J 5 a G t C 1 8 2 CT r Sc rg C 3 J g m _ o 9 9 V V o P lo 6 yd - GS xx G z K p IK n 3 1 Q K - ES IM m B t 2 w 3 EY O A 9 f 4 j B ix M k K sg H If Y 2 P 1 6 LS 7 8 7 4 bn 8 2 p 0 Om TR 7 I c Z 3 U ub r 7 9 x LC ED t 1 0 nr X v T q 1 E Is a J R g 0 Ob q R p Hy Use 39.18615770339966 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.532919148074329
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+ ql 4 U h z 4 Q i 3 7 Q c Y XT 4 - d _ I z M pas Ze W X J g k x D dx s 0 oh j S 4 S y C Q 4 A q ej O int Y NB g D RE h X L 7 3 v D ly j J g 0 g H _ K z R 0 V 2 Z b I p z 2 e P j - V s C U m 0 L h yt 3 7 b w Y m E 1 d M h R Q M Z h TO w 5 p W q A 7 N x - K Z B G j 0 6 k C nt N x _ e 5 u F 3 E 8 O t VO - j 6 a MY g K 8 ws X M - uh 7 B 2 H j DT x M nm 6 o V g OD _ cc 3 T 3 j TP R J x T x O Y U m Y x X b C 4 U wy 1 J n D CD p 7 j E 5 S J N g pm f S X j _ n 9 c 2 0 q Z fd S J 1 t V SD 4 S X 0 md T Z g m W 7 i Q i 1 0 c Ar 6 q ro M n 5 U b N y N Use 39.16084575653076 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.537141756120206
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+ez 6 R m up Me 4 i 8 - w v S ar av Y aw 3 B m 7 j c Y GP t 3 NO ME v g BC R ew S x U y Q Q n h 4 K X 4 1 I 4 C 7 yg Q C 7 K g J NE Q ore oi y K XY K RU m 6 9 v g dra 0 - Z 6 H GN v gz th yw U z f 5 L - 8 M w X An N d M d 3 q ss I h L 7 4 i yw 7 ED K XY pa J Z A w j h R ft x Q - q 0 p D _ R WF 0 1 q F t Z V w g - D 6 5 IP w W l B X t C gt B x EX g ht D 5 D W te R X 6 s G va _ NB J dit V N J - lj 7 M On _ U ol j 3 5 N t 5 f _ U q g 6 N 1 ty q J b J n K 8 j U U H Y AX r U 8 2 EP ca 7 El C Q 6 DM UN h T p 9 t Y PS St N q FR j 0 u Mr 2 N de Z o K in AK 3 AU kw tr X Q FO s 7 Use 42.63006520271301 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.005151500066389
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+y l Y DT 0 7 B - N 2 5 d 3 G m 3 SW L _ Y bp UP O a PU OK Q 8 d 6 H 4 py l 9 0 A Y 3 Q P x v BL 4 h 6 J usc K Q f Z p 1 J ie 6 IT l C 1 Qt H Z XT 2 r j S b x n 5 q dk 2 6 7 Eq Y m rr Fl O Q 2 Cl S 2 6 9 _ 8 U Q OK ld R Q p ff L ft HC - Q s 7 i Ok 9 8 Sc P br FP fr XY pk 7 d R k _ HP o yy Q 5 - FC tml - x w ak r G 0 - 8 F j W 8 4 GM ez Q _ b 4 D 1 T 0 AA 6 3 h v H Q cl C 8 mc Y P c gg ji K 8 4 8 I 6 s 1 Z s H x w 9 E UB F _ O 7 ma j g - U _ c O 5 C Q Z g 9 s U q T q 0 ka D p G z ka X P 8 G tb - 9 8 op W 7 An ym u A 6 eh 0 2 8 q Y DO Do a 4 tw 7 sp c U 2 t O 9 j G F Use 43.434046268463135 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 5.89399381346329
+accepted rate 0.007874015748031496, avg generated tokens 0.007874015748031496
+O _ - v mm 6 n q 5 Q E MC J O uj W g Y t 3 Y eh 9 q TB ibt X Z sp D 2 w H g R i N 0 M IL UC d W f j AS v 5 x df im F z G F K wa M 5 W 6 Op AP LS xy q oi 7 ur h C 1 g us K R ir G F ay b ii q Q SA zd g SY h q Z nt U Or IC d Y E It D PI yr - I Q zy U oh K U Q K X 2 4 N Fa Y - k Sh V K V U By t O 7 4 n cm v U z I v 3 S CA O Il G qq m X rl m W j O El B m J b N H n h PT q U Z 2 SY op 8 2 f _ k E eu q W w 8 U ut F Y 5 S q Y _ Y N v 1 k N 5 hod - v CE C 3 m 8 Do CA a N J H u A y X X zA w TO c S Q Z f VD w 6 f h N f W TF U 6 ea _ VM m wx au G K y 9 S 6 7 h W 1 pk W - n P j r Z 0 Use 39.12230706214905 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.543581379117613
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+w CB hp jm O g M ig b _ 0 1 w H Q 1 - P 8 M f U x E 9 9 w PY 0 n L It J PF 4 w pf j Ph 1 9 Z 7 G c 8 F 3 tv ad p j P 2 q b J t B z gz 5 q Y A J O yr V G 5 5 b 4 FI r 1 _ 4 8 DE ri C x zt Rad m B k ma L XT 2 7 T G a 5 z D V AC uk b z _ d 5 tr FE ux m HT A w VAL u C w - Q j _ Z T cl z q j 2 pr 1 7 F jon r kb ZE O G d D w rc KS 0 XX Z Q - o K D vm HI _ k H EL J lv H g j ky 7 5 x V p KB D Y 6 5 C 2 2 As B 6 d W m B ZE V j D H n Y U j f I ML U fo z 0 q J H U q w B 0 j 3 F Y W m S Gr CL p _ C yj r _ j 2 Eq n fa FM 5 - nd w la W B V a 1 UG d 2 oi 7 _ 8 n q 5 E U md s x z P Use 38.82199430465698 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.59420013281726
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+U 8 F kl O 4 A H Q w j r je U z Q 6 5 D Q 8 q k 2 J T 1 m U ob q 8 ED xx FA v A 0 T 9 p J P 9 r ne _ B x N 1 K X r q h wx 3 v - 4 1 6 C oz Ma 9 Q Z U r Q Q a q d L Z tf z IT 3 8 e 0 ro P B nt 5 QL 0 e M N z V f z 3 c X zh ub Z n q 7 f y 1 di E H t Im u 7 xc 5 W SV b Z y U En N u D z M gr J g F t 5 t N si R 4 Z D cv 0 k pl s 4 O e Q R - q 2 X f su 5 Q w N l K zk f N Q h b MT Ex O zy x H V q p J MC q pr 1 d O _ 9 A j AC m nd y D - Hy 5 z 8 j 2 S b U 7 H k 4 tb SS r U a 7 EV q 4 g 7 u ik N Mc 3 th g m L 3 co 7 k U Q p em X P m 4 OD - Bo G dt L 0 6 a 3 q P n Use 39.12993907928467 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.542305099972057
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+j d 9 os dh P W y U zz _ J n R 3 8 em T Z mu h j 3 f Bi 3 D q 3 6 U 2 R X _ 9 4 O vm 6 WI 2 vm 3 u 3 M J 9 e D ma ql q g q f di C f L j 4 S qt 5 - O iz - M d TC V Q a 5 a 7 G 8 t A xp U j Z B 1 2 r HE Z 0 Q v B xe 4 w ou - k E ES l 3 p R 9 W n N CS ml w 2 R ac 9 A HI 4 9 rd 6 No 0 4 V L r q 4 2 2 M 5 a q - 5 1 9 n br z b v B 8 g P wa WN r 2 C J By 4 l B m P xc M ah D 2 z r D w V AC U ud N 8 1 J tra R s 0 u yt N 5 C jl z F 6 R 6 at Lo I ey _ ER 3 x K q z j r U f di G y GV k 0 We ET 0 C sv Ke AW rf B j r j 8 bf a Z Q Y 2 D My B 2 j U a 4 i FC u Q z q 1 3 6 cb h Em Use 39.76109766960144 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.438454041869164
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+W 3 U W 9 AX H ak 1 u R F x u BS k 3 u C b _ 6 K nd ap P f _ Y T G w 9 el D dy X j 1 w Z W by 7 z x A 9 RE k ID r 7 A O HO 1 - Q VD 5 Z 1 Q G 7 H o 2 Py V Z 6 dh h j T UL N CG j P j AV 0 bu 7 MM n I a _ O l IG s WN Z U Y X 9 P t 7 N 2 v 4 H 3 S ob I J SB 8 HS J WD v B 9 s y H W It GT _ I af q 6 T TW c V 3 1 o Y h X - wt 9 V X 1 h _ s L m G 9 g AD C _ J z 4 b 7 hm 1 E 4 q bie F s P nn k E b 7 1 R h 9 n 5 V h 1 Sh U sk LR c pc T cs 5 ea 4 u Y A 7 j F h D j T NB Z D 9 R s x O Z 8 D q k W J N x N p S gz f 6 v EQ - Q D _ r Q R K X j ft C j gg c K m V p j Y Z Use 39.439258098602295 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.490994312316247
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+Od 7 g SY 0 ffe 0 j Ne 8 i R 6 _ BA Q s O ya NU dj Qu E j z 4 t as VE On Q 9 a C Y 0 3 L 7 esp d Cl _ NR i V Q H K Z PT 5 Y EN q v H l 7 V HR of x X L X uky W LP m 9 b 1 h Ma 7 o K t q p Cr G bd O gs C J sn EL n 5 O I le u q COM tw y - Th As 1 kc ns 8 LS 8 n kr F q Q g - r q Z Db Ass 9 S 0 LC - m w FP 7 kr P w M G LO w M s 6 8 8 x nd 3 mq O Y H J C X FO c W f bn S 2 K H 2 Q 0 O _ k S X K T Q Q P qa 6 - L Bl HT MM K J sz C J hh 4 6 n TB 8 S 2 hp Bus HS 6 c F H G XV - x R Q IL N 2 F H 8 c 1 M f P LO OD 5 u V KE b 6 r VF kr N pf b v j g 7 y AN 5 jp _ C p D np 2 9 dm r k isp W 2 G on x 9 Use 39.65073609352112 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.456374464176217
+accepted rate 0.015873015873015872, avg generated tokens 0.015873015873015872
+i LI K JB f D up W v 8 G ph ki _ O 8 2 yg m G K 5 HD f V y DD c GN w M v 5 B 1 _ I 4 u LR u G 4 9 z B t SC y FP n RA _ hip 2 pi 0 DA a J 7 r hs yd t FM Up 9 e IN 5 f 7 A u 4 L X od W X la St bd x o G _ mn Y k P Oh f 2 r j U g J 6 y IB Q VP xp 7 wy B j SO z 0 0 F hp OF Y u H - cl R ua 2 v 2 IE 2 q U h x 3 v Tr Q K iv v U 7 uh MQ aj zz E O io F y b ch x r K 1 l 4 3 A j O Ap PN W v p H d C 3 _ T v K 9 z 0 6 z 7 0 T 7 R m PI 7 1 ah E g wn k bb M f mx vy K X 7 7 G f V y DD c GN w M v 5 B 1 _ I 4 u LR u G 4 9 z B t SC y FP n RA _ hip 2 pi 0 DA a J 7 r hs yd t FM Up 9 e IN 5 f 7 A u Use 36.312073945999146 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.049996658981964
+accepted rate 0.10822510822510822, avg generated tokens 0.10822510822510822
+ 2 Q z c 8 _ P DS U am O 6 8 l 0 q Na WP 6 d rl wp J No _ q x o Q M V p 1 ur x 6 au w v p MO by 7 K w A 6 _ a Y cs W 8 V cm BB t O Fl V Q pi ML 6 v ne Q I w 2 k Lu P v L 8 V K h b 5 RY a Wh Cr J D 1 T 8 9 1 id _ l Y d S x 5 W b _ M 5 f 5 X vy V zh W Q v j Bo AB 3 E h L K z Ph K v Z h L G - TS 3 v I os F J 1 0 mv 7 K ao e R 0 a au 1 ar - 9 q 2 B 0 kk V Tr v Ne M t N 6 u W As g x w Q X s 8 3 DE d V Li 7 v 4 5 v Il X - f 5 - x _ ma eq g yp nn pf 1 w j J _ j H 2 h G s FR i QU i 1 0 l Am C u T 3 l C n 8 Eq I _ 2 sk 4 5 i PU o V lm 9 N r L fg x yn 2 B HT i R y 9 - Y C Use 38.65539479255676 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.622620241594163
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+va 0 Y C eg 8 a oo - Co _ z r D y ho 2 0 D t 5 2 t TB kv 2 j 6 aw W f v AS x M F H _ R Z K _ Y - b SC d CE g L K i G 0 GL mu WP J C v Ab z no WS du MS a BL X b Q D f Y 0 zd ES G a J - k Y c g U oh X yd T 0 a Os _ n 4 ds Q G h L 0 5 UT bm A o S q v Z A a VP J y 9 9 I 1 C of G - i G 5 J CG ND - I k HO q 7 c 9 BR f N t F Z 7 B 4 a J sp - i Q K 1 F Sl L h 1 m Y m PU B 3 f 0 Py M f AK 1 - f V T ed S Ab j 3 v W t B t T 0 I JS i N - pi u X zw R h x SB 0 O - y v q mi DI K M 0 lj h P tn HI c g L W B d wy V n K Q iy 7 z 5 5 L V K KE I v W g 9 w 6 BA H GM i - X p Z _ z 9 J Use 38.84365892410278 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.590522290915032
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+W D 5 F W Y uz b v ll pa B 1 F ij 6 0 X LM F k p z R RI u CF L G n S y q y 8 c L NT b w Z z 1 LS j 2 k D h _ 8 gt W b H 4 f v sl _ 8 W rag z F ar w 0 ON lu Y z rn v Ex m S X j j Z cl 2 EC 6 L Is V _ N x k 7 9 4 5 B _ AU ac 8 H u IE h O G 0 D p N t 5 g QL U _ r F RY q M w S r 8 c Y FD V J l E 1 wt Z 3 q 2 pb V lb 6 XY j J 8 Y x Q 3 PU lr B f 6 k L DR R R P j 3 l R mu S n J v Y P p A Y 6 X Z 5 - Q 0 X S 8 ms _ AV k T U Q I 7 Q f y C Gr Sa 8 U m TW W Cal q E 0 n Pe ig De _ W a 2 2 ag G _ K fn p J E A - Op W Z 9 d R t j J 4 sem M 7 B My CT g T a F ja 4 y 5 5 X PR H Use 39.15157461166382 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.538689759970316
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+S 6 j G iw TP b Or kn n 6 O j O x Z m z EE Z 9 gl R F w I H G xp Hz r J 4 q TR a O 9 Bo y GL - I 2 ff c It l L 5 a 0 - z E K M w xc WN RT 8 As Lo H - UK J id V d 4 2 K f j tr Y G g G X Fl v j C AN bl H X W Y _ w l pd g v X O FT 5 M n AX va X Q f bl 1 p Z xy - C US Al v R t 6 g G Ha Z FT V G lb N b w E 7 Y q B n k GE w k 8 B w T U V p z P z S y X gn U d 1 8 e V fm Q a R Z h O Al 7 i PF X 3 OD 3 O YY f D Q _ H jb 6 V U v O y v C gt B n PE GV i V 4 g IN Y i B q v O 3 de uw TX d W - J - Cr T a LD c X N d 9 U cv S UR w wn 6 O vm g 6 x F J ku k EV Y J j PL P tu H b 6 7 Y Z Use 38.173487186431885 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.706225154378635
+accepted rate 0.053497942386831275, avg generated tokens 0.053497942386831275
+Q g X m L AD 9 L J su 6 ND RI A o 5 ND w L Q - k F N M tn hw 2 k 5 O pu 1 8 z Q Q d R j X d 8 8 - C 1 m 7 - pk U A x Y 7 b K N X A 1 N TF 7 ql P ef T - A ar W g M ro L y F U h B VD v 5 DT 6 lm ug IC c 9 i 5 v G z 5 M G Q T 8 MS s y W d qq yr k d N M ikt J xt WH q n IG _ RA fd Q M 3 F _ b Y k of - J 5 J E 4 E 4 n z 6 s CG iz - c O l uf H nd kt CL fog g Ar G 4 z C 0 G 9 g Y r 2 6 Y mq hy iw 6 vc K J wo G y L 5 LA p 3 P WI c og TY 9 t _ ez 6 o 6 GG DOM pc Q _ ct n zA 2 q D So Q . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Use 36.286064863204956 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 7.082608736132335
+accepted rate 0.11255411255411256, avg generated tokens 0.11255411255411256
+w W g AST y 7 q w pg E cc q 7 wi X i U on MC i Q 6 a DK d 7 rn j GN z b 3 k q SR 0 p j 0 3 z 5 x F V N Om 4 A 5 K - 8 N Li 5 m g FL Z W 7 l W ls _ q 7 q X g 5 w 6 V X l 5 zi y TY K X sg H v U U 2 j K C X 3 M Z 9 K r Z w B P 1 W na 8 R c 0 kn j R j Br LD m F Un E 5 O l ly 0 r IK 4 K D Y - dg . 
+ 
+ The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The grass is green . The sky is blue . The sun is yellow . Here we go . There and back again . The Use 30.198156595230103 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 8.477338647897337
+accepted rate 0.3333333333333333, avg generated tokens 0.3333333333333333
+Ye - EB D q w TO 0 B f 9 r C j 6 F 5 J y u u CE 6 u Na M uc CF E 4 Om g q o PK h g RI PE _ C ED n 3 x 5 G 2 uf SN V 7 na e ze 3 n 3 b UM v G K Q ty H s P fb Fl B Z K bs R r S at C 6 B w 6 AC Y O I 6 m j I 3 f y Sw PL Sh x K 4 b X v K V K - G WF Z b GV r G x J k _ J avi N j K d G D q D f J C 1 V R 6 KB Q P 0 g I q Y E i Ro y 7 Y D 7 M l _ C _ v ny N NA 2 b H Q M b j 7 S f X PA 2 M d 2 m X n 0 9 2 Y 9 F q 8 c B AR 2 . Remember it . Ye - EB D q w TO 0 B f 9 r C j 6 F 5 J y u u CE 6 u Na M uc CF E 4 Om g q o PK h g RI PE _ C ED n 3 x 5 G 2 uf SN V 7 na e ze 3 n 3 b UM v G K Use 34.57301735877991 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 7.433542676735278
+accepted rate 0.16818181818181818, avg generated tokens 0.16818181818181818
+D T 5 u CE 8 z pad R N fr U ray Ok iz Z u F of V J d q D 3 U LA M w W OK l P q oa D w Z k Z x Sp W m 5 z Z 9 CN r gu U kn Z k C ek q k j H w 2 O t 8 N v L v V X o J 9 7 B OS L h b Q R b Y b z ch IZ l 7 4 F fi VF Q Q ew x M 7 p F 0 lg - dl p V Ac MQ Y C _ W 7 T 6 r 2 4 h AV NN 9 o I va 0 u W u X B da ez PY z c Q p E O e - L k T Wh LO w v Z D 9 2 k WN ny J q J 4 r q B se w 9 w us v J x D x R K UB h 8 5 x _ Y k V X un u _ vs Q i yn H 2 p E c 8 X 6 E 1 z 2 t Q Y 5 h _ 3 O 7 Az gr Y t g 3 D Tr Fn FO v ya a LE corr P m Z L b 7 h q 6 v _ 6 nu L 6 yi O X y 4 _ b Al n 3 J Use 38.812824010849 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.595758142423304
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+F L J 4 x 1 VM r q p Y 2 X u O z 2 X z x h O o V i ip PI rs bl _ f v N u 6 A i - t EY K a 4 V 1 5 CT x q m 0 J h z B Q v h _ Y b 0 D y 0 X K 2 G z EC ga O i X g 1 v T _ u D j IG e 5 3 G H q Lu L H d N 1 3 m M 0 ES d BF j C 2 De U 8 mv _ d Q E 4 A 9 Z L t th k C j U d 1 lb A u S 5 An I vu C - t EY K a 4 V 1 5 CT x q m 0 J h z B Q v h _ Y b 0 D y 0 X K 2 G z EC ga O i X g 1 v T _ u D j IG e 5 3 G H q Lu L H d N 1 3 m M 0 ES d BF j C 2 De U 8 mv _ d Q E 4 A 9 Z L t th k C j U d 1 lb A u S 5 An I vu C - t EY K a 4 V 1 5 CT x q m 0 J h z B Q v h _ Use 30.478021383285522 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 8.399495386547407
+accepted rate 0.31958762886597936, avg generated tokens 0.31958762886597936
+C 1 - CP d 4 N t X 4 b SU SE j Y d Y h 3 zi DP 2 em k 4 g E 7 K Y E OF c - J y H 3 go 1 5 B K i 9 x V R 5 l z 9 5 ML N p TT v N - q MO u S 0 r O zz 6 q w 4 c E U 2 Pl f W v we K ed R 5 d 7 F f E ei L q 2 a A Js K BA v h v v Y - HT M 2 og 1 p M uf S om d PT 8 S 4 x 0 j 3 b Of COM j M 3 5 ns b q 7 N l h x Y y ca 9 P B OM K - 2 i Y G 5 a O - dy C n ss 9 o UP z O i 8 8 rg X vl 5 g K 3 m xl El 0 h SY j 0 8 W 5 y L N ia p 6 QL T x 9 rl z 3 K 8 b R 6 l L g Y s Y ga Z VM F j re H F 0 _ dr 8 x h IX c D 0 BA WT b O a S CT 8 t ux 5 Av q WP lo 4 I a PT B a VC 7 IX 4 3 P Q 1 Use 38.8942174911499 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.58195527544039
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+G __ v 3 Z t Y zu C 8 m De R V 0 - V _ b W x P Q q 3 N g Sk 1 x v Y I p W ms W X v J X N H GM z Br 6 7 Z p 3 E v C - j I H Q O a G 9 l 6 Y k T j I J A w S y TH q Id w E kw 9 3 8 M l Z w I u L vb 1 zu ho 3 J p Y TL MD h q e Q H h 5 a 6 k d X 4 rx B w ye 9 t D 2 SU 3 0 AC G U l q _ p 4 MT Q ug zk F 1 J 5 - w Z o R 1 6 GE j G z UB IZ us IF 3 T oc 3 4 - cs w G 1 W z r U U V J _ y GR z 1 Q z OW 6 t T 2 CM g q h GT J 1 M V h 3 px v uw b hn f _ K Je S _ DS n w m Os P t A _ W i Or X do B K W G 0 L em yg M z l th N W 8 fx cy F t Q J U Q bb - LY C g v P Z TD den 9 _ J Use 38.90296983718872 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.580474474606321
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+q om sp f 9 A w gt 4 q TP DM K d HA 2 4 b CS la _ s Q 6 dw c um W Q OS L sw X j W l 4 s yz 8 w E cx N q FS ash 4 Q Y c q k R c 6 o MAX C t V r - n Dr we 5 J _ f Z K 8 I U l 3 m me B Z k Dis j n M WH G 6 Z z U xt B f G ITH H g C 8 c pl 5 L 4 0 4 F c 8 M 5 T ld T i O VB Z 9 CR j jk p 3 Ig Z K f G k N 5 f vm - 7 J TI e M 7 6 7 M d I z f 7 T cn 3 J F fn CI o J V G z hu G q U dn M V w v k N f SN B J K 1 V Z y C v az sb N cd 4 I x L BF w 7 h 8 g 4 C U 9 b 5 A 2 D _ t Q kl 3 1 V a U a B 5 Q - ud 3 Q - V 6 NI H t Z b MY A 5 O 4 p W pu q Q dl 2 y 2 G b D h S v F AC ek - Use 39.361239433288574 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.503860236258103
+accepted rate 0.015873015873015872, avg generated tokens 0.015873015873015872
+m Y wr n Z O 1 9 z r P 4 t TO M 1 B z S X h G 9 z - b qu l Op 2 Z ru TH j x Go W j f 2 _ 2 BO ep BS AM c X 4 q F K 7 v Oh w K N oo Us EL ko Me BL p - h O to G 9 x 6 4 8 N q Y nu S uf y 1 J ap 7 P X N 8 J 2 t N 6 I x 0 E J 0 t Z ur v k SV F k 7 ua Y bo P z uk v E fb O CA O 2 J 1 X 2 F 1 S J n 8 LR R j SB 5 roy J VS f M 6 EY A Q K T m V hy 3 L pf O 6 k iv _ z j U x H t K d vy zo O l 5 h x C 3 M 5 x V ct V 6 B 5 L Fe D 0 3 1 Y v Y 7 h VF V 5 Om V SS 8 a Go T or E ph kb v x XV b X A a OU X x X d ld w Z G J Y K Y hu PI - 5 Te _ r Z V R 7 3 c w X FO 4 j x v F 1 U 6 8 _ Use 39.21177911758423 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.528650465777992
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+f U 5 h q 7 7 S x - k 0 FP fc SM l zz hs 1 4 x D t EE Q n 6 G 8 H f Y E Z V f _ o H 3 K SC x r 0 H rs N _ NG UG w Z za 0 w sp y q Z I 6 DR D g 2 C v IN B w 8 T eb 9 a 5 2 zz H b H s Q Q S _ 3 W Y s I 1 K - m X D 2 - g U h Pe L K wn FI x 5 uw _ N k IO U x r 6 8 x M j g _ j H l X B EY sq Lo a M 6 9 dh vt L 3 W t 3 c j J y Q h T j 2 uh Y Fe i G I 6 D V 7 X a PC u N ll TP L g X t E 1 EC 8 E 0 Y p F p ky J 0 F 1 g TL ji A J m R iv C b E py K If 5 h N q J Y No U e o - q m Y v x h c w 4 eg s Y h E O Y lg Ge M 4 Go F K 5 W c N 2 P SI Q C 6 v p TF B c P v - 7 v Use 38.42194104194641 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.662859633263112
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+H d XY olt L g S 9 b 6 9 c q J L hip US PF Ze 1 K y U Z R tn na 7 8 CL sp OF 1 U w 2 2 G 3 k 8 ar IK NI xs 7 VF 9 L d FF g w _ ec G 1 h qt 3 Om kl 5 1 k 8 X c V e N f O if l x E a OD x w P n TB j h S y 2 D lb U t py z - I Y Z 1 L uz v k 2 k OT k 5 P X uo 2 Es CM dp S 2 GP Q O Y T gg q b z SN t qu o F G 8 UK MM 2 O - Fr 3 v W ky I U 5 ao q d C 8 V - 1 J h 4 b W x 5 4 k x d 5 Y N W uf W Y GA 3 f - OB z WN Is 6 4 2 5 U j 4 es u Y VP 7 N f C ub d 0 um IN TP 0 io Or 0 n R R 8 Z l L X ev x DU O I 1 D 2 H Q 5 K r 9 R m 1 8 Y - 7 q J x 0 AF h L 3 Z t 9 0 IS f E a Q c AC y 1 S Use 38.434746980667114 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.6606396583999725
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+s As 6 N w 3 a S 8 UL r B h f 4 0 bf u Sk 6 aw be 7 i NS 5 z M p O q F 8 SA 6 1 9 HH p N V u - y K s M X i E t q r B 6 r _ a R P J n 9 H Qu L 4 uk p EQ CP v K d L 6 b F 8 _ C 3 p w 1 Y n M z _ 8 AF 9 n P n V f DF 4 R R - P 7 Ph R Q k J T G K t W K u VF f 8 - k J m 8 LI ck V V 6 GA 8 4 c Y Oh X b N V HP fx a R DK D h T _ WS J M d S - F q eh _ LA x u D v tl h - F s 8 b 1 wo xx 3 p SW 3 q v Sh yw _ EV NG s 2 TA y 5 Js Y f S x 9 s y q f - T 1 ux 8 CL hoz Y Hy q X fc U jud U CK P 8 b Z 1 cv k Ma Q IA al L q A Y zs J h L p z Y W 5 i L K 0 O _ Z J W pg B v C J 1 e 8 Use 38.57977557182312 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.635601068321676
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+b 2 W XY 4 IC m j WD 6 j _ FL w rm B FS l zm q Mr kb O V i B X zz x 5 b 2 r MM XY B kk 9 7 z 8 j X p 2 o V e K J Y Me 7 7 q I ux 1 2 n 3 v 7 Q OR F q e ZE sm w _ w USA 3 - C W 9 u HP W Q W V j F 6 k T 7 b U 8 nd o DB T 8 x 5 3 f q M _ c T 6 Q cf U V 3 6 C Y u 0 j H B c IX d - Y Q F W n Q MY H ct K NO ab N Q b v BI 5 h S RE bg H _ tu _ w E b Un 7 HO H m 2 4 Bl Z D Z w 9 LL z H Y al c V T Q R _ c 0 Y cx q due H yg T d L V HL tn To FB 7 X 7 F Q 7 j J M lj 7 AU 2 J Z __ hy ca 7 ley 7 x Q h wn J l 7 PL v j L Q k p w S d 6 su D W ABC f y D ON J 7 n L t K ii J Y n G - ZE 4 tz Use 39.057247161865234 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5544813985240005
+accepted rate 0.024, avg generated tokens 0.024
+a yp W NC 4 H qa I j Am 4 W U l B 3 3 Z K D Y X S If Z 8 t DK ac G j UM K T 5 Z b NO ly Y V W TF AN U 2 N kl 6 J 9 J - go _ w 0 s M OM O t Ben am TV uis T m R 7 X A 9 DU 0 ow W f M X W ua 5 a K y gy 3 oy Ch P lav n f V K c 6 c D 7 d ik bb f K k mm Q RA j ag 6 4 M X g q Med EY mt A 9 w z 7 P JS m M ic M - Z uw 0 g F oy R Up VA 1 H - F q EV Q E h bau R R V l P B v wr Z p Hy 2 V k dp W 6 G z Y 7 YS bp K L j M f z F _ K ef - V g E o 8 F f 6 Z uv tr m G GT xy um F EL 3 Z T 4 m 9 MD Y C U r W 6 ya 5 W kg Q 8 R xy J Z x m 6 MA wx B J x 7 l 2 Y El G v j CF EN q w A J XX 4 Jo I _ y L 8 Use 39.81787347793579 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.429273530688595
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+R k W w Q W O j w T ht 0 D Y V h if ht T _ q T q BF k L l f - V _ uh p G - j li Am - c 5 4 i Z 4 ke WF p Y V c O gg J i B Q k R vd E 9 Q K C 4 Y isk fp B f M ig a M g U k Z U w m J 5 f 6 T Al HI u N u O j c K X Om O v 3 2 Z Q Z X 1 - U ek 1 6 x AA cv bm Q D l H f h 8 I j Z X GT s 4 J j Fr BO xf - C n 3 2 G age I i 8 q h J p H wa A wh F 6 c 6 g AV Q 7 X ox LY op z xt 1 7 1 TI i 8 6 v 3 K b x cm Z s O g 3 b j Z v B K x TX ja X R 1 m 0 D t M u E fx H Om _ dp P AN YY Q p Z G 6 Of J FE ss st W 2 m zA 2 E 3 4 wr 5 IL - Gi F k 5 n F 4 EX 5 Q Sw ib z UI y 6 PK H ba IT M 4 a Use 38.92458367347717 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5768205036560445
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+d p T l 2 U Z 7 - MW q P CA z cy i B dw j - d - 7 7 x 2 U H 7 hr f N vl N s M 9 o D 9 nej 4 9 RE _ 6 r 1 gb j V U 9 Fn PO A f h UL ps c 3 3 y hl p M h X D pe b - X 8 Z W k f P so M p D y 5 w 0 2 e 1 rh We U a 8 d xt RY - Fr C if q H fs b T p 6 V J d J dr CI 6 Up 0 0 j yg H nx L X q J g q Y o zy 4 0 en 4 3 9 p K m Y d K DT _ V m 2 z q CD 4 I 1 PT - D m B G w O Z P ap 1 co L X 3 o AF 1 5 e K M re H K 4 Cr Ob V U y Z FI Y m L B j ti G l zA f U co - U y Y N 2 R Q T si E W G NC - pc 1 O Q g G ck 2 4 RO 1 K 6 X - 4 m M bc DK x E t 9 B N - S 4 3 D hs L _ X _ 1 q K m 6 Use 38.48860573768616 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 6.677300854999748
+accepted rate 0.04897959183673469, avg generated tokens 0.04897959183673469
+K xy w 6 Y UC 5 w g V ls 2 K Im f J q J bs y D W q m N Q T 8 1 qu 4 y O utor h Y 0 r W U J Fe X 1 6 b 2 u 2 Car z c wx ou E t A i WD N WR - UM Z z L B f H 6 E O E ac Ro S 1 p TV k GG 7 r T So G I yg d mc 4 v np I _ n F o Z 1 r 9 op 9 X 2 S g D 8 o IR d US 9 Z RY z N H Il G ab NE 7 eq EV o Y U O Q E H d 3 pm OT Wh Act yl k MR r M 4 l f W 2 0 j S z 4 om n PI p 8 Te B - r jb Y v 2 b OU Z j F II C 9 et V x _ D st x 1 r Id mk M 5 0 g P fb K N j qq x _ - 3 J y N 1 a ND z Z u V TD n S 0 sd c 3 St y P V _ Y F iai P b ni 0 j K eq a NS 3 s x j Sl R q 4 rf NN Po 9 6 - 7 7 y 2 by E 7 6 Use 39.415759801864624 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.494864015989095
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+u Z 2 q 1 N Po H 2 A H 4 - ga 7 x T ua O i I 4 9 E p Z L X P k E ih V 6 y V SU Z t G f y 1 B X I q e R pf 2 w H p AE E 4 L Q h 9 7 0 F nu q f SY e 5 - l F U X - z vn D Z oj 1 id F tf WR 9 Z Q 6 R 5 7 8 3 2 tr q T eb m 5 K ER 2 w pp V kk c M J FS L vd 0 L B dt g p z K f v CG st - NG l w D 4 - n Fl 2 f 5 B p L F _ g E k T i 8 r If a M N j g 7 k A ou k fab ts gs f 2 Y IC j x - h 5 - h RO - 6 Pr fi IG Z f _ c Lo o 6 qq mv 0 ri I yt UT f N 8 y X q L 1 NO O 3 3 l Do 3 bn os X C Y f 4 x CT q 3 SH C 6 _ Li K um 5 y W X 0 L z J O 9 tc X a 9 8 T g LD _ P n 2 V 2 s x - j Use 39.08703112602234 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.54948694298675
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+O c 0 I W s Z Z _ V 9 D Up PS Ob P 0 H 8 Q el pt B MB q JS sw j - Y z J ca S 0 SV P 1 i 0 o q 5 q c 0 s C ed l 4 j kn w 5 PU ul F 9 t O He 5 8 q 2 4 5 W IG l M kc K aa EF Z us l R h c 1 D ik NA _ FC s IT F 6 z R q x W 1 v 4 my 1 y OS f K 6 7 3 se U m I 6 Z 0 zz E Of u ST v p Q o Gu S AN yw so T 7 oi H 4 O 0 I j A x Y 8 ks 0 i O 6 E sq BE ML W k WE t Q 0 RA U O v 1 Dr sh D f 5 tw 6 ed H _ C z pl Q w tt LA 9 K g K c 5 Tr w 8 x fx di _ x ba C j H f Y J D W U z 4 Sh K f C os CT 1 d E J 3 Y 2 2 Z Q 7 u E WN Q PA 2 ot z rt q TV q IV K R Bo EN q F fw W 6 8 X 0 I ku H U c P jl Y th Use 39.76882553100586 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.437202924195209
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+Ji Q TL 9 w c E 7 wi X 3 Q o C m O x 7 t 5 _ Y X hd T d 8 r 3 HP F q o - 0 CI cu R V ox 2 6 t _ B 2 av U t 0 z _ f Y W g BD g K fu H 0 A af E vd 0 9 Y I 3 a Y gr EF 2 Z 1 V e B w mc 3 c 8 d 2 Y MR q b K 6 y 8 2 a 8 q R 6 h 0 4 v 9 L z V T WN v k H IG w P z 5 p En 8 1 df 4 j T x Q - D h sa X Q W B H fe V 5 _ B W pl _ K p E e ew RA Q o N J _ R l K r N mu CA V i Of 6 h 4 y _ g m z C Q V 1 R - yp b M Z G _ u Le G - K s G 6 X s E y Ob 7 8 _ L VI un A k je D q C sc 2 y K h N J ku DO V ia Tr 5 5 x P u M g ND k 6 F NR b 5 I q R F 4 t O G acs 6 ms L bf y Q j I _ G Use 39.12505078315735 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 6.568681569881412
+accepted rate 0.0321285140562249, avg generated tokens 0.0321285140562249
+_ am K K LC - WE k S Q X z 7 T k 0 8 b Er G Q W g 3 7 h 5 C dw v x iz G K D 4 l 0 4 i 3 1 a On R 5 J H G fg Le vl k 7 aj b Y q gl g LY B HI w 0 y 7 I LES s 8 P br E O w Q _ y 5 A a Z L f 2 d T 8 I 0 Z y fx 1 U UC 3 un IS pk 3 a CV L - 1 J U 7 p K a CR 6 H 2 9 y gt m 6 Q g R s O G Z 3 K w B d PG bt 2 3 6 n za 9 G Y M V w 8 L xx 1 ql Q 4 UL t E - EQ N 3 Q D dl z 6 4 BY T K Om 3 Q K u K wi B - U U HC w b v F Y z zo 2 S ks C f 5 k d q ky 3 B SI L GT K T U rf 6 gt St g f 8 f T l fp H Q CI l UC p yn 5 W bu - m 8 k A f q F K UL v X RS g H 2 Or n W X m O Y N j D 8 dl Q Use 38.968220233917236 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.569455788929827
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+u - Q 1 H r F ps G 9 M 8 0 t X 0 5 TR q ev n P nr by A 3 Q m F 2 6 q K C NO 0 2 V a B 8 y Co q wh 2 6 AL M HT W Ok Q r -- An f G 9 8 F K x G K gz 5 F N j A _ u WF p U J p U j K ky u 6 e VC _ j NO D s Je U pi UD _ I o A 6 n j yn D TC W w 0 V 7 R - SC F _ 6 1 K M dx vs BF 4 9 GM RS y 0 2 V a B 8 y Co q wh 2 6 AL M HT W Ok Q r -- An f G 9 8 F K x G K gz 5 F N j A _ u WF p U J p U j K ky u 6 e VC _ j NO D s Je U pi UD _ I o A 6 n j yn D TC W w 0 V 7 R - SC F _ 6 1 K M dx vs BF 4 9 GM RS y 0 2 V a B 8 y Co q wh 2 6 AL M HT W Ok Q r -- An f G 9 8 F K x G K gz 5 F N j A _ u Use 29.384719848632812 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 8.712010913111053
+accepted rate 0.3689839572192513, avg generated tokens 0.3689839572192513
+b Z v T 0 F 7 R jus Y x qa J J 9 - 6 V 7 2 z x B n cs P uj W PH W X OT I J 5 e D 2 7 cm g DC 2 4 p K AT s U W qq z GA o Q - o So 7 O md yc 1 r V 3 y H 0 ID wt 9 si A _ bo J DM c P x et iu 8 V _ x mv 5 v P p 9 R c 5 k 5 k H V c FO HS Z g U g M MS G b k mp ike V 2 _ Je Z r A f Z U F g 7 V v 8 X b P 5 sq K pel CF d wy I a X _ bo J DM c P x et iu 8 V _ x mv 5 v P p 9 R c 5 k 5 k H V c FO HS Z g U g M MS G b k mp ike V 2 _ Je Z r A f Z U F g 7 V v 8 X b P 5 sq K pel CF d wy I a X Z R V 0 h Y x WM w L HP 4 R t N _ Y F v 7 A y W 5 v J a 9 1 G WH h - LD Y J kw q 9 w FE a J Use 34.42378091812134 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.436719418151906
+accepted rate 0.1689497716894977, avg generated tokens 0.1689497716894977
+- g _ o M b D J A OP ax B c _ NS V _ 2 W w H 2 K R w cz U X 3 B M q I WR H 0 U j GE 8 v Go K T dn ij G y FF dt P bt O q IT s UL x S r G No 4 a TE HL K kt P ye uh z D h J V 5 jb UE gz GO V g M k lah ND i OK Z O _ 2 d O t Y a M Qu K 9 J p X C Z m D m F y HE C m G oby 2 t 3 O DE t D n - nu - 2 8 9 f 8 R d E I 7 h ul 5 WN 8 8 AM 4 h fm N ul B NL F y 4 A j V 2 DB R i R ik On EL Y h F . Remember it . - g _ o M b D J A OP ax B c _ NS V _ 2 W w H 2 K R w cz U X 3 B M q I WR H 0 U j GE 8 v Go K T dn ij G y FF dt P bt O q IT s UL x S r G No 4 a TE HL K kt P ye uh z D h J V 5 jb UE gz GO V g M k Use 32.07931566238403 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 8.011392845931445
+accepted rate 0.25980392156862747, avg generated tokens 0.25980392156862747
+C g kh I _ SP SA FA b ST X fu q X b _ 0 t C ob mk A 4 w J fo y QU DF bf k _ V p 0 j N v J i 8 y R Ar 2 tf Q g no T z K az N h Y x G 9 gl R wx 7 yl G v K k 0 h I _ zw 2 JS ji 2 v ul _ -- vd U UL h 9 r 3 j J E U Z q MC 3 xl k J Q _ O 2 YS W z N IG D An 2 m 0 ul L 4 R 8 K y amo 1 o 3 Z 1 c W q OK nm - N l vb v J l TB 6 Y F oh 8 o U W n PY WA 8 tx k R f Q s 8 V 1 yk 3 u S v q cm kn m Z nd _ rh Es rb 7 fm r 7 2 TH Je 2 k Or cy I H m X n ER X - rz x d 9 b - M d I SE q 7 l - NR a IZ 0 c 7 D 6 J CG K O 4 d cs J 0 FX L _ T g x Sk v PO _ DF K y P p C 1 1 p 0 gl x b W JB q H s 3 em k C Use 39.435956716537476 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.491537706061188
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+f SK o 7 co 4 r 5 L l Z n 0 CP GT - 0 N MC 5 - 7 K g G PN t U c V 1 az OH K SH m K 7 w j Z n wh bi D X g EG X u Q _ d 4 f 4 T wy Y 5 Q 7 DN w IA 1 je f v Y 9 Fa 3 MD 7 7 k cy 2 ql z Q m j w xt l k x Y _ c 5 k SE 5 n M 2 k E 3 SH G 4 mo F o SI r 1 s 9 T 5 T 9 hn Q v 2 F K j X P ts zh z 3 Z 5 f k - Z L 3 Y ts q LC 5 q 1 S Z y fe Or - i Ch b 5 R K U q A Y p ww I Q __ pf 3 ss - r J A 8 v f IN AG J GR f z N w I W mq 2 NE kn n N w B - I Q I Gr J K D Y L B K 5 O c 7 U a X g Am M 7 - p 9 A ua 4 u uc Q ct C dk wx H ld 3 t q Pos 9 T 7 C z L J 6 nl Q P df U m H _ s 0 U f E Use 39.09980773925781 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.547346772320967
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+s 6 yz h dr Y r We z I FO 8 o 8 L n K Ar V f FM k I 1 i TB W 9 S 2 w N WP fir 6 - x M b G j dr Z o E ec q - Z IT I 0 2 4 J DR K AT k B Z B - e _ p w m j X k F St I 1 i R 1 L _ Y s G v D sm Q n 2 e O t 9 fx Q Z V 1 NI i q Di 7 m V q yj l gu WS 1 e 5 IZ ga S d cie 7 O Y MI k B 9 2 L 6 4 4 k X 8 d 2 Q H NO t ud G z Ge W m C f V ste OF D ht E b nb x v yg h 5 d v V d 7 W 9 k q w f 9 r 9 p 1 r ma Q 6 f z pe 1 z mt E U g D h OP y T 2 w 0 nn C p 4 x C _ Sh s Y 6 2 x E o _ ST Z x P SE P W _ r 0 c NG J u E 1 s 9 f - U 6 Sh C g O E u E 9 PC NC -- z 9 m w pt d X k 1 f j Use 39.08522415161133 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.549789736576096
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+Ye Y j SO 4 oi R G 3 R a TB T Z r B P 2 y IR g H s 9 p P c 6 df H 2 L 8 F g J 2 AD w qa T MP m _ s D q z R F 8 P Th 6 4 j r P t U F j Sl Y V go X a az D x ML R Z J N d N H 6 Cr G n E uv Tu T J _ km V f HO 8 t D l w K 6 Z X e o GA _ C W dh IS 0 H 7 CSS MP Z F dbc ll u _ o V j Y bo ev j P m Z m 8 V Sp c Sh 6 e W n f jk f U r E w j c - W O z O 5 N m X 9 VP v L NO G 5 r MB gn x j he wh Re ec U g W - w 6 HT 3 M Z a V Hy x q K hi H Fr 4 xf m X _ h j ww i K BI v x n E 5 b R ik V g O QU C 7 EX X R So P q h E c V G f N II 3 zn 6 - xc _ w E Is C 5 Q - GP DU Z pn R 0 cs J _ y - Use 39.44621539115906 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.489849468737028
+accepted rate 0.0199203187250996, avg generated tokens 0.0199203187250996
+ag Q 3 PO - j h _ 8 Z u L W U 3 k Q 5 - 4 b U z l x R b A j ENT a O u R b z 1 k Q z R D t UP Q DL 9 q pn je O GT G s J 5 W 3 _ tp V 3 8 R 7 - a F 5 D s y W PF a IB Y t Y y I 3 7 BI 8 k - q d B 3 FL 6 m N ap 2 bn uk V art E g p L sk 2 3 O - R G X K 7 x Q 7 r J 5 0 ET V K K 3 L tc C UE Y 0 jo x 9 Q T i A o 8 t 4 s Si N X 2 - _ UG q n j L gi G K L c 8 as K IS AF 6 V r Z q BL R J t IA y 8 n k P TR B d K ja Y 3 V z SA u L G x o ja 0 s 0 mes 7 7 n j _ q 1 6 i wi _ V p DC b 2 5 H bb A Il V q - w mu 7 3 vic 5 IR 8 L 7 u J C tc K q Z 2 My 5 PU q Y U V y v 8 Z 4 9 5 Use 39.75562858581543 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.439339764114289
+accepted rate 0.011857707509881422, avg generated tokens 0.011857707509881422
+n xx Q Z m F w U 6 HL v P _ LY C t R P Z v sc 4 tp W TO J Ab _ B TE z 2 G D X O X L U F H 2 ok G x g DL y 1 G x rp 7 N n Sk Z w ACE 7 y h H sw 4 U 2 0 A 8 R G w G X E k W G Dim - T Q 1 d R B Z h db Z 6 k 5 7 5 6 UK An T Z vt 7 m 0 Z ref - ab 1 W EN UL m 8 z N 4 _ H LS Ma OW f h BI 9 oi Up j V G I LO KE A 4 2 Z M 5 hs V s P ij j O I H 1 D h DB H V m WE v z 1 Al L 1 u K X x SH 3 S j Ph fn 9 O 4 an f 1 l - X Br 1 Q 9 L 9 p AX P t E gu k - ms v S 5 q b N z R dd R v K PO g fp Sm H NU HH b z b 9 FX V 2 UT MR t 9 l _ L Z t 5 e J n bra - 1 B au j T GR 2 G 1 0 d q E Emp j mc xf m Use 39.28046917915344 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5172337639964315
+accepted rate 0.024, avg generated tokens 0.024
+m 3 _ A 8 o 4 m K 8 E v O z r E k U x h De af M i K T 1 5 bm qu B qi 9 p _ y 3 3 P b j 3 q 8 v - En 9 i 8 K y f h 5 H c Y R lj bo 9 a F K et H Y O i 6 I 9 P tt l 6 S 2 p 6 G W Z x D Y K I q N ds A Z f C s yk 8 D 8 me OB 0 e Z Az 0 Y N 3 v WA WP s 2 r nl _ E i HH 9 g T 1 b OT J G p - 6 b V z Y H WH D Z v C Y F U 2 H f G sr C vn L h z - HE cf x V a O AE E oe U w f GL Z Mo - g dj X j - b F cs TY h I Gr g Av u BS 5 3 R 5 _ FB f D 4 i V WA f 5 H dg 3 - m J 0 j 6 4 v 5 v N X L F fw g R du v K y year Y n Ac q U UP d 5 J c 5 4 ih Ph x X u ub nc 9 WH Q _ L 4 - K 6 G Use 39.13116407394409 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.542100294186248
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+co F K ook cm K w 1 Th u 1 V AD 3 C s 2 F x CH y Id t W IB R ux X W Ex s 2 WN F 3 O z dt 5 ij UM R Z 5 uy 5 _ sf U GM j g 2 J r CG 3 f LY O kc Tr pk 5 0 1 Z 3 o Z ea SE mp n 5 A 6 s J b OK e E h Has PY z f wr 1 R K H Q H zt VAL H _ e 3 j K q N s 1 AB q Un VP D q 0 K d U in BB G 7 d 1 fd C _ 5 a ML H dc L _ Ar f T Q m I q n 7 L 0 R BY e N 2 _ g - Db 5 Q x gr IG O Z a O X gi Y By ri X 9 N 2 ec 5 R WP X 6 x z I 1 9 x D Z i L 1 d sv 2 G q tw 9 9 Z t J PU Pl _ a T z CT - x V 1 2 4 J y B cx 7 bb k 0 D w E J DS Z GA w uk ap l 9 W 1 _ m r L SC a I J 4 l 9 xp 5 9 g W ia f k Q A k bg Use 39.11965990066528 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.544024172246098
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+GC 5 2 K Z 6 tn 0 mn H qt Po U - U 7 ng C U j zt g ta O an O Y d L H G 4 j 7 A Q q AF Li R 6 l X p 7 ap W s yy J y sh C py J g cli q F p iv D Y sg ul Y _ O Z mu Q 3 Y 8 5 H J KE t DM _ V T kg I q NS _ p wy E e - ie 6 l FP k 3 C j G ol FF 5 R IS p 1 o K KB X t 4 o q n X 8 Z Y 8 - Q 0 F u qq f T je Pr 1 D rp D J 3 aa B q 9 I H p Z A u Bl UK Me GO I Q c j 5 K 3 BC AC W 7 H zz f AB bc H f NS 1 6 FM s B 9 W 0 - I q n h CA p am Y v x C _ v te - ie 6 l FP k 3 C j G ol FF 5 R IS p 1 o K KB X t 4 o q n X 8 Z Y 8 - Q 0 F u qq f T je Pr 1 D rp D J 3 aa B q 9 I H p Z A u Bl UK Me GO I Q Use 34.72902798652649 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 7.40014952620344
+accepted rate 0.16289592760180996, avg generated tokens 0.16289592760180996
+ 7 . 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ Use 20.105475902557373 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.732849560026448
+accepted rate 1.0, avg generated tokens 1.0
+rs 2 8 X 5 y 3 0 dup OK KS 5 0 n N NEW Y g x H AN FM k d _ M V 9 sr N y W W 2 U g fp 8 A y _ o 6 2 - _ H yo 6 v w P X Z FA 9 n ORY 2 m C bg C bg 1 y 4 0 Z Y p Q P u V o 8 1 F ld 5 G t E ce h f xx 7 s Li 2 m red LE L hn 9 8 K OB s S x OS q e J R id uf Q D f LOC - It v V TP r _ X S r L 1 X Q v uz q J i 0 c ft K r L y H 7 si U oba - r K WA J HL k 6 l D n V 7 MM im V j g 0 Z qi SV 2 fm 9 9 e 6 UN u 5 7 B su w Q vu 2 cs V au y - 5 4 d W od J w 1 bi NG F N j 8 T 8 3 7 OT C cb w k Ca V d 9 v V UK TS mn UM k - dk Q xs GG 0 X 4 9 0 os n - Ex q _ 3 m V 2 J Ty x SY m _ r 4 mq 4 8 7 w 4 Use 38.92950749397278 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.575988664630164
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+Ax 4 n G s S 8 l 2 u U gc F k vt _ 0 w W igg k 3 FS 9 X Z az - N q S q N t G 3 B FC R V m g W k 6 4 P - Up K H 1 h L l z P 6 o U v h V n Q M zw jm vr V K pf RO f 1 3 z jt q Sp Bu CT zy W B Z Pa K i F o D 2 2 T IK F ma J a Z m U O V y Z _ v U AE 2 T J p 5 As O 6 Em 6 sh 2 ku R kw M wh ou q F _ 1 8 LI F H we 8 - P X - B nx p H 1 R n E AB RA wy h 9 l 2 M 7 T 7 SA i C Fil 9 I b 6 sn 1 s UC w R FP 1 hs B x r 2 ds Z y 2 TI k Q 4 h H n 3 B f Jo CT p 0 M 9 v 6 VM CP b - j 6 dd w l E j f SH V nt EC V X r W x BF 0 4 LO 7 VO CE y 9 N k U 4 U q 1 d PK u PF cv WE J r G ud v E 0 da Y Use 38.49719786643982 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.649834642203132
+accepted rate 0.044897959183673466, avg generated tokens 0.044897959183673466
+N ru Ed G U W Y p K - 8 HT G p 1 p Ph d q C 7 A 8 o S Z zh SV S f O 3 iy E v 0 4 1 W 2 m F NP v K X I a ND 7 bm K u WN W i 9 Y P X m P - sl 0 UN s O 7 - BD 7 a B pk 8 x F 0 vo iy F p Do 1 vb h G Z fg 0 v X W We V 4 q Mc g q T K 6 Ig 1 i Ap C ead py 2 J r H Su TL VO a G c 8 Q d G ov CD - au 1 f E MO J Mo EY - MS D t T Bl W j g D 5 w D 2 WM m X l z W d I i 0 W G Q 0 ow z Y Ze O HO i 1 0 F 0 s R 1 - q RC 4 W Q by EY R K Z r R ae 1 9 i Tr d 3 U ds 2 B h P b P fo 4 S 4 f 9 Z b P ug u N m 7 d cr j I Pl S 6 o N gh 7 6 N m M ym X h bg 2 I w 7 m O 1 R f k ks l R 4 F j EP 2 Use 39.11545133590698 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.54472826611612
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+da - x Me R RA Z 8 n - 5 t 3 _ X h F Z 5 Y FL p ma ou q hy H b UP Z k vi M n w pr c M b 1 t V h VP 3 I - Z 2 5 m g m _ J Ed W i 0 8 B GR N x cn Or h U j 9 MM Id T Z 5 u U c ID _ z X 4 H kw H iz x - n 9 gn B H 1 9 G VC uh 2 DM k K _ f im 0 8 W s 6 k j D Q MO h 9 j j F V Y c Z s J w D 2 M - 2 g Us D x Q b DT d _ 9 y 6 UB p T IC 7 X 4 N M 7 l H ih On E U J j E 8 X R 6 g ge L 6 8 V 9 e G end 0 c 5 6 C J - f WS n 6 LP 8 fl rl 5 O 8 V - V e X e X 3 W J N p W K _ K K 9 LI h jo 1 q EP PA 3 Z FT m w CN 2 6 w SF q 3 5 H RY Q 1 7 j X g R K 8 6 s 3 8 s C 5 5 _ pm b K Use 39.0923171043396 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5486013355698915
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+GT 3 h L cc vb v f B 8 8 ct DN Q 3 x je J L x I ym T z po SL id z T - t R Z b U v Di O z H ut y v lj 4 7 A - X tx r co ot w U F 1 2 l B q - 0 D s 6 Sa 0 K 4 X 2 NA H M u 4 q 8 - AR S jb j Z fw A 6 EC s 2 H B s F jd V _ c VE ib - W _ vo PN F sw 8 _ V n 6 Be L J b VE la M p Q X C ia K J K G X s ik zo e 3 MA C t q 8 PY G 8 E CA Z B s 7 7 ap K DP bt w 4 go 7 Fl K RO C e 9 w b E a 4 LC wx M 8 w L t 6 Li 6 m 0 mo R - F 2 m L Id h 2 l Pr x 3 P 7 l EQ 5 sl f II O z DS 8 6 x U F k - L c ch - w D - u q P Z SC s RS K - ski L 4 - H r R v j Q A Y y M ee 9 O E tc 3 l 2 C Y 2 d IG 6 Use 38.616684436798096 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.6292589261251
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+Jo Q v h 6 l CC Dr PO 8 y P s _ 4 l q Is 5 BS 6 ch Q hip - B m bu _ J q 7 U r O - c ru Y m E f v 2 Z A J N M m z My Z tp v 7 I J F GL R Z n X IM ha q 0 G 1 - Z V V K AL X E w ou e C jp F 4 FL C u AM G F We UP Z A f C 0 W pl G p Z WE M V N q 8 U 5 f HS N v q z L b U r T N OR SD U ux b K 9 ou N V J x er 9 D ZE w 6 u q o X t P Z f K - 8 Y F kl NL 7 Ph 8 P Bo W _ f 9 K J 4 SU Un Q HA J V f gh b D Q _ bu S 4 7 r UB 7 8 X 4 vt b ik 8 - 7 3 _ 9 C 2 For D t _ GC x 9 q G Y 5 Qt M esa 5 6 m N c H x V c Y r O 6 J i B N Y lo NR s V y V 4 y E f 0 K j f K NC 0 X 3 ft f mp j f Use 38.65284490585327 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.623057128745352
+accepted rate 0.04065040650406504, avg generated tokens 0.04065040650406504
+i W m EP tok z 8 FD l V 7 3 1 x Z x P f W 7 j ON q No 6 _ z Z N PM 0 sm _ l T GB sz 6 x 5 l J f Y y TV k Mo V Z 7 ll p v ly av m ze 3 O ln Y u H 2 R p H Om GM ko 1 x D Q h X q 4 2 6 gr b W Ex 9 s V 1 0 u W x L _ K h S X B d 2 Q J 6 6 N 4 E fu M - S ct hp Y z x V 5 lv Re E W 6 Ed M 0 9 E px l 9 in X ql J 5 h N Fr CM WP 0 TB V t 0 ea N c - p Co W my o I 9 c Y l 2 0 T b ND Fr W 3 u LI 3 Az H CR py C w 1 n J f Y y TV k Mo V Z 7 ll p v ly av m ze 3 O ln Y u H 2 R p H Om GM ko 1 x D Q h X q 4 2 6 gr b W Ex 9 s V 1 0 u W x L _ K h S X B d 2 Q J 6 6 N 4 E fu M - S ct hp Y z Use 34.23680114746094 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.477334079705207
+accepted rate 0.1743119266055046, avg generated tokens 0.1743119266055046
+c ql B PF Js Y 0 x 1 K V x k B uc p MY BS L ky g H Y C U _ i D c x 9 z W MY x h g ji XT 6 X 6 2 F m 1 Q cb k 7 b 1 z O J H G b ik y E K 8 C UE HC An 0 v p G Z M 0 e ida _ 7 s J z R w IP T f A 5 j 1 2 L 1 x A J D 9 m PA As G 5 Hy Y F 2 J 1 WA x A Y VF k H X 5 T n z En L V c R n ki 8 2 d 6 Y - K y uk j x _ J m I i D 5 p wx L VS i Ab 7 r A j x n H LD C 0 1 W 1 x A Y VF k H X 5 T n z En L V c R n ki 8 2 d 6 Y - K y uk j x _ J m I i D 5 p wx L VS i Ab 7 r A j x n H LD C 0 1 W 1 x A Y VF k H X 5 T n z En L V c R n ki 8 2 d 6 Y - K y uk j x _ J m I i D 5 p Use 32.17889904975891 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 7.955523885517083
+accepted rate 0.24878048780487805, avg generated tokens 0.24878048780487805
+T 2 3 u Q att QU u FL U g WR t 0 Z F 0 R Db 9 r 9 i T n U m Y RE K X R ld K Js Ke Q bu a L d 1 A - f Y LI YY _ CI oa 1 - VA f vb U 6 F dt atz v h N 4 1 9 N 6 j 8 9 LAY T 8 Y i P x b x D X r W a ij Z K R X z G H 5 v PU k ng q I 2 F b XY - i AP B ab 0 7 um 4 u Sh P UR Ch b L VD f V z x j P X S Q F to N v I 5 N 3 J C j 5 4 m Z oc _ c Y v 9 n px H w U lm 5 WD h Z 8 f Z F s H x h bm z l P SI eg l A q D 4 6 T a It x D Z 5 P - d St Un m 0 kh c A Q at 9 o ep Y 2 ee h Z A as W - c B pl 0 C Z W i LC M l BU y fl 6 L _ j 2 B 7 K 3 O y 8 Q B W l f 3 di - MY A - 0 7 4 2 ff G sn Use 39.003114223480225 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5635784499968395
+accepted rate 0.03225806451612903, avg generated tokens 0.03225806451612903
+t 5 s R Ha V Z q PP P ho C ED mb Q lv G UI u D k St k pp to AG 6 _ s IS pp X w f q _ F Z W kh la M w 8 _ K aw Q 9 x B 7 l c OF P Q c g - M V UP c Lu PG P b Fn TP 7 H G 1 m V pl Z oca L W 1 B a X q C 2 - y db m w 2 zm Z QL V K 5 y 7 p 4 y - F V - Ca Ke Z 0 l _ ea 7 RY x Q oa Db 3 q f RE au 4 w A e D W C LO 0 2 I r - Q 2 K G bi 7 k _ 9 _ 0 Lo Z s I RI x v At S v jax d Q Mo Of j An Q m S q W p 3 6 X z T 3 1 U lu D l J 2 R 9 f y 4 _ j mx U uk 3 M u B 2 ir x Of Y m 9 fg K x 6 5 x 9 j C W B - DI H CF V yc A au 8 OS 3 Y o L j de q f X ff K D y C 4 z Om T j By R R 6 4 8 td - ST Use 39.306214332580566 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.5129650450158945
+accepted rate 0.024, avg generated tokens 0.024
+Ax _ l CS ac N d Q z B s W t X 8 4 MA g N Q yo ys v E U h PH K Hz C k Y Me 3 h Z y R i 4 3 0 t X x AF R F 8 n H ly Q j olg q z X k Z Q ma e _ M 2 d CD M w F pb Dr A - 2 ph j 2 1 ys d I Y J H m W 4 i 5 - 0 gz E Z ps o Q k _ B - c Py b W 2 ay 2 bg x Q w W n D Is P 8 d 1 2 0 W 7 t VB W y M p D Y wt l H 2 w 9 q 5 j F 6 O 2 v D d v w j V n A Y 5 3 Y 5 7 SY z b Y r SM U 7 2 V J H 5 V V 7 l 6 B 3 s _ DB O EG 2 3 uk m j H p AU LC Y U 1 Br B 3 M t PS U Q B 4 J 0 b - 3 l Q 2 A q - c O 7 my lv ga AT 1 V L Wh I 9 m - 5 6 z O q F GP riz DF 0 _ G z AL z S 9 6 o RE o _ Use 38.52058553695679 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.645797212879661
+accepted rate 0.044897959183673466, avg generated tokens 0.044897959183673466
+p U Q Y N ix q G Be Q - G a E 7 t 8 I Y W X b BF 2 g yn Ex M 1 tf E gi Y 1 CV y 6 ql 2 t Z du 4 n N b h 2 7 4 E 2 _ e J QU _ udo 4 k F K q h k p 8 9 y E KE 8 E _ wr 0 gl 6 w 3 q y L v CD i X IF Mc C Y 2 Is Y H U f - l WD INF HR 0 3 rf P j X 1 E H Y C _ P nt s - n 1 Ok 3 6 - 3 0 C WR S j _ E K - N ID VD p B 1 J I 1 r W L 9 u VI p T t F b v G 0 6 6 t 8 Bu M G s X DE UR 4 NA ki ik l K Z So F Z Y x G l rc J 9 x - E 7 e 8 Q Y q T c G 1 4 5 BY 0 _ E y B 8 y M UP a 4 6 k O i OR I e 1 I 5 R t q 4 R t 9 6 g WR w - IX F Y i 9 t C 2 h F Z R 6 RO d Q CC sl S ih K _ Is Use 39.10995674133301 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.545647741140268
+accepted rate 0.028112449799196786, avg generated tokens 0.028112449799196786
+ 3 B FP J x h S J Il 4 M n v f Q v K f 0 ob m kw P 4 Bl Now B N q SB o Z L y F p B d DA aj HE J n K a O at B jk H f 9 t - a R dk U z W df te 3 kb Y 5 ph 1 M U ie O y N 7 K I Am Z mi y B 5 I Q 7 I yn fc x ws U au C c X s F ux E 9 mi y Q C W au 4 7 bt Z BB 2 A es r W u F 6 o 8 ti J H d Y fin D z f 1 yn l - F 3 Ph I yn SN y X SV sw x ON _ W b 6 c 5 N J M p V k B kg h b 8 e B 9 V U 4 bau OP a J H 8 n rd k B 3 2 _ z 8 Ed q IS - F _ ut m 9 B - l h BU c L b H RY ni EM 3 B z ort 8 5 g O 6 4 Fig _ ht 5 yg VA w sq T n A a M t J F 4 g WP 4 7 l M gn mc 7 pl p 1 j w z 7 7 S z r B q DB Use 38.86220097541809 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.587377800910718
+accepted rate 0.03643724696356275, avg generated tokens 0.03643724696356275
+R t P f cz r O J 1 ln c na xl Q cb c E bm 4 c El W _ 2 f Z Q e 6 G F t I y L N l 4 v B a X OK Z U 6 GT RO za o TR 3 i 9 A y 5 I GE J W LP 3 fn uz j 2 C uc J x Y 3 6 H 2 Y TS _ s 7 2 r 8 s 0 w q hh BL 3 4 t 2 y 5 j N 5 h 7 PK RY S 3 EY V L ue PK U v _ w A 7 r O ep GN m S f 1 r S - UD 4 MB b 5 a F W b ii 2 o ht T dz az _ T G - r EV my o E U yn 7 sa 0 t W 9 - 0 j R r 0 e LI K 9 q By t L H ij 2 l R up E sk ONE w z Q now b Q I x W w qt Up _ kc V t 3 p v rl n N 2 s R 0 us 8 w 2 P uv w B fg Ah zw dl 7 j I W ge V l S J j V c U X n T j R i X F vc bp 4 1 1 w H o eg q ISO u J l EM Use 39.61302995681763 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 6.462520041488039
+accepted rate 0.015873015873015872, avg generated tokens 0.015873015873015872
+average acceptance rate: 0.0738885566634322
