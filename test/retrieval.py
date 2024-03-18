@@ -26,7 +26,7 @@ def parse_arguments():
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
     parser.add_argument('--chunk_size', type=int, default=16, help='chunk_size')
-    parser.add_argument('--budget', type=float, default=0.1, help='budget')
+    parser.add_argument('--budget', type=int, default=4096, help='budget')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     args = parser.parse_args()

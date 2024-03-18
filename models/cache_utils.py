@@ -940,7 +940,7 @@ class DejaVuCache(Cache):
         return key, value
 
 class ChunkCache(Cache):
-    def __init__(self, model, max_budget=1024, chunk_size=256, budget=0.1, skip_start_layers=-1, prefill=1024) -> None:
+    def __init__(self, model, max_budget=1024, chunk_size=256, budget=4096, skip_start_layers=-1, prefill=1024) -> None:
         
 
         self.key_cache: List[torch.Tensor] = []
@@ -954,7 +954,7 @@ class ChunkCache(Cache):
         self.skip_start_layers = skip_start_layers
         self.chunk_size = chunk_size
         self.chunks = prefill // chunk_size
-        self.select_sets = int(budget * self.chunks)
+        self.select_sets = budget // chunk_size
         # check prefill is multiple of chunk_size
         assert prefill % chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {chunk_size}"
         assert self.select_sets <= self.chunks, f"select_sets should be less than chunks, got {self.select_sets} > {self.chunks}"

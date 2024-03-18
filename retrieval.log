@@ -1,0 +1,1391 @@
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  2.00s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.24s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.36s/it]
+  0%|          | 0/101 [00:00<?, ?it/s]  1%|          | 1/101 [00:12<20:48, 12.49s/it]  2%|▏         | 2/101 [00:28<23:55, 14.50s/it]  3%|▎         | 3/101 [00:42<23:02, 14.11s/it]  4%|▍         | 4/101 [00:55<22:38, 14.01s/it]  5%|▍         | 5/101 [01:09<22:13, 13.89s/it]  6%|▌         | 6/101 [01:22<21:41, 13.70s/it]  7%|▋         | 7/101 [01:35<20:54, 13.35s/it]  8%|▊         | 8/101 [01:48<20:16, 13.08s/it]  9%|▉         | 9/101 [02:00<19:44, 12.87s/it] 10%|▉         | 10/101 [02:13<19:22, 12.78s/it] 11%|█         | 11/101 [02:25<19:11, 12.80s/it] 12%|█▏        | 12/101 [02:36<17:55, 12.09s/it] 13%|█▎        | 13/101 [02:46<16:50, 11.48s/it] 14%|█▍        | 14/101 [03:01<18:25, 12.70s/it] 15%|█▍        | 15/101 [03:13<17:54, 12.50s/it] 16%|█▌        | 16/101 [03:26<17:31, 12.37s/it] 17%|█▋        | 17/101 [03:40<18:07, 12.95s/it] 18%|█▊        | 18/101 [03:51<17:17, 12.50s/it] 19%|█▉        | 19/101 [04:05<17:23, 12.73s/it] 20%|█▉        | 20/101 [04:17<17:01, 12.61s/it] 21%|██        | 21/101 [04:29<16:34, 12.43s/it] 22%|██▏       | 22/101 [04:42<16:46, 12.74s/it] 23%|██▎       | 23/101 [04:54<16:17, 12.53s/it] 24%|██▍       | 24/101 [05:05<15:30, 12.08s/it] 25%|██▍       | 25/101 [05:17<15:16, 12.06s/it] 26%|██▌       | 26/101 [05:27<14:19, 11.46s/it] 27%|██▋       | 27/101 [05:39<14:07, 11.45s/it] 28%|██▊       | 28/101 [05:51<14:16, 11.74s/it] 29%|██▊       | 29/101 [06:10<16:33, 13.80s/it] 30%|██▉       | 30/101 [06:23<16:11, 13.68s/it] 31%|███       | 31/101 [06:33<14:32, 12.46s/it] 32%|███▏      | 32/101 [06:45<14:13, 12.37s/it] 33%|███▎      | 33/101 [06:57<13:48, 12.19s/it] 34%|███▎      | 34/101 [07:09<13:35, 12.16s/it] 35%|███▍      | 35/101 [07:21<13:22, 12.16s/it] 36%|███▌      | 36/101 [07:32<12:42, 11.73s/it] 37%|███▋      | 37/101 [07:42<11:57, 11.21s/it] 38%|███▊      | 38/101 [07:54<12:10, 11.60s/it] 39%|███▊      | 39/101 [08:06<12:03, 11.67s/it] 40%|███▉      | 40/101 [08:19<12:10, 11.98s/it] 41%|████      | 41/101 [08:29<11:17, 11.29s/it] 42%|████▏     | 42/101 [08:37<10:20, 10.52s/it] 43%|████▎     | 43/101 [08:49<10:23, 10.75s/it] 44%|████▎     | 44/101 [09:00<10:31, 11.08s/it] 45%|████▍     | 45/101 [09:12<10:22, 11.11s/it] 46%|████▌     | 46/101 [09:24<10:30, 11.46s/it] 47%|████▋     | 47/101 [09:35<10:19, 11.48s/it] 48%|████▊     | 48/101 [09:45<09:35, 10.86s/it] 49%|████▊     | 49/101 [09:56<09:22, 10.82s/it] 50%|████▉     | 50/101 [10:07<09:25, 11.09s/it] 50%|█████     | 51/101 [10:19<09:19, 11.19s/it] 51%|█████▏    | 52/101 [10:28<08:42, 10.66s/it] 52%|█████▏    | 53/101 [10:40<08:52, 11.10s/it] 53%|█████▎    | 54/101 [10:53<08:59, 11.47s/it] 54%|█████▍    | 55/101 [11:04<08:53, 11.59s/it] 55%|█████▌    | 56/101 [11:16<08:42, 11.60s/it] 56%|█████▋    | 57/101 [11:27<08:22, 11.42s/it] 57%|█████▋    | 58/101 [11:39<08:14, 11.49s/it] 58%|█████▊    | 59/101 [11:51<08:10, 11.68s/it] 59%|█████▉    | 60/101 [12:03<08:08, 11.90s/it] 60%|██████    | 61/101 [12:16<08:05, 12.13s/it] 61%|██████▏   | 62/101 [12:26<07:31, 11.58s/it] 62%|██████▏   | 63/101 [12:39<07:34, 11.97s/it] 63%|██████▎   | 64/101 [12:50<07:10, 11.63s/it] 64%|██████▍   | 65/101 [13:03<07:09, 11.94s/it] 65%|██████▌   | 66/101 [13:16<07:15, 12.45s/it] 66%|██████▋   | 67/101 [13:28<06:52, 12.13s/it] 67%|██████▋   | 68/101 [13:36<06:00, 10.93s/it] 68%|██████▊   | 69/101 [13:48<05:58, 11.20s/it] 69%|██████▉   | 70/101 [13:59<05:52, 11.36s/it] 70%|███████   | 71/101 [14:11<05:45, 11.51s/it] 71%|███████▏  | 72/101 [14:24<05:41, 11.79s/it] 72%|███████▏  | 73/101 [14:36<05:33, 11.92s/it] 73%|███████▎  | 74/101 [14:46<05:10, 11.50s/it] 74%|███████▍  | 75/101 [15:00<05:15, 12.12s/it] 75%|███████▌  | 76/101 [15:13<05:12, 12.52s/it] 76%|███████▌  | 77/101 [15:25<04:53, 12.22s/it] 77%|███████▋  | 78/101 [15:38<04:44, 12.39s/it] 78%|███████▊  | 79/101 [15:51<04:35, 12.51s/it] 79%|███████▉  | 80/101 [16:02<04:17, 12.28s/it] 80%|████████  | 81/101 [16:13<03:58, 11.94s/it] 81%|████████  | 82/101 [16:24<03:39, 11.57s/it] 82%|████████▏ | 83/101 [16:36<03:27, 11.55s/it] 83%|████████▎ | 84/101 [16:47<03:15, 11.50s/it] 84%|████████▍ | 85/101 [16:58<03:03, 11.44s/it] 85%|████████▌ | 86/101 [17:10<02:54, 11.66s/it] 86%|████████▌ | 87/101 [17:20<02:32, 10.87s/it] 87%|████████▋ | 88/101 [17:32<02:29, 11.46s/it] 88%|████████▊ | 89/101 [17:44<02:18, 11.57s/it] 89%|████████▉ | 90/101 [17:57<02:11, 11.96s/it] 90%|█████████ | 91/101 [18:10<02:01, 12.14s/it] 91%|█████████ | 92/101 [18:23<01:52, 12.48s/it] 92%|█████████▏| 93/101 [18:36<01:42, 12.79s/it] 93%|█████████▎| 94/101 [18:47<01:25, 12.19s/it] 94%|█████████▍| 95/101 [18:58<01:11, 11.90s/it] 95%|█████████▌| 96/101 [19:10<00:59, 11.95s/it] 96%|█████████▌| 97/101 [19:21<00:46, 11.57s/it] 97%|█████████▋| 98/101 [19:34<00:35, 11.87s/it] 98%|█████████▊| 99/101 [19:47<00:24, 12.18s/it] 99%|█████████▉| 100/101 [19:58<00:12, 12.08s/it]100%|██████████| 101/101 [20:08<00:00, 11.30s/it]100%|██████████| 101/101 [20:08<00:00, 11.96s/it]
+####################################### Config #######################################
+Method: Retrieval KV
+Dataset: 128k
+Spec Args: {'chunk_size': 16, 'budget': 4096}
+Draft: NousResearch/Yarn-Llama-2-7b-128k
+Target: NousResearch/Yarn-Llama-2-7b-128k
+Prefill Length: 122880
+Generation Length: 256
+Gamma: 1
+Sampling Method: top_k = -1, top_p = 0.9, temperature = 0.6
+Log CSV: None
+######################################################################################
+
+chunk_size: 16, budget: 4096
+Cached Size: 0 | Max Budget: 123152 | Chunk Size: 16 | Select Sets: 256 | Chunks: 7680 | Skip Start Layers: 1 | PreFill: 122880  | ratio: 0.03333333333333333
+tokenized_prompts length: 101
+te were permitted 
+ to follow . We walked over the sand - roll s , under the dri pping p ines , and 
+ through the dri pping pal met to - trees , to the city . A fine rain was 
+ fall ing , and the streets were wet and desert ed . It was Sunday , and the 
+ ch urch es were closed . The little wh ar ves were empty ; the narrow streets 
+ of S ull ivan ' s Island , with their few c ott ages , were empty ; the beach , 
+ with its pal met to - trees , was empty ; the narrow streets of M oul tr ie ville 
+ w ere empty ; the broad streets of Char l eston were empty . The few people 
+ we met were either volunte ers or negro es , and they all looked at us with 
+ a st are of surprise . The business part of the city was closed , and 
+ the sh ops were shut up . There was no street - car to be seen . The 
+ s and - roll s , the p ines , the pal met to - trees , the long rows of houses , 
+ w ere all desert ed , except by the volunte ers . 
+ 
+ " What ' s the matter ?" asked a polic eman , stopping his horse to st are at 
+ us . 
+ 
+ Use 20.720514059066772 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.403167183371268
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+individuals was 
+ ser iously injured and only two of them died . The experiment was 
+ success fully repeated in the island of Porto Rico , and in the United 
+ St ates , and the results have been the same as those obtained in Cuba . 
+ 
+ In a communication made to the Pan - American Medical Congress held in 
+ H av ana , February  4 - 7 ,  1 9 0 1 , Dr . Re ed and his associ ates give a summary 
+ of their experiments up to that date . The following is a quot ation from 
+ this report : 
+ 
+ We have now had the opportunity of experiment ing with the same 
+ mos qu ito es for periods varying from twelve days to twenty - five days 
+ after their cont am ination . The results of these experiments are 
+ un anim ously in favor of the hypothesis that the yellow fe ver germ is 
+ communic ated by the mos qu ito , and that , in order to be inf ect ious , it 
+ must be kept for twelve days or longer after the mos qu ito has filled 
+ its elf with blood from a yellow fe ver patient . In all cases the mos qu ito 
+ has been kept for twelve days or longer after its cont am ination , the 
+ result has been invari ably positive , and the in fection has been 
+ trans Use 20.472348928451538 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.553517962114894
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+, that we w ives be full sh rew d 
+ To give our hus b ands every day our food ; 
+ We must not make them hun gry , nor we dry , 
+ For they be men , and we be w om ank ind . 
+ Th ou say ' st , that it is a great m isch ance 
+ To give a man his meat and his drink ance . 
+ Th ou say ' st , that it is a great m isch ance , 
+ That women make their hus b ands to ab st ain ; 
+ For if that they be hun gry , they will f ain 
+ E at their w ives ' flesh , as the can n ib als do . 
+ Th ou say ' st also , that it is a great m isch ance 
+ To make a man to drink so much e ale , 
+ That he may not be able to his tale ; 
+ And if that he be dr unk , then may he not 
+ S ay his pray ers , and then may he not sleep ; 
+ And if that he be dr unk , he may not keep 
+ H is body in the which he hath to live , 
+ And then he may not do his husband ' s will . 
+ Th ou say ' st also , that it is a great m isch ance 
+ To make Use 20.63928246498108 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.451983271998676
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+on his way to more important things . 
+ 
+ The expedition against C ors ica was , however , in the highest degree 
+ un fortun ate . Its failure was in ev itable , and the general who had 
+ command ed it was not in fault . The scheme was , as has been said , 
+ utter ly un ten able . The fleet of four teen sail was to be the support 
+ of a small army of fifteen thousand men , and to land them at Bast ia 
+ and Cal vi . The English were to be driven from their posts , the 
+ G eno ese fleet prevent ed from coming to the assistance of the al lies , 
+ the island ers r al lied to the republic an standard , and the British 
+ g arrison of the for ts of Bast ia and Cal vi surrender ed . The fleet 
+ re ached the coast of C ors ica on September twenty - e ighth , but the 
+ B rit ish were already prepared for resistance . The French soldiers were 
+ qu ar re ling and in sub ordinate . The fleet was scattered by a storm , and 
+ the commander , General B auss an , a brave man , but an in efficient 
+ le ader , was killed . On October third the British , under Admir al 
+ H ood , attacked the French fleet , which was divided Use 20.78484010696411 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.316669201329354
+accepted rate 0.9393939393939394, avg generated tokens 0.9393939393939394
+replied Men ou , " and don ' t be too proud . 
+ There is nothing to be ash amed of in the matter . I have been a fool , a 
+ d ream er , a _ b ada ud _, a _ pose ur _, but I have never been a kn ave . I have 
+ had my fol lies , but I have never been a ro gue ." 
+ 
+ " N or I ," said I , " nor I . I have been a fool , but I have never been a 
+ kn ave ." 
+ 
+ " You are right ," said Men ou . " We are all f ools , and many of us kn aves , 
+ to o ; but , as the French say , _ en fin , nous som mes tous des hommes _. We 
+ are all al ike , and must take our chance of being found out . I have been 
+ as fool ish as any man , but I have never been a kn ave . I have had my 
+ ad vent ures , and I have never been a kn ave . I have had my pass ions , and I 
+ have never been a kn ave . I have had my wh ims , and I have never been a 
+ kn ave . I have had my extra v ag ances , and I have never been a kn ave Use 20.30534815788269 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.65676402107051
+accepted rate 0.9922480620155039, avg generated tokens 0.9922480620155039
+condem ned as 
+ f ut ile . The whole question of sex - d iffer ences must be approached 
+ with ca ution . I would rather say that we must start with a clear 
+ real isation of the impos s ibility of any complete answer to the 
+ problem . 
+ 
+ It is only in the last few years that the science of compar ative 
+ ps ych ology has begun to be applied to the study of the human mind , and 
+ the results of these investig ations are still so incomplete that 
+ there is little possibility of dec iding definitely upon the problem of 
+ sex ual differences . It is necessary to remember that the study of the 
+ bra in is a very recent science , and that even now we are only at the 
+ begin ning of our knowledge of the brain . The brain is the organ of 
+ mind , and we must not forget that the mind is the most complex of all 
+ the organ ic structures . We have to remember that the mind is the 
+ result of the interaction of the brain with the body , and , further , 
+ that it is only the mind of the adult that has been studied . 
+ 
+ The complexity of the problem is greatly increased by the fact that 
+ the sexual differences are not conf ined to the brain , but they extend 
+ to all the org Use 20.771548748016357 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.372693202500994
+accepted rate 0.946969696969697, avg generated tokens 0.946969696969697
+spent 
+ a fort night with Do ell inger .  I have been reading the last volume of 
+ New man ' s works , and am in a state of mind that I can hardly express . 
+ The first volume is a master pie ce of composition , and I have been 
+ stru ck with the impression of a writer of the first class .  The second 
+ volume , so far as I have read it , is not so good , and I have not 
+ fin ished it yet .  But I have been unable to get rid of the impression 
+ that the second volume is the work of a man of the first class , and 
+ that the first is the work of a man of the second class .  That is 
+ qu ite an un account able phenomen on .  But I suppose it is because the 
+ first volume is a master pie ce of composition .  I cannot think of any 
+ writer of the first class who has ever written anything of the second 
+ class . 
+ 
+ { 1 9 3 } 
+ 
+ I have been reading , with the greatest interest , the book of one of the 
+ most em inent of our histor ians , and have been trying to discover what 
+ sort of a book it is .  I think it is a very good book .  But Use 20.769399166107178 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.373973745922747
+accepted rate 0.946969696969697, avg generated tokens 0.946969696969697
+f ruits of the field were 
+ of fer ed to the gods , children were sometimes sacrific ed in the temple 
+ before the alt ar .( 7 2 9 ) In the island of N ias , to the north of Sum atra , a 
+ human sacrifice is ann ually offered to the rice - sp irit . The victim is a 
+ you ng girl , who is st ab bed to death with a sick le and her body thrown into 
+ the river .( 7 3 0 ) In the island of B ali , to the east of Java , a human 
+ s ac rifice is ann ually offered to the rice - sp irit . The victim is a young 
+ man , who is st ab bed to death with a sick le and his body thrown into the 
+ river .( 7 3 1 ) In the island of Lomb ok , to the east of Java , a human sacrifice 
+ is ann ually offered to the rice - sp irit . The victim is a young man , who is 
+ stab bed to death with a sick le and his body thrown into the river .( 7 3 2 ) In 
+ the island of S umb awa , to the east of Lomb ok , a human sacrifice is ann ually 
+ of fer ed to the rice - sp irit . The victim is a young man , who is st ab Use 20.46859335899353 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.555821276652548
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+to his wid ow : 
+ 
+ " I am very sorry to hear of Sir Robert Wh er ry ' s death . I have been 
+ his adm ir er for many years , and I send my sympathy to his wid ow . 
+ 
+ " RO BER T BE EN H AM ." 
+ 
+ The newspaper printed it . It was the first time in his life he had 
+ be en so public ly mentioned . It was a curious sens ation . It was 
+ inter est ing to see how much of his own work had been over look ed by the 
+ public . He had been quite un cons cious of it . He had been too much 
+ eng ross ed in his work to notice that his work was not read . It was a 
+ new sens ation to him . He was am used by the thought of the public 
+ p our ing into the the ater to see Mat ilda play the part of a 
+ s weet - to oth ed , sentiment al , un int ellig ent young woman . 
+ 
+ " I am very sorry to hear of Sir Robert Wh er ry ' s death . I have been 
+ his adm ir er for many years , and I send my sympathy to his wid ow ." 
+ 
+ 
+ 
+ The other newsp apers followed suit . He was a great man , and Use 20.62191128730774 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.462472387715922
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+ha usted and we ary on the floor . 
+ 
+ In the morning we were aw ak ened by the r att ling of ch ains , and 
+ our ir ons were replaced on our lim bs , and we were again thrust 
+ into our d unge on . Thus we remained for a month , when the State 
+ author ities , by an order of ban ishment , had exp elled all the 
+ M orm ons from the State . 
+ 
+ In the meant ime the mob were still in possession of the upper 
+ country , and the courts were closed , and no one d ared to pro sec ute 
+ any one . 
+ 
+ The prisoners were , therefore , at length released , and allowed to 
+ go at liberty . I was permitted to visit my family in Illinois , 
+ where I found them in a state of pover ty and dist ress , having been 
+ dri ven from their homes and their property seized and carried 
+ away by the mob . 
+ 
+ I also found my family in a state of dest itution , and in want of 
+ the most common necess aries of life . I returned to Missouri , 
+ and , with my family , was obliged to live on char ity , and to labor 
+ with my hands to support them . 
+ 
+ I had now been conf ined in prison about Use 20.62228035926819 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.413758107257374
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+ir voy ance of the cla ir voy ante . 
+ 
+ A pril  1 ,  1 8 6 8 .-- My first visit to the great church of St . Peter ' s at 
+ R ome . It was the day of the E aster service , and the vast ed ifice was 
+ filled with the faithful . A cho ir of a thousand voices was singing the 
+ M iser ere , and a whole crowd of pri ests were celebr ating the mass . I 
+ enter ed by the side door , and made my way through the crowd of kne eling 
+ wor sh ipp ers . The sight was a strange one , and the impression a prof ound 
+ one . All was in the highest degree solemn and religious . The whole 
+ building , as it were , was a church , and the pri ests were the offici ants . 
+ The crowd , as it kn elt and s way ed to and fro , seemed like a wave of 
+ wor ship which filled the whole ed ifice . The movement was that of a 
+ m ight y breath , which , expand ing and contract ing , rose and fell , and 
+ sw elled and subs ided , and which , as it rose , seemed to be gather ing 
+ its elf together in the d ome of the v ault ing , and as it fell , Use 20.520357131958008 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.524148500308172
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+, but 
+ the gard ener was a d ull , stupid fellow , and the plant ations were very 
+ ill kept ; he therefore resolved to make a little alter ation himself , and 
+ to ok a sp ade and a basket of se eds , and went about the gard ens , 
+ trans plant ing , we eding , and setting out some of the fin est flowers he 
+ could find . The gard ener , who was a man of a very different turn of 
+ mind , was aston ished at what he saw , and asked his master if he was 
+ mad ; he replied , that he was not mad , but that he had been doing a little 
+ bus iness in the garden , and that he would show him the result in a few 
+ days . The gard ener was at first very angry , and sw ore he would not 
+ touch a tool more in his life ; but when he saw the effect of the 
+ trans plant ation , he was struck with adm iration , and asked p ardon of his 
+ master , and begg ed to be employed in the same manner . The gard ener , 
+ though he was a man of an un t ract able disposition , was very soon 
+ convert ed into a good and useful servant , and in a few months the 
+ plant ations were so Use 20.71232795715332 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.359788843126466
+accepted rate 0.9393939393939394, avg generated tokens 0.9393939393939394
+which , he says , has for its aim the fost ering of a new literary 
+ f ashion . This paper , the _ P rag mat ische Zeitung _, is to be edited by the 
+ G erman poet , E .   S .   K . The author , in the pre face to his work , “ Der 
+ P rag mat ische Sch ä fer ,” [ 7 7 ] which was published in  1 7 7 5 , states that 
+ he was led to his work by the publication of the _ P rag mat ische 
+ Ze itung _. The _ P rag mat ische Zeitung _ had begun in  1 7 7 3 , and continued 
+ until  1 7 7 6 . In the first volume , Wiel and ’ s “ W er ther ” was review ed with 
+ p raise . The _ All geme ine deutsche Bibli othek _ [ 7 8 ] in review ing the 
+ “ Sch ä fer ” speak s of the “ P rag mat ische Zeitung ” as “ a   st range 
+ per version of taste .” The author of the _ Sch ä fer _ claims to have 
+ dis cover ed the cause of the new fashion in a remark of G ell ert ’ s , who 
+ sa id that “ the people of the present day are more sentiment al than the 
+ anci ents .” Use 20.87282085418701 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.312662567045734
+accepted rate 0.9323308270676691, avg generated tokens 0.9323308270676691
+and with the additional advantage of a better 
+ ch ance of success . Gordon was well aware of this , and he wrote in his 
+ J ournal , " The  1 0 , 0 0 0 men , in my opinion , were was ted , and would have 
+ be en more useful in the Red Sea ." 
+ 
+ The following passage , written by Gordon , and dated  1 3 th December , 
+ sh ows how completely he for es aw the failure of the expedition , and the 
+ f ut ility of the delay ing tact ics of the Mah di , which he knew would 
+ le ad to a successful issue of the sie ge , and to the relief of the 
+ bes ie ged town :-- 
+ 
+     " If the Mah di ' s intention is to star ve me out , I can hold out 
+     for at least three months longer , and I may hold out for a year . 
+     I have no fear s of his attack ing me in force , for he is not 
+     strong enough to do so . His object is to star ve me out . The 
+     Mah di is playing a very dangerous game , for if he does not take 
+     me before the  1 0 th of February , I shall be strong enough to take 
+     him . Use 20.243157148361206 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.64624871129475
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+
+ t alk to him . He was a good listener , and he was very fond of her . 
+ 
+ " I don ' t know what I would do without you , Jenn ie ," he would say 
+ occ asion ally . " You ' re so sweet . I don ' t know what I ' d do if you 
+ left me ." 
+ 
+ " Don ' t talk like that ," she would reply . 
+ 
+ " I ' m not talking . I ' m thinking ," he would answer . " I ' ve got you 
+ fixed , and I don ' t want to have you go ." 
+ 
+ " I know ," she would say , " but I ' m not going to stay here . I want to 
+ go back to Cleveland and get a position ." 
+ 
+ " Why ?" he would in quire . 
+ 
+ " I want to do something ," she would reply . 
+ 
+ " What for ?" he would ask . 
+ 
+ " I don ' t know . I want to get my self - res pect back . I want to do 
+ something ." 
+ 
+ " I ' m not going to let you ," he would say . " You ' re my wife , and I 
+ don ' t want you to go ." 
+ 
+ " But I want to go Use 20.562485456466675 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.449856829904325
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+he 
+ not know it ? It was the voice of a child ; and it was the voice of 
+ Car men ! He listened in breath less wonder . 
+ 
+  " O , Jes u , my love , my God , 
+    The e I love , The e I ad ore , 
+  Th y love is my soul ' s food , 
+    And thy grace my heart ' s desire . 
+ 
+  " I am th ine , my Lord and King , 
+    I am th ine , my Jesus , 
+  I am th ine , my Sav iour , 
+    I am th ine , my dear est . 
+ 
+  " O , Jes u , my love , my God , 
+    The e I love , The e I ad ore , 
+  Th y love is my soul ' s food , 
+    And thy grace my heart ' s desire ." 
+ 
+ The priest ' s face was radi ant . He stood a long time gaz ing at the 
+ child , whose sweet face was ra pt in a look of worship . 
+ 
+ " _ Car men cita ! _" he exclaimed , " where did you learn that song ?" 
+ 
+ The child started and turned her face to him . 
+ 
+ " I -- I made it up , P Use 20.242223501205444 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.64683200364599
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+et Isa iah , the " R od out of the stem of J esse ," [ 6 8 ] became a 
+ constant and a favorite mot ive of orn ament . 
+ 
+ Sec . XXX II .  1 0 . Veg et ation ( A ). St ems . The best and most general 
+ re presentation of a stem is that of the leaf y o live , which , in its 
+ simple form , is one of the most beautiful of all organ ic forms . It is 
+ o ften used in media eval sculpt ure , especially in the churches of 
+ R ou en , in the por ch of St . Mac lou , and the pill ars of the cho ir of the 
+ same church , and in the por ch of St . O uen at Rou en , and in many 
+ f res co es and sculpt ures in the south of France . The o live stem is also 
+ very beautiful ly used in the Du cal Palace at Ven ice , in the por ch of the 
+ ch urch of St . Z eno at Ver ona , and in the c athedral of P isa , and in the 
+ t omb of the Dog e in the church of St . Mark ' s . The o live is the 
+ symbol ical tree of peace , and its stem , as often used in sculpt Use 20.558712005615234 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.500783119575058
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+! 
+ Stand up and be a man !" 
+ 
+ " What do you want ?" said Tro tt ing Wolf sull en ly , putting up his hands . 
+ 
+ " I want E agle Fe ather . Where is he ?" 
+ 
+ " I know not ," replied the Chief . " I have not seen him since he went 
+ away ." 
+ 
+ " Ah , yes , you have seen him ," said Camer on , " but you have not seen him 
+ since he went away . You know where he is . I will have him or you ." 
+ 
+ " No , no , no ," said the Chief . " I know not where he is . I have not seen 
+ him since he went away . I have not seen him since he went away ." 
+ 
+ " You lie !" cried Camer on , his voice ring ing out . " You lie ! You know 
+ where he is and you shall tell me ." 
+ 
+ " No , no , no ," said the Chief . 
+ 
+ " You lie !" repeated Camer on , with a ring of such stern and un m ist ak able 
+ conv iction that the Chief ' s face grew white and he trem bled . 
+ 
+ " I tell you , I tell you ," he said , " I know not where he is . Use 20.55606508255005 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.453745353108326
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+and tem ples and is les , 
+      And on the c rag s of the Al pine snow . 
+    They gaz ed on her lov el iness , and with tears bed ew ed 
+      Her feet , as they kiss ed them with v ows 
+    That they ' d never for s ake her , but guard her with care , 
+      As a mother her infant ' s rep ose . 
+ 
+    She listened to all , and the tears stood in her eyes , 
+      As she kiss ed their pale lips and brow ; 
+    And she smiled on the aged and b ade them be brave , 
+      And on the young and gave them to know 
+    That the time would come when they ' d stand in her place , 
+      And guard the fair form of their s ire ; 
+    That they ' d see her again in her ro bes of white grace , 
+      When the earth should be fre ed from her b onds of fire . 
+ 
+    Then she took from her bos om a sil ken ro be , 
+      And she spread it over the earth ' s wide waste , 
+    And the hearts of the people rejo iced in the sight , 
+      And the tears of the children were ch ased away ; 
+    For they saw Use 20.553022861480713 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.504243377340593
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+the 
+ house - f urn isher -- was a member of the Band , but he did not employ 
+ work ers .  He was too lazy .  He was content to make money by s elling 
+ second - hand furn iture . 
+ 
+ The same applied to Mr Gr inder , the gre eng ro cer .  He was a member of 
+ the Band , but he did not employ work people .  He made money by s elling 
+ che ap fruit and veget ables . 
+ 
+ The same applied to Mr Rus ht on , the decor ator , who was also a member 
+ of the Band , but he did not employ work people .  He made money by 
+ p ain ting and gra ining . 
+ 
+ The same applied to Mr Did l um , the dra per , who was also a member of 
+ the Band , but he did not employ work people .  He made money by s elling 
+ cl oth es . 
+ 
+ The same applied to Mr Hunter , the for eman of the Band , who was also a 
+ member of the Band , but he did not employ work people .  He made money by 
+ p ain ting . 
+ 
+ The same applied to Mr Bel cher , the minister , who was also a member of 
+ the Band , but he did not Use 20.55675721168518 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.501971850594812
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+support for the 
+ c abb age , whose leaves are now hidden in the heart of the st ump . This is 
+ the k ohl - rab i . 
+ 
+ The cab bage is a veget able of great promise , but it is a promise that 
+ is not always ful filled . It is a plant which , in the garden , is 
+ cap r icious and uncertain . It is a cap r icious and uncertain plant 
+ because it is a plant of two n atures , a plant which is at once 
+ ve get ative and re product ive . Its sexual org ans are scattered all over 
+ its leaves ; and the product of the pol len ation of these org ans is 
+ s own , as it were , in the soil , where it germ in ates and spr outs in 
+ ab und ance . The whole plant , then , is at once a producer of leaves and a 
+ produ cer of se eds . The two functions are often in conflict . The 
+ ve get ative function , which consists in growing leaves , is the one that 
+ comes to the fore . The re product ive function , which consists in 
+ produ cing se eds , is the one that is left in the background . The 
+ ve get ative function is the one that is most often acc ent u ated and Use 20.872612953186035 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.264875536865818
+accepted rate 0.924812030075188, avg generated tokens 0.924812030075188
+" publish er . He was appointed Att orney - General for Ireland , and 
+ the King gave him a p ension of L 5 0 0 a year . 
+ 
+ In  1 7 9 8 Pa ine wrote to Er sk ine : " I am sorry that you have been made 
+ Att orney - General for Ireland . It is the first public office you have 
+ h eld since you were Att orney - General for me in the cause of the 
+ ' R ights of Man .' " 
+ 
+ The " J ests " was followed by another collection of Pa ine ' s w itt ic isms , 
+ with a dedic ation to the same Er sk ine . The dedic ation is as follows : 
+ 
+ " This book is dedicated to the memory of Thomas Pa ine , who was 
+ Att orney - General for the King in the cause of the ' R ights of Man ,' and 
+ who was pro sec uted for bl as ph emy by the Att orney - General of Ireland 
+ in the cause of the ' Age of Re ason .' The pro sec utor was afterwards 
+ app oint ed Att orney - General for Ireland , and the pro sec uted was afterwards 
+ app oint ed Att orney - General for the King in the cause of the ' R ights of 
+ Man .' The Att orney - General Use 20.478721618652344 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.549611483849672
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+bring her ; and , growing une asy , I sent her a message to the 
+ effect that I was at home , and expected her to come . She did not come , 
+ nor the next day , nor the next . Then , becoming al ar med , I went to the 
+ hot el , where I found she had left the day before , and that no one knew 
+ wh ither she had gone . 
+ 
+ " I don ' t know ," said the cl erk ; " but I think she must have gone to 
+ R ---- . She was in the habit of going there , and it is only a short 
+ distance from the city . I will in quire and let you know ." 
+ 
+ He did so , and I waited imp at ient ly for his return . When he came , he 
+ br ought the news that the girl was at the hotel in R ---- , and that she 
+ had been seen there the day before . 
+ 
+ " What do you mean ?" I cried . " You have not said a word about her coming 
+ here . Is she here now ?" 
+ 
+ " No , mad am ; she went away yesterday morning ." 
+ 
+ " G one away ! But why ?" 
+ 
+ " She told the land l ord she had business to attend to , Use 20.7883939743042 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.362667376694354
+accepted rate 0.946969696969697, avg generated tokens 0.946969696969697
+to visit me Sir Thomas Cl arg es , of the family 
+ of the Earl of Lincoln , a most worthy , p ious , and learned gentleman , 
+ one of the L ords of the Tre as ury , and Master of the Roll s . He had been 
+ long a prisoner in the Tower for his loyal ty , and was now released , 
+ h aving been so far indul ged as to be suffered to go to his own house at 
+ H amp st ead . 
+ 
+ 2 9 th October ,  1 6 8 3 . To London , to see my Lord Ar ling ton , who had been 
+ app oint ed one of the Commission ers of the Tre as ury , and of the Council 
+ of Trade , in room of Sir Stephen Fox , who had been disp la ced . I found 
+ him very busy and much engaged with business , and very much out of health 
+ with the g out . 
+ 
+ 3 0 th October ,  1 6 8 3 . I went to see the house of Sir John Ev ely n , of 
+ B ay n ard ' s Castle , in the parish of St . O lave , South w ark , which is a 
+ very large and noble p ile , built by my Lord Mayor , Sir Thomas 
+ C ot ter ell , and others Use 20.62410807609558 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.461144940269026
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+
+ fire had been most effective in checking the advance of the Feder als . 
+ 
+ The Confeder ates had gained a great victory on the extreme left , and had 
+ the ir advance forces been re en for ced , the whole Union army might have been 
+ cut off from the Pot om ac and have been destroyed . But Me ade had sent 
+ General S loc um to re en force Sy kes , and had also sent General Howard with 
+ the Six th Corps to the aid of S ick les . The latter had been driven back 
+ from his position , but now the Feder als were in possession of the whole 
+ line . 
+ 
+ But the Confeder ates were not yet be aten . The struggle was still to 
+ continue . On the extreme right of the Union line , on C ulp ' s Hill , the 
+ F eder als had been forced back from the r idge , and here the Confeder ates 
+ had a strong position . But Me ade , learning of the success of his troops on 
+ the left , sent help to S ick les . General Howard ' s Six th Corps , under 
+ S loc um , was ordered to the front , and the Union forces drove the 
+ Conf eder ates from their strong position . 
+ 
+ The Confeder ates were now forced to ret ire from the field Use 20.620591640472412 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.463269943020519
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+con cur red in this view , it is not likely that it will be 
+ over turn ed by the new school of phys icians who have of late years 
+ rev ived the older views of g out as a tro ph o - ne u ros is . 
+ 
+ The expect ant treatment is not without its advoc ates , and it is 
+ certain ly the more rational method of treatment when it can be safely 
+ p urs ued . The phys ician who has the confidence of his patient and 
+ ob ser ves the sympt oms of g out with care , and is able to determine the 
+ ex istence of the constitution al vice , will often find it possible to 
+ reg ulate the treatment of the attack so as to control it without 
+ col ch icum . It is , however , well to bear in mind that the treatment of 
+ the constitution al vice and the treatment of the attack are two 
+ dist inct things , and that the expect ant method , however scientific , 
+ c annot be safely employed in the treatment of the latter . 
+ 
+ The treatment of g out y ar th rit is is determined by the same consider ations 
+ which determine the treatment of ac ute art icular g out . The 
+ anti ph log istic , expect ant , and abort ive methods have each their 
+ adv oc Use 20.47635817527771 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.502223188744743
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+a duty . 
+ 
+ " I have a little business to attend to first , Jin ny ," he said . " I 
+ sh all be ready in a few minutes ." 
+ 
+ " Oh , Uncle Sil as , I must have you to - day . I have something to say to 
+ you ." 
+ 
+ He was rising . 
+ 
+ " What is it ?" he asked , sharp ly . 
+ 
+ " I have come to tell you that I am engaged to Clar ence Col f ax ." 
+ 
+ The Judge sat down again , and laid his hand on his kne e . 
+ 
+ " I am glad ," he said , slowly . 
+ 
+ " Yes ," said Virginia , " I am glad , too . And I have come to ask you to 
+ g ive your consent ." 
+ 
+ " J in ny ," said the Judge , " you are not a child ." 
+ 
+ " No , Uncle Sil as , I am not . But I am your nie ce . I have come to ask you 
+ to give me your bless ing ." 
+ 
+ The Judge was silent . 
+ 
+ " I have always loved Clar ence , Uncle Sil as ," she said . " And he lov es me . 
+ He is not a weak ling , nor is he a cow ard . And I -- Use 20.632123708724976 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.45630375371
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+opened it . 
+ 
+ “ Oh , I beg you won ’ t mention this visit to anybody ,” said Kate , with 
+ ear nest ness . “ I don ’ t know what m amma would say , if she knew we had 
+ come to you .” 
+ 
+ “ And , of course , we won ’ t ,” put in Eth el . 
+ 
+ “ I will not say a word ,” Re uben answered , with a smile . 
+ 
+ “ And you will not think of it , either ,” said Kate , in a low voice . 
+ 
+ “ Oh , I am not such a fool !” 
+ 
+ The sister s hurried away , and Re uben stood in the door way until they 
+ w ere out of sight . Then he closed the door , and stood for a moment 
+ g az ing after them . 
+ 
+ “ I ’ m glad it ’ s a girl !” he said , with a smile . 
+ 
+ 
+ 
+ 
+ CH AP TER XX VI .-- THE B AT T LE OF THE LA W Y ERS . 
+ 
+ “ F AT HER , I have a question to ask you .” 
+ 
+ “ You don ’ t mean that , my child . I thought you had left off asking 
+ questions .” 
+ 
+ “ Well , I haven ’ t . I want to know Use 20.63013505935669 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.457504483638317
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+
+ about  1 · 6 6 to  1 ; and the lower , which is the c ella , is about  1 2 
+ in ches less than the next store y , and therefore the same in height as 
+ the whole . 
+ 
+ The py ram id itself is  3 4 feet in diameter at the base , and the whole 
+ height is  6 0 feet , or  1 2 ½ feet in the diameter of the base . The 
+ circ um ference of the base is  1 2 0 feet , and the height of the py ram id is 
+ 1 2 · 5 feet . The diameter of the base is therefore as  1 2 · 5 to  1 0 ; and the 
+ height as  1 2 · 5 to  1 2 . 
+ 
+ [ Illustration :  5 4 . Plan of T omb of C yrus , Pas arg ad æ . Sc ale  1 0 0 ft . to  1 
+ in .] 
+ 
+ [ Illustration :  5 5 . Plan of T omb of C yrus , Pas arg ad æ . Sc ale  1 0 0 ft . to  1 
+ in .] 
+ 
+ The tomb itself is  2 4 feet square , and  1 4 feet high , and the height of 
+ the py ram id is  1 2 feet Use 20.47424626350403 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.552354635789957
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+of a nun , 
+ that you will be very un gr ateful to God , and very w icked if you refuse 
+ the honor , and give occasion to the holy Madonna and the bl essed sain ts 
+ to shed tears of blood ." 
+ 
+ I could not speak , for I felt that my heart was burst ing . I knew that 
+ the devil had been busy with the Abb ess , and the Bishop and conf essor , 
+ and had been the author of my father ' s and god - father ' s proposition . 
+ I knew that it was the devil that had tempt ed me to faint , and had 
+ ca used me to faint . I knew that the devil had been busy with the Abb ess 
+ and conf essor , and had caused me to faint . I knew that it was the devil 
+ who had caused the Abb ess and conf essor to speak so sweet ly , and to 
+ t ell me such a number of lies . I knew that it was the devil who had 
+ ca used my father to tell me such a number of lies . I knew that it was 
+ the devil who had caused the Bishop and god - father to tell me such a 
+ number of lies . I knew that it was the devil who had caused my mother 
+ to tell me such a number Use 20.319849252700806 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.5985186610562
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+to having 
+ fif ty thousand dollars . I didn ' t want you to know it , because -- well , 
+ because I thought -- I thought you were -- po or ." 
+ 
+ " But you knew I wasn ' t poor . You knew I had a good business -- a good 
+ bus iness ." 
+ 
+ " Yes , I knew you had a business ; but I didn ' t know you had a GO OD 
+ bus iness . I thought you were poor , just the same ." 
+ 
+ " But I told you I wasn ' t . I told you I had a good business . I told you 
+ I had a -- a GO OD business . I told you I had a GO OD business ." 
+ 
+ " Yes , you did ," nod ded Miss Mag gie , her eyes still on the door . " But I 
+ did n ' t believe you ." 
+ 
+ " Why , Miss Mag gie , I ' m surprised at you !" 
+ 
+ " And I ' m surprised at myself , now ," she s ighed . " I ' m so ash amed . But 
+ I didn ' t believe you . I thought you were poor . I didn ' t want you to be 
+ po or . I thought -- I thought you were poor , because -- well , because I Use 20.320980548858643 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.597817284677172
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+
+ 
+ " There are three kinds of be es , and they are all pure b red . The It ali ans 
+ are the best , and are of a dark color , being so much larger and stronger 
+ than our own that they will fill a h ive in a day , while our s require 
+ se ver al . The It ali ans are more intellig ent and less destruct ive , and they 
+ will gather the h oney from the flowers without destroy ing the bl oss oms . 
+ They will also live through the winter , while our s per ish . There are two 
+ other kinds -- the Germ ans and Car ni ol ans . The Germ ans are l ighter in 
+ color , and the Car ni ol ans are of a light yellow . The Germ ans are the 
+ d ull est and least intellig ent of the three , and are not as good h oney 
+ produ cers as the It ali ans . They are also less destruct ive , but they will 
+ not live through the winter . The Car ni ol ans are the smallest , and are not 
+ so good h oney - produ cers as the It ali ans . The It ali ans , I think , are 
+ origin ally from the south of Europe , and are the most numerous . There are 
+ now so many of Use 20.955604553222656 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.216302295160034
+accepted rate 0.924812030075188, avg generated tokens 0.924812030075188
+
+ " I will not stay to be shot by a re bel ," said the officer , and he 
+ gal loped back to his party . 
+ 
+ " T re ach ery , by the Lord !" said Bur ley , " I have heard the name of the 
+ K ing ' s brother ' s son , and I will teach him not to fear a man of his 
+ own blood , even though he be a re bel ." 
+ 
+ " I thought so ," said the ins urg ent , turning to his compan ions ; " I thought 
+ so , and I told them so , that they were not to trust the words of a 
+ s old ier , but to take his p ledge in his own blood . Come , l ads , let us make 
+ a tr uce , and have a fair field for the fight ." 
+ 
+ " A fair field for the fight !" said the sp okes man , " that ' s an old 
+ say ing -- but the truth is , we have no time to spare , and the business is 
+ to o serious for par ley ing ." 
+ 
+ " If we will not fight ," said another , " we will fly ." 
+ 
+ " And if we will not fight , we will fly ," said another . 
+ 
+ " And if we will Use 20.313993453979492 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.602150363982215
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+his 
+ grand father . She received him with the same cold ness ; she addressed 
+ him with the same ind ifference . He was not the only one , however , who 
+ was struck with the change in her manner . The Mar qu ess of Be aum ano ir , 
+ who had been a frequent visitor at Con ings by , and was a great favour ite 
+ with Con ings by , was the first to remark it . 
+ 
+ ' I am very glad to see you here , my dear boy ,' he said , as they met 
+ at dinner . ' You will find us all very happy here , and you will be 
+ qu ite at home . I hope you will not be d ull .' 
+ 
+ ' I am very glad to see you here , too , Lord Be aum ano ir ,' said Con ings by , 
+ ' and I am sure I shall be very happy here . I am quite at home .' 
+ 
+ ' I am glad to hear it ,' said Lord Be aum ano ir . ' I am glad to see you 
+ here , for I know you will like it .' 
+ 
+ ' I am quite at home ,' said Con ings by . 
+ 
+ ' I am glad to hear it ,' said Lord Be aum ano ir . ' I am glad to see you 
+ Use 20.4675874710083 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.556438337641527
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+ap ours of a char nel house ?" 
+ 
+ " My p ardon , again , sir le ech ," said the patient , in a tone of the 
+ gre at est hum ility . " I had not thought that you , whose art hath been 
+ so benef icial to me , would have the heart to take such a reven ge ." 
+ 
+ " The reven ge of the art isan , when he is injured , is to break the 
+ inst rument which has wr ought him harm ," said D w ining , with a smile of 
+ tri umph . " The reven ge of the le ech , when he is injured , is to poison the 
+ pat ient who has ab used him . I am a le ech , and you are a kn ight ; and I 
+ have had my reven ge ." 
+ 
+ " I will never doubt thee more ," said Ram orn y . " I am now , I see , as 
+ secure from harm as if I were under the roof of the Black Douglas . And 
+ now , sir medic iner , I have a service to ask of thee , which I am sure 
+ will be as readily performed as all thy other benefits to me . I would 
+ have thee prepare a dra ug ht of such a nature as shall make me sleep 
+ secure ly , and Use 20.619296073913574 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.464053044232804
+accepted rate 0.9618320610687023, avg generated tokens 0.9618320610687023
+didn ' t . You ' d better sit down 
+ and listen to me ." 
+ 
+ J oe s ank back on the bed , his hands on his kne es . 
+ 
+ " I didn ' t mean to do it . I didn ' t mean to kill him ." 
+ 
+ " That ' s all right , Joe . You ' re going to get out of this all right ." 
+ 
+ " I ' d like to die ." 
+ 
+ " That ' s fool ish talk . You ' re going to live ." 
+ 
+ " I ' d like to die ." 
+ 
+ " You ' re going to live , Joe . You ' re going to get a job and go away . I ' m 
+ going to help you ." 
+ 
+ " I ' d like to die ." 
+ 
+ " That ' s a fine way to talk . It ' s all wrong . You ' re a good fellow , Joe . 
+ You ' ve got to live ." 
+ 
+ " I ' d like to die ." 
+ 
+ " I ' m going to help you ." 
+ 
+ " I ' d like to die ." 
+ 
+ K . was silent . The boy was hop eless . 
+ 
+ " I ' d like to die ." 
+ 
+ " You ' re going to live . You Use 20.47331190109253 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.55292750101099
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+hand s upon the head of the go at , and kill it before the L ORD , in the 
+ place where they kill the bur nt offering of the L ORD , which is at the 
+ door of the tab ern acle of the con greg ation . 
+ 
+ 4 : 2 5 And the priest shall take some of the blood of the sin offering 
+ with his finger , and put it upon the horn s of the alt ar of bur nt 
+ of fer ing , and shall pour out his blood at the bottom of the alt ar of 
+ bur nt offering . 
+ 
+ 4 : 2 6 And he shall burn all his fat upon the alt ar , as the fat of the 
+ bul lock is burn ed : and the priest shall make an at on ement for him as 
+ he did for the bul lock for his sin , and it shall be forg iven him . 
+ 
+ 4 : 2 7 And if any one of the common people sin through ignor ance , while 
+ he do eth somewhat against any of the command ments of the L ORD 
+ con c ern ing things which ought not to be done ; and he be guilty ;  4 : 2 8 Or 
+ if his sin , which he hath s inned , come to his knowledge ; he shall bring 
+ for his offering a kid Use 20.474570274353027 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.55215599430308
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+Th ou hast seen me , E ros , 
+    A sad spect acle ; my bra ins d ull ' d with my gr ief 
+    Have given me a stupid ity , and I 
+    Have forgot my Cle op atra . 
+  E RO S . O , my lord , 
+    It is not so ; for I have seen you we ep , 
+    And have heard you call her ' C le op atra ,' 
+    And have heard you call her ' que en .' 
+  AN T ON Y . Th ou art a fool , 
+    And dost not know me . I have forgot her . 
+    I have forgot her . 
+  E RO S . O , my lord , 
+    She is not dead ; she is not d rown ' d ; she is not lost ; 
+    She is not dead . 
+  AN T ON Y . O , she is dead . 
+  E RO S . O , she is d rown ' d . 
+  AN T ON Y . She is not d rown ' d . 
+  E RO S . She is not lost . 
+  AN T ON Y . She is not lost . 
+  E RO S . She is not dead . 
+  AN T ON Y . O , she Use 20.31844449043274 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.599389688543415
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+ley has been thoroughly worked , and yet the surface pla cers are still 
+ be ing re pl en ished . The hills are now being cut and scal ped again , and 
+ the hills beyond , and the hills beyond them , and the hills beyond 
+ th em , and the hills beyond them . 
+ 
+ It was with the view of learning something of the history of these 
+ anci ent rivers that I made my way to the foot of the Stanis laus 
+ Can on . The country I was travel ing through was a region of the most 
+ im press ive grande ur and beauty , yet almost entirely unknown to the 
+ public . A great forest of Se qu o ias , the fin est I had ever seen , 
+ ext ended from the sum mit of the range to the foot of the canon , and 
+ after crossing the range at a height of  5 0 0 0 feet above the sea , I 
+ desc ended the eastern slope through the midst of a beautiful garden of 
+ the ir gl orious kind red , the Se qu o ia , the Red wood , and the Y ellow P ine , 
+ down to the canon , where the Stanis laus , a river  3 0 0 feet deep , was 
+ bo oming and b raw ling between its rock y walls . 
+ 
+ The Se qu Use 20.788609981536865 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.362538920507491
+accepted rate 0.946969696969697, avg generated tokens 0.946969696969697
+introduction to Mr . 
+ J er ome , and the gentlemen who had been on the h unt with General Sher idan 
+ from Fort Mc Ph erson to H ays City , and from H ays City to Fort Mc Ph erson , 
+ in September of the previous year . 
+ 
+ The Union Club is a large and magnific ent structure , situated on the 
+ cor ner of Broadway and Th irty - four th street , and I found it to be one of 
+ the most elegant clubs in the city . It is a fine social and literary 
+ inst itution , and the members are some of the most prominent men in the 
+ country . It was very pleasant for me to be able to meet and associate with 
+ so many gentlemen whom I had known during my h unt on the pla ins . 
+ 
+ The first evening that I was at the club I was introduced to a gentleman 
+ wh ose name I had frequently seen in the newsp apers , and who was the 
+ editor of the _ New York Her ald _. He was James Gordon Ben nett , the 
+ ce le br ated newspaper man , and he had been my guest at Fort Mc Ph erson , 
+ while on the Sher idan h unt . We at once became very int imate , and he 
+ inv ited me to call upon him at his Use 20.63294529914856 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.407341573796742
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+of be aten gold , the size of a half - d ollar , 
+ and bore on it the image of a saint . 
+ 
+ " That ' s _ real _ gold ?" 
+ 
+ " Oh , yes . _ Real _ gold . You like it ?" 
+ 
+ " Yes , I like it ." 
+ 
+ " Me get it from my father ." 
+ 
+ " Your father -- he ' s a chief , isn ' t he ?" 
+ 
+ " Yes . _ He _ chief ." 
+ 
+ " What ' s his name ?" 
+ 
+ " G lov ot sky ." 
+ 
+ " What ! the Ol ' Chief ? The Ol ' Chief ' s your father ?" 
+ 
+ " Yes . He chief ." 
+ 
+ " What ! the Ol ' Chief -- N ich olas ' father ?" 
+ 
+ " Yes . He chief ." 
+ 
+ " And Nicholas -- N ich olas is your brother ?" 
+ 
+ " Yes ." 
+ 
+ " What ' s his father ' s name ?" 
+ 
+ " G lov ot sky ." 
+ 
+ " Oh , _ is _ it ? He ' s the Ol ' Chief ' s son , then ?" 
+ 
+ " Yes . _ He _ chief ." 
+ 
+ " You ' re not a P yme ut , then ." 
+ 
+ " No . _ Use 20.47504687309265 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.503023880078302
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+a Man ' s Des ire , when they 
+ are sure of the Prize , _ Fran cis _ ? 
+ 
+ _ Bel _. Hell take him , how he te az es me ! 
+ 
+ S ir _ Fe eb _. Come , _ Fran cis _, you shall have the Hon our of und ress ing me 
+ for the Enc ounter ; but ' tw ill be a sweet one , _ Fran cis _. 
+ 
+ _ Bel _. Hell take him , how he te az es me ! 
+ 
+ S ir _ Fe eb _. Come , _ Fran cis _, you shall have the Hon our of und ress ing me 
+ for the Enc ounter ; but ' tw ill be a sweet one , _ Fran cis _. 
+ 
+ _ Bel _. Hell take him , how he te az es me ! 
+ 
+ S ir _ Fe eb _. Come , _ Fran cis _, you shall have the Hon our of und ress ing me 
+ for the Enc ounter ; but ' tw ill be a sweet one , _ Fran cis _. 
+ 
+ _ Bel _. Hell take him , how he te az es me ! 
+ 
+ S ir _ Fe eb _. Come , _ Fran cis _, you shall have the Hon our of und ress ing me 
+ for the Enc ounter ; but ' tw ill be a sweet one , Use 20.164759874343872 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.695415248942052
+accepted rate 1.0, avg generated tokens 1.0
+ay , or in its flowers , 
+  D oth from this cause receive the virtue back . 
+ 
+ Th ence it comes , that , in the world below , 
+  The air , the water , and the earth , are all 
+  Of a diverse nature ; but in this 
+ 
+ The air is uniform , the water is the same , 
+  And the same the earth , because they all are here 
+  Trans m uted into one , and in the same 
+ 
+ P ure element , that is not cor rupt ible . 
+  Hence in this place is there no death , nor any 
+  Dist urb ance of the elements ; but all 
+ 
+ Are as they were when first they issued forth 
+  From the et ernal f ount ain , and the living 
+  M aint ain their prim al being , as they were . 
+ 
+ And therefore here is there no change , nor any 
+  Death , nor any alter ation , save in this , 
+  That the sou ls , who , having been imm ers ed 
+ 
+ In the sea of change , have reached the shore , 
+  Are pur ified and made imm ort al here , 
+  As the water in the sun be ams is dis col oured . 
+ 
+ This is the reason why the Use 20.78755497932434 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.315060633856266
+accepted rate 0.9393939393939394, avg generated tokens 0.9393939393939394
+
+ at the sight of my fear . He had not the Indian ' s subt le ty , and did not 
+ under stand that my face was a mask , and that behind it my spirit was 
+ st ill st out . He was too sure of his own pro w ess , and too confident of 
+ his pre y . 
+ 
+ I was close to the p istol now . I could feel the cold steel in my hand . 
+ I took a deep breath , and drew the trigger . 
+ 
+ The p istol was a poor weapon , and I had no time to aim . The bullet 
+ miss ed his body , but struck him on the shoulder , and he dropped his 
+ bow with a y ell of pain . 
+ 
+ I was on my feet in a moment , and at him . I struck at him with my 
+ cl en ched f ist , and he dod ged the blow , and spr ang back . But I was 
+ bes ide him , and my p istol was in my hand . 
+ 
+ He was a long - leg ged fellow , and I had no time to reload . But I knew 
+ that if I could keep him at bay I had a chance of winning . I struck 
+ ag ain , and this time caught him on the shoulder . 
+ 
+ He Use 20.470410585403442 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.505855655994631
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+the south ," and not the 
+ " king of dem ons ." ] 
+ 
+ 
+ 
+ CH AP TER XXX III 
+ 
+ ~ K ing As oka ' s V ow and his Three Vis its to the To pe of M ait re ya ~ 
+ 
+ 
+ In the second year of the period H w ang - che , [ 1 ] when the moon was in the 
+ four th month , the king made a v ow to the three P reci ous On es , that he 
+ w ould build eight y - four thousand top es , one over each atom of the 
+ re lic s of the body of Sak y am uni Bud d ha ; that he would build top es to the 
+ three previous Bud d has ; that he would build top es to the six previous 
+ B ud d has of the Bh ad ra - kal pa ; that he would build a to pe to the Bud d ha of 
+ the present Kal pa ; that he would build top es to the ten previous Bud d has 
+ of the present Kal pa ; that he would build top es to the eight previous 
+ B ud d has of the present Kal pa ; that he would build top es to the six 
+ previous Bud d has of the present Kal pa ; that he would build top es to the Use 20.465975522994995 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.508565727168275
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+
+ to Ly ell any desire to limit the action of the uniform forces which he 
+ supp oses to be now in operation , to the period represented by the oldest 
+ str ata ; but , at the same time , it is impossible to den y that , in practice , 
+ he has done so . 
+ 
+ If he had been asked , he would , I think , have said , that he did not see 
+ any reason why the action of these forces should not have been in 
+ operation for in defin ite periods , and that he did not , therefore , see any 
+ reason why ge ological spec ulation should not be carried back to any 
+ period , or forward to any period , of time which could be conce ived . 
+ 
+ But , in fact , the doctrine of Un iform itar ian ism is , in practice , limited 
+ to the period represented by the oldest foss il ifer ous rocks . 
+ 
+ Now , it is not the business of a ge ologist to be a mere chron ologist . 
+ Ge ology is not a chron ology , but a bi ography ; and the business of a 
+ ge ologist is to as certain the nature and the extent of the changes of the 
+ l iving world , and of the conditions of its existence , through in defin ite 
+ period s of Use 20.315471410751343 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.601233553680661
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+the first opportunity . He was obliged to guess the time by the clock in 
+ the hall . He had been in his room an hour and a half , and he was sure 
+ it was nearly mid night . He had been in his room an hour and a half , and 
+ he was sure it was nearly mid night . He had been in his room an hour and 
+ a half , and he was sure it was nearly mid night . He had been in his room 
+ an hour and a half , and he was sure it was nearly mid night . He had been 
+ in his room an hour and a half , and he was sure it was nearly 
+ mid night . He had been in his room an hour and a half , and he was sure 
+ it was nearly mid night . He had been in his room an hour and a half , and 
+ he was sure it was nearly mid night . He had been in his room an hour and 
+ a half , and he was sure it was nearly mid night . He had been in his room 
+ an hour and a half , and he was sure it was nearly mid night . He had been 
+ in his room an hour and a half , and he was sure it was nearly 
+ mid night .-- He had been in his room Use 20.149684190750122 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.704913763239967
+accepted rate 1.0, avg generated tokens 1.0
+-- aye ! He is worthy !" 
+ 
+ " We will follow him !" 
+ 
+ " A ye -- aye !" 
+ 
+ So they came to surr ound him , to touch his hand and his mail , and 
+ B elt ane , sm iling upon them , sp ake : 
+ 
+ " Now , good com r ades , I have sw orn you to this o ath -- ' tis well . And now 
+ I pray you take me to your chief , that I may speak with him ere we go 
+ up on our quest . So come , I pray you !" 
+ 
+ " A ye , lord ," said Eric , " but first -- we must have food and drink , for 
+ we are hun gry and th irst y ." 
+ 
+ " Y ea , lord ," said Walk yn , " and we have need of weapons and arm our , for 
+ the night is n igh ." 
+ 
+ " A ye , lord ," said G iles , " and we have need of horses , for the night is 
+ n igh ." 
+ 
+ " And horses are hard to come by , lord ," said Roger . 
+ 
+ " True ," said B elt ane , " but come now , I pray you ! I must speak with 
+ T ost ig ' s chief ." 
+ 
+ " A ye Use 20.615175008773804 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.418036707961324
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+playing with the same child ish g lee that he had 
+ play ed when he was a boy . The kn ife fle w up and down , up and down , 
+ tw ice , thr ice , the old hand w aving the bla de as the arm rose and fell , 
+ and the ga unt , bent figure rock ing to and fro . 
+ 
+ " You ' re playing for a doll ar , G id ," he was heard to say in a voice 
+ that was like the crack of a wh ip . " I ' m playing for a doll ar . I ' m 
+ play ing for a doll ar -- and I ' m going to win it !" 
+ 
+ The voice was not the voice of the old man who had gone up into the 
+ mount ains with his wife and children . The voice was the voice of a 
+ l ittle boy . 
+ 
+ 
+ 
+ CH AP TER XX III 
+ 
+ THE A TL AS V ER TE B RA 
+ 
+ The old man rose and turned , and the two who had come up saw that he was 
+ bare head ed . His hair was thick and white , but it was not the hair of 
+ the old man who had gone away . The face was the face of a little boy , 
+ with the same wide , dark - Use 20.465027332305908 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.558009125856485
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+as mar ble . Her hair was black , and her eyes , 
+ which were very dark , had a singular ly deep and l ustr ous expression , 
+ which seemed to gle am out from their very depth s , and , from the 
+ position of her head , were turned up ward . Her whole face was peculiar ly 
+ be aut iful , and her features , though not regular , were regular ized by the 
+ expression of her eyes . The gentleman ' s hair was dark , and he had a 
+ small , del icate , and fin ely - cut face , which seemed to be in un ison with 
+ the character of his companion . He wore a very slight and simple 
+ d ress ,-- a gray surtout , and a cap , which was not a cap , but a small 
+ t urban , tied under the ch in , and which , as he wore it , seemed to 
+ s ug gest a French man . 
+ 
+ The lady , who was lean ing on his arm , and who , as she seemed to me , was 
+ about the age of thirty , had a face of such singular beauty , that it 
+ was impossible to look at it without feeling that it was a face of 
+ gen ius ,-- a face which could not be forgotten . 
+ 
+ I was so absor Use 20.36032462120056 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.573473398033904
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+po et says . 
+ 
+ 
+ THE P H IL OS OP HER ' S TO AST . 
+ 
+ 
+  " Fri ends , I have a to ast ,-- 
+  And though you may not like it , 
+  It ' s the best one that I ' ve got ,-- 
+  And it ' s this ,-- 
+  ' The Philosoph ers are right !' 
+  I ' ve said it before , 
+  And I ' ll say it again , 
+  ' The Philosoph ers are right !' 
+ 
+  " You may be surprised , 
+  And say , ' What does he mean ?' 
+  ' T is a fact I aver , 
+  ' The Philosoph ers are right !' 
+  Though I ' ve said it before , 
+  And I ' ll say it again , 
+  ' The Philosoph ers are right !' 
+ 
+  " I know it ' s a fact , 
+  And I ' m not afraid to say it ; 
+  I ' ll say it again , 
+  ' The Philosoph ers are right !' 
+  Though I ' ve said it before , 
+  And I ' ll say it again , 
+  ' The Philosoph ers are right !' 
+ 
+  " I ' ll say it again , 
+  And I ' ll Use 20.463135242462158 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.559170281331598
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+will . 
+ There fore I say , ' tis fit , as I have said , 
+ That name of Ar no should be lost .  But hear 
+ How I am come .  In a certain city , 
+ That , for its wealth , is called the mother of the world , 
+ The people were divided into two parts , 
+ In their aff e ctions ; and to each of these 
+ I was a citiz en , though of the one 
+ I lean ' d more than of the other .  In this str ife 
+ I lost my country , and with loss of all 
+ My friends , and was const rain ' d to seek another . 
+ This one I found , and to his cour tes y 
+ I o we the life I have .  The other part 
+ Is mine ; and I have left them in their ra ge , 
+ For that the world is their s , and I have lost ." 
+     " O father ," answer ' d he , " I know the name 
+ Of that fair city , and of thee thy friend . 
+ S ay , if the other , who of th ine was friend , 
+ Is now with thee ?" -- " No ," answer ' d he , " for he died 
+ A short while after I was ban ish ' d th ence Use 20.775776624679565 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.370175355789561
+accepted rate 0.946969696969697, avg generated tokens 0.946969696969697
+portion of the house where a man could hide . I had a 
+ ph ot ograph of the place taken , and I sent it to Hill , telling him that 
+ if he had any idea of going there I should be watching the place . I 
+ ass ured him that I should be sure to catch him . He was not a fool to 
+ dis reg ard such an offer . He came the next day . I was watching from the 
+ road , and saw him arrive . I followed him into the house and saw him 
+ enter the library . He had no intention of going up to the third floor , 
+ but was going to hide somewhere in the library . He was afraid of being 
+ seen , but he was not afraid of being followed , so he did not hur ry . I 
+ follow ed him into the library , and , as I did not wish to fright en him 
+ by showing myself , I took the pre ca ution of closing the door behind me . 
+ He did not see me . He was sitting in the chair by the window , which was 
+ open , and I suppose he thought he was safe . He was sitting there when I 
+ s aw him . He was so intent on looking out of the window that he did not 
+ not ice me . I was in Use 21.08665704727173 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.1878019557041
+accepted rate 0.917910447761194, avg generated tokens 0.917910447761194
+I might lose it . I would 
+ r ather have it in the bank . You can do that for me , can you not ?" 
+ 
+ " I certainly can , and glad ly . The bank is on the corner . I will go with 
+ you and depos it it there . You can trust me ." 
+ 
+ She followed him into the hall , and then , as he started for the door , 
+ she asked : 
+ 
+ " Do you know the name of the bank ?" 
+ 
+ He did not . 
+ 
+ " It is of no consequence . I will take your word for it . Thank you , 
+ do ctor , and good - night ." 
+ 
+ " Good - night ," he answered , with a look of some surprise . 
+ 
+ She was alone , and turned back into the room . She could not go to bed 
+ y et . She must first see to the tele gram she had sent . But she had no 
+ key . The nur se must have it . Where was it ? She looked about . 
+ 
+ She had not found it , when the door was opened and a man entered . He 
+ look ed like a detect ive . She did not know him . He was not from New York . 
+ He was not even from the city . But he was Use 20.92839479446411 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.27996712237006
+accepted rate 0.9323308270676691, avg generated tokens 0.9323308270676691
+to you , ' I am looking 
+ for the be aver , and not for the l ion .' Then he will ask you , ' Who is 
+ spe aking to you ?' You will answer him , ' It is the l ion ,' and he will say to 
+ you , ' H ide me , for I am afraid of him .' You will say to him , ' I am not 
+ af raid of you , but I am afraid of the l ion ,' Then he will ask you , ' What is 
+ that which I see with you now ?' You will say to him , ' It is an ass which I 
+ have taken with me to carry bar ley .' He will say to you , ' I am not looking 
+ for the l ion , but for the ass .' Then he will ask you , ' Who is speaking to 
+ you ?' You will answer him , ' It is the be aver .' He will say to you , ' I am 
+ looking for the be aver , and not for the ass .' Then he will ask you , ' Who is 
+ spe aking to you ?' You will say to him , ' It is the l ion .' He will say to you , 
+ ' I am not looking for the ass , but for the l ion .' Then he will ask you Use 20.315938234329224 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.650166437586899
+accepted rate 0.9922480620155039, avg generated tokens 0.9922480620155039
+the 
+ command of an oracle , were the first who used rings , and they were 
+ int rodu ced by the Lac ed em oni ans into Greece . The Spart ans used rings , 
+ and it was by them , as we are told by Pl ut arch , that the use of rings 
+ was first introduced into Greece . 
+ 
+ The Rom ans also , as we learn from Pl ut arch , used rings , and the 
+ follow ing is the account he gives of them . " The Rom ans ," says he , " had 
+ the use of rings before the Ga uls , and in the time of T ull us Host il ius . 
+ They were introduced into the city , as we are informed by the Sib yl , 
+ from the Ga uls , and were brought by them from T roy , the remains of which 
+ they had taken . The Ga uls , who , as it is said , had been conquer ed by 
+ the Rom ans , had them of the Tro j ans . But the Tro j ans had them of the 
+ E gypt ians , who , in the time of the war of T roy , had them of the 
+ H eb rew s , who had them of the Israel ites , who had them from the 
+ E gypt ians , who had them from the Gree Use 20.46357488632202 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.558900457406413
+accepted rate 0.9769230769230769, avg generated tokens 0.9769230769230769
+on looked about him , and perce ived that he was on the deck of a 
+ man - of - war , and the old man was the captain . 
+ 
+ " I will go with thee ," said Napoleon . 
+ 
+ " I am not going ," said the old man . 
+ 
+ " But I am ," said Napoleon . 
+ 
+ And the old man was f ain to yield , and the ship bore Napoleon away . 
+ 
+ And Napoleon found himself in a fine old country - house , with a great 
+ old - f ashion ed garden , and a fine old - f ashion ed cook , and a fine old - f ashion ed 
+ but ler , and a fine old - f ashion ed house keeper , and a fine old - f ashion ed 
+ g over ness , and a fine old - f ashion ed gard ener , and a fine old - f ashion ed 
+ co ach man , and a fine old - f ashion ed gro om . And they all came to welcome him , 
+ and to offer him the best of everything . 
+ 
+ " My name is Louis ," said the old man , " and I am Louis the Dis este emed . 
+ Th ou hast come to me , and I must make thee welcome ." 
+ 
+ " I have come ," said Napoleon , Use 20.305058002471924 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.607696071039774
+accepted rate 0.9844961240310077, avg generated tokens 0.9844961240310077
+. " I ' m not going to be tra pped like that 
+ ag ain . I ' ve had enough of it . I ' ve been nearly killed once , and I ' m not 
+ going to be caught a second time ." 
+ 
+ " But , sign ore , you are not aware of the d angers . They are very great ," 
+ he said , still holding me back . " You have no idea how clever and 
+ ingen ious they are . I have been in London before , and I know the 
+ str at ag ems they employ ." 
+ 
+ " Well , I ' m going to see the Sign or ina He ath , at any rate ," I declared , 
+ and , sh aking off his hand , I went out , determined to take my chance of 
+ the danger . 
+ 
+ I returned to the Cec il , and then , after a few moments ' thought , I 
+ dec ided upon the best course to purs ue . 
+ 
+ I would go to the house in Bass ett Road , Not ting Hill , and endeav oring 
+ to find out from Mur iel ' s cousin whether the Sign or ina He ath was there , 
+ I would ask her to meet me at the Hotel Cec il at three o ' clock . 
+ 
+ I was a little late , Use 20.455938577651978 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.51470320113685
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+. New come , who had been acc ustom ed to 
+ m agn ific ent presents from her brother - in - law , would say , " Oh , you know 
+ we have so little room ; and I ' m sure you don ' t want to see me ; and I 
+ re ally can ' t ask you to come again . I ' m sure you ' ll exc use me ." And she 
+ w ould turn to her husband and say , " Don ' t you think , Sir Brian , that 
+ Col onel New come had better not come to see us again ?" And Sir Brian , 
+ who was a man of a very different stamp from his brother , would say , 
+ " C ertain ly , my dear , certainly . He is a very good - n ature d fellow , but 
+ he has no taste ; and I think it is not wise for us to encou rage him . 
+ You know , my dear , I am not fond of being mixed up with the New comes . 
+ I don ' t like them , my dear ." And Sir Brian would sh ake his head , and 
+ M rs . New come would s igh , and that would be the end of the Colonel ' s 
+ att empt s to be on friendly terms with his relations . 
+ 
+ Use 20.629273414611816 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.409550004736179
+accepted rate 0.9541984732824428, avg generated tokens 0.9541984732824428
+pre va iled , and the individual has per ished . In both cases the 
+ ind ividual was the most ill ust ri ous , and the nation the most powerful , 
+ that the world had ever seen . In both cases the struggle was carried on 
+ in the most memor able the at res of the world , and the cont ending nations 
+ w ere the most powerful of the world . In both cases the struggle was 
+ car ried on for the emp ire of the world . In both cases the cont ending 
+ gener als were the most ill ust ri ous of the world . In both cases the 
+ cont ending gener als were brothers ." 
+ 
+ [ Footnote  5 9 : Cre asy , vol . ii . p .  2 6 .] 
+ 
+ The battle of the Meta urus was a decis ive victory , and the defeat of 
+ Has dr ub al was the death - b low of the Car th agin ian power . Has dr ub al 
+ him self , after the battle , fell by his own hand ; and , as his head was 
+ th rown into Hann ib al ' s camp , the Car th agin ian exclaimed , " R ome will now 
+ be the mist ress of the world ." 
+ 
+ The loss of the Car th agini ans in this battle was great . Their Use 20.30746603012085 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.655444043033595
+accepted rate 0.9922480620155039, avg generated tokens 0.9922480620155039
+accus ation against a  
+ man they like , and are ready to commit murder , and commit it with  
+ ple asure , because they are angry .  But the just and holy God , who is  
+ just and holy in Him self , who has no pass ions , is not angry when He sees  
+ sin and fol ly ; but He is ind ign ant , and He is ind ign ant because He is  
+ just .  He is ind ign ant , because He is holy .  He is ind ign ant , because He  
+ is good .  He is ind ign ant , because He is a God of love , and therefore a  
+ G od of justice .  He is ind ign ant , because He is a God of power , and  
+ there fore a God of love .  He is ind ign ant , because He is a God of  
+ know ledge , and therefore a God of love .  He is ind ign ant , because He is  
+ a God of wisdom , and therefore a God of love .  He is ind ign ant , because  
+ He is a God of good ness , and therefore a God of love .  He is ind ign ant ,  
+ because He is a God of mer cy , Use 20.144635677337646 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.708097783470734
+accepted rate 1.0, avg generated tokens 1.0
+car n ation , were 
+ re comm ended for fe vers , and the common f um itory is still in request as a 
+ c ure for fe ver . The ju ice of the to ad - f lax was formerly given to persons 
+ who were seized with conv uls ions , and the ju ice of the w orm wood was 
+ former ly considered an ant id ote for the bit es of ven om ous be asts . 
+ 
+ A popular rem edy for p ains in the side , in some parts of England , is a 
+ pie ce of the wood of the ha zel - nut , and a de co ction of the elder was 
+ former ly used as a c ure for cr amps . [ 2 5 ] In the same way , a c ure for 
+ d ys ent ery was a de co ction of elder , and the ju ice of the elder - flow er 
+ was formerly recommended as a rem edy for the to oth ache . The ju ice of 
+ the elder - flow er , too , was formerly used as a rem edy for w orm s , and 
+ s weet - b ri ar was in request for the same compla int . In the same way the 
+ ju ice of the elder was recommended for " the falling sick ness ," and the 
+ ju ice Use 20.458916902542114 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.512881362169804
+accepted rate 0.9692307692307692, avg generated tokens 0.9692307692307692
+roads conver ged upon it , the great Roman 
+ road from Sil chester to London , the great Roman road from Sil chester to 
+ S outh am pton , the great Roman road from Sil chester to Ch ich ester , and 
+ the great Roman road from Sil chester to Win chester . 
+ 
+ In the Dark A ges , when the Rom ans were gone , the place was called 
+ W i ht w ic , and in the time of the Con quest it was one of the great 
+ man ors of William . The earliest mention of it is in the time of Edward 
+ the E lder , when it is said to have been the residence of his daughter 
+ A th el stan , Abb ess of St Mary of Win chester , who was buried here in the 
+ tw elf th century . It is not certain , however , that this was the great 
+ house of William ' s time , for we read that in  1 0 8 6 the man or of 
+ Win chester was held by the Bishop of Win chester , and that in  1 1 2 2 the 
+ B ishop was in possession of the man or . 
+ 
+ In  1 1 3 8 , however , Henry of Blo is , Bishop of Win chester , built a new 
+ castle , and the place seems to have been Use 20.785337924957275 sec to generate 256 tokens (now 123136 tokens), Tokens/s: 12.316374211680094
+accepted rate 0.9393939393939394, avg generated tokens 0.9393939393939394
+subject . I will write to you again when I have recovered my 
+ sp ir its . 
+ 
+ Y ours , with kind rem emb ran ces to Mrs . K ., 
+ 
+ C . L AM B . 
+ 
+ 
+ 
+ X C II . 
+ 
+ 
+ TO B ER N ARD B ART ON . 
+ 
+ _ M arch _  2 7 ,  1 8 2 6 . 
+ 
+ D ear B . B ., -- I have been a week or two in a strange state of 
+ ind ifference to all things . I have been reading " G il Bl as ," and have 
+ be en struck with its ex quis ite humor and good sense . The author ' s 
+ t aste is not in the least affected . It is the same , and in the same 
+ stra in , as that of Swift , with a great deal of the same _ bon - m ots _. 
+ " G il Bl as " is in fact a sort of " G ul liver ," only with a more 
+ l ively , a more _ natural _ imagination . I do not know what to call it , 
+ except a _ m oral _ rom ance . It is a rom ance of man ners , and a 
+ m oral -- _ i . e ._ , a moral rom ance . It is the Use 20.782287120819092 sec to generate 257 tokens (now 123137 tokens), Tokens/s: 12.366300133662616
