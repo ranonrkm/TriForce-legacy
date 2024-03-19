@@ -35,6 +35,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='gs', help='dataset')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--top_p', type=float, default=0.9, help='top p')
+    parser.add_argument('--budget', type=int, default=256)
     args = parser.parse_args()
     
     return args
@@ -88,7 +89,7 @@ print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature,
 
 ####### cache init #######
 cache = BatchSimpleCache(target, int(prefill+gen_len*2), bsz=bsz)
-draft_cache=BatchStreamEvictionCache(draft, start_size=16, recent_size=256-16, gamma=gamma, bsz=bsz)
+draft_cache=BatchStreamEvictionCache(draft, start_size=16, recent_size=args.budget-20-gamma, gamma=gamma, bsz=bsz)
 graph_engine = GraphInferenceEngine(target, cache, draft=draft, draft_cache=draft_cache, bsz=bsz)
 graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature, top_p=top_p)
 cache.print_status()
