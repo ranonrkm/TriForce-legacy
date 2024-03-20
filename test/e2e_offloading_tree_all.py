@@ -180,6 +180,8 @@ for input_ids in tokenized_prompts:
             next_token = next_token.unsqueeze(0)
             n += acc_count
             acc_count_list.append(acc_count)
+        if n < 100:
+            continue
         time2 = time.time()
         method_latency = (time2 - time1)/n
         print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
