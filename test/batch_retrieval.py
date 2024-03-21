@@ -43,18 +43,18 @@ def parse_arguments():
 args = parse_arguments()
 
 ######## model initialization ########
-if args.target == 'llama-7B':
-    target = LlamaForCausalLM.from_pretrained("/home/hanshis/workspace/NNSPD/models/7B", torch_dtype=torch.float16, device_map="cuda:0")
-elif args.target == 'llama-7B-32K':
-    target = LlamaForCausalLM.from_pretrained("togethercomputer/LLaMA-2-7B-32K", torch_dtype=torch.float16, device_map="cuda:0")
-elif args.target == 'llama-7B-128K':
+if args.target == 'llama-7B-128K':
     target = LlamaForCausalLM.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", torch_dtype=torch.float16, device_map="cuda:0")
+    tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", use_fast=True, legacy=False)
 elif args.target == 'llama-7B-1M':
     target = LlamaForCausalLM.from_pretrained("LargeWorldModel/LWM-Text-1M", torch_dtype=torch.float16, device_map="cuda:0")
+    tokenizer = AutoTokenizer.from_pretrained("LargeWorldModel/LWM-Text-1M", use_fast=True, legacy=False)
+elif args.target == 'Yi-6B-200K':
+    target = LlamaForCausalLM.from_pretrained("01-ai/Yi-6B-200K", torch_dtype=torch.float16, device_map="cuda:0")
+    tokenizer = AutoTokenizer.from_pretrained("01-ai/Yi-6B-200K", use_fast=True, legacy=False)
 else:
     raise NotImplementedError
 target = target.eval()
-tokenizer = AutoTokenizer.from_pretrained("NousResearch/Yarn-Llama-2-7b-128k", use_fast=True, legacy=False)
 
 
 ######## data initialization ########
@@ -102,7 +102,7 @@ cache.print_status()
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 
 ####### Warm up for baseline ########
-n_warmups = 3
+n_warmups = 1
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
     Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
@@ -111,8 +111,11 @@ with torch.no_grad():
     all_latency = []
     for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
         input_ids = input_ids.to(target.device)[:,:prefill]
+        # print(tokenizer.batch_decode(input_ids))
         latency, gen_tokens = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
         all_latency.append(latency)
+        # print(tokenizer.batch_decode(gen_tokens))
+        # exit()
 
     baseline_latency = (sum(all_latency) / len(all_latency)) * 1000
     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
@@ -125,14 +128,14 @@ n_warmups = 3
 input_ids = tokenized_prompts[0].to(target.device)[:,:prefill]
 for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
     acceptance_rate, avg_tokens, latency, gen_tokens = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=True, file_path=None, dataset=args.dataset)
-# print(tokenizer.batch_decode(gen_tokens))
+print(tokenizer.batch_decode(gen_tokens))
 all_acceptance_rate = []
 all_latency = []
 for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     if input_ids.size(0) != bsz:
         break
-    acceptance_rate, avg_tokens, latency = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset)
+    acceptance_rate, avg_tokens, latency, _ = Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=gamma, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=verbose, file_path=None, dataset=args.dataset)
     all_acceptance_rate.append(acceptance_rate)
     all_latency.append(latency)
 

@@ -42,6 +42,7 @@ def Baseline(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top_p=0.
 
 @torch.inference_mode()
 def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None):
+    vocab_size = graph_engine.engine.model.config.vocab_size
     graph_engine.clear_kv()
     bsz, prefill = input_ids.size()
     graph_engine.inference(input_ids=input_ids[:,:-1])
@@ -54,7 +55,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
     bonus_count = 0
     accepted_count = 0
     draft_count = 0
-    speculation_probs = torch.zeros((input_ids.size(0), gamma, 32000), dtype=torch.float16, device=input_ids.device)
+    speculation_probs = torch.zeros((input_ids.size(0), gamma, vocab_size), dtype=torch.float16, device=input_ids.device)
     generated_ids = torch.zeros((input_ids.size(0), gamma), dtype=torch.long, device=input_ids.device)
     accepted_count_list = torch.zeros((bsz,), dtype=torch.long, device=input_ids.device)
     
@@ -82,7 +83,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
         # verification
         verify_tokens = torch.cat([next_token, generated_ids], dim=1)
         logits = graph_engine.inference(input_ids=verify_tokens)
-        verify_probs = norm_logits(logits.view(-1, 32000), temperature=temperature ,top_k=top_k, top_p=top_p).view(bsz, gamma+1, -1) # (bsz, gamma+1, 32000)
+        verify_probs = norm_logits(logits.view(-1, vocab_size), temperature=temperature ,top_k=top_k, top_p=top_p).view(bsz, gamma+1, -1) # (bsz, gamma+1, vocab_size)
 
         # pre-compute residual for resampling
         # !!!TODO: using cuda graph to speed up sampling
@@ -155,7 +156,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
     if verbose:
         return acceptance_rate, avg_tokens, latency, gen_tokens
     else:
-        return acceptance_rate, avg_tokens, latency
+        return acceptance_rate, avg_tokens, latency, None
 
 @torch.inference_mode()
 def Baseline_StreamLLM_Evict(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, file_path=None, dataset=None):

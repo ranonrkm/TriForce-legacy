@@ -2,6 +2,37 @@ from typing import Any, Dict, List, Optional, Tuple
 from numpy import dtype
 import torch
 import math
+from transformers.models.llama.modeling_llama import repeat_kv
+
+def check_enough_idx(tensor, num_unique_idx=4):
+    slice_unique_elements = torch.unique(tensor)
+    return len(slice_unique_elements) >= num_unique_idx
+
+
+def binary_search_critical_width(tensor, left, right, num_unique_idx):
+    while left < right:
+        mid = (left + right) // 2
+        if check_enough_idx(tensor[:, :mid], num_unique_idx):
+            right = mid
+        else:
+            left = mid + 1
+    return left
+
+def merge_topk(tensor, topk_size=4096):
+    # tensor: [groups, tokens] --> [tokens]
+    assert len(tensor.size()) == 2, "tensor should be 2D"
+    groups = tensor.size(0)
+    left = topk_size // groups
+    right = topk_size
+    critical_width = binary_search_critical_width(tensor, left, right, topk_size)
+    x = tensor[:, :critical_width].T.flatten()
+    unique, inverse, counts = torch.unique(x, sorted=True, return_inverse=True, return_counts=True)
+    inv_sorted = inverse.argsort(stable=True)
+    tot_counts = torch.cat((counts.new_zeros(1), counts.cumsum(dim=0)))[:-1]
+    index = inv_sorted[tot_counts]
+    index = index.sort().values
+    ret = x[index][:topk_size]
+    return ret
 
 ####################### Batch KV cache #######################
 
@@ -11,10 +42,7 @@ class BatchSimpleCache:
 
         self.max_budget = max_budget
         self.hidden_size = model.config.hidden_size
-        if hasattr(model.config, 'num_key_value_heads'):
-            self.num_heads = model.config.num_key_value_heads
-        else:
-            self.num_heads = model.config.num_attention_heads
+        self.num_heads = model.config.num_key_value_heads
         self.head_dim = self.hidden_size // model.config.num_attention_heads
         self.layers = model.config.num_hidden_layers
         self.bsz = bsz
@@ -66,11 +94,11 @@ class BatchRetrievalCache:
         self.real_budget = max_budget + gamma
 
         self.hidden_size = model.config.hidden_size
-        if hasattr(model.config, 'num_key_value_heads'):
-            self.num_heads = model.config.num_key_value_heads
-        else:
-            self.num_heads = model.config.num_attention_heads
+
+        self.num_heads = model.config.num_key_value_heads
+        self.num_key_value_groups = model.config.num_attention_heads // model.config.num_key_value_heads
         self.head_dim = self.hidden_size // model.config.num_attention_heads
+        
         self.layers = model.config.num_hidden_layers
         self.bsz = bsz
         self.seq_len = torch.zeros(bsz, dtype=torch.int32).to(model.device)
@@ -90,13 +118,31 @@ class BatchRetrievalCache:
 
         assert 1 == query_states.shape[1], "query_states should be 1 for init"
 
+        # chunk_k: (bsz, chunks, chunk_size, kv_heads, head_dim) --> (bsz, chunks, kv_heads, head_dim)
         chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].cuda().view(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
+        chunk_k = repeat_kv(chunk_k.permute(0, 2, 1, 3), self.num_key_value_groups) # (bsz, kv_heads, chunks, head_dim)
         
-        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 2, 3, 1)).squeeze(2) # (bsz, 32, chunks)
+        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 1, 3, 2)).squeeze(2) # (bsz, 32, chunks)
+
+        # if self.num_key_value_groups > 1:
+        #     chunk_attn = chunk_attn.reshape(self.bsz, self.num_heads, self.num_key_value_groups, self.chunks).mean(dim=2) # (bsz, kv_heads, chunks)
+
+        # print(chunk_attn)
+
         _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
         topk_idx_rest += 1
         topk_idx_first = torch.zeros((topk_idx_rest.shape[0], topk_idx_rest.shape[1], 1), device=topk_idx_rest.device, dtype=topk_idx_rest.dtype)
         topk_idx = torch.cat([topk_idx_first, topk_idx_rest], dim=-1)  # (bsz, 32, select_sets)
+
+        if self.num_key_value_groups > 1:
+            merged_results = torch.empty((self.bsz, self.num_heads, self.select_sets), dtype=torch.long, device=topk_idx.device)
+            topk_idx = topk_idx.reshape(self.bsz, self.num_heads, self.num_key_value_groups, self.select_sets)
+            for i in range(self.bsz):
+                for j in range(self.num_heads):
+                    ret = merge_topk(topk_idx[i, j], topk_size=self.select_sets) # ret: torch.Size([select_sets])
+                    merged_results[i, j] = ret.clone()
+            
+            topk_idx = merged_results # collect ret and merge => torch.Size([bsz, num_heads, select_sets])
 
         expanded_index_tensor = topk_idx.permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim)
 

@@ -161,8 +161,11 @@ class LlamaAttention(nn.Module):
             # if isinstance(graph_cache, GraphFlashChunkCache):
             #     graph_cache.update_graph_cache(layer_idx=self.layer_idx, kv_cache=kv_cache, query_states=query_states[:,-1:])
 
-        key_states = repeat_kv(key_states, self.num_key_value_groups)
-        value_states = repeat_kv(value_states, self.num_key_value_groups)
+        # key_states = repeat_kv(key_states, self.num_key_value_groups)
+        # value_states = repeat_kv(value_states, self.num_key_value_groups)
+
+        # print(key_states)
+        # raise NotImplementedError
 
         # if storage_ids is not None:
         # # if isinstance(graph_cache, GraphFlashChunkTopKVerificationCache): # test use!!!!
@@ -179,6 +182,7 @@ class LlamaAttention(nn.Module):
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
+
         return attn_output
 
 class LlamaDecoderLayer(nn.Module):

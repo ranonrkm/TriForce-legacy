@@ -68,7 +68,7 @@ class InferenceEngine:
         logits = self.model(input_ids=input_ids, kv_cache=self.kv_cache, graph_cache=self.graph_cache, position_ids=position_ids, spec=True).logits
         if probs:
             bsz, gamma = input_ids.size()
-            return norm_logits(logits.view(-1, 32000), temperature=temperature ,top_k=-1, top_p=top_p).view(bsz, gamma, 32000)
+            return norm_logits(logits.view(bsz*gamma, -1), temperature=temperature ,top_k=-1, top_p=top_p).view(bsz, gamma, -1)
         return logits
 
     @torch.inference_mode()

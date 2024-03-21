@@ -75,7 +75,6 @@ class LlamaAttention(nn.Module):
         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
         self.max_position_embeddings = config.max_position_embeddings
         self.rope_theta = config.rope_theta
-        self.is_causal = True
 
         if (self.head_dim * self.num_heads) != self.hidden_size:
             raise ValueError(
@@ -134,10 +133,13 @@ class LlamaAttention(nn.Module):
         value_states = value_states.view(bsz, q_len, self.num_key_value_heads, self.head_dim)
 
         cos, sin = self.rotary_emb(value_states)
-        # print(position_ids)
         query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
         query_states = query_states.transpose(1, 2)
         key_states = key_states.transpose(1, 2)
+        # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids, gamma_offset, spec)
+
+        # print(key_states, key_states.shape)
+        # raise NotImplementedError
 
         if spec: # spec decoding: graph cache
             # print(position_ids, gamma_offset)
@@ -149,29 +151,11 @@ class LlamaAttention(nn.Module):
             if graph_cache is not None and query_states.shape[1] == 1:
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
-        key_states = repeat_kv(key_states, self.num_key_value_groups)
-        value_states = repeat_kv(value_states, self.num_key_value_groups)
-        # print(query_states.shape, key_states.shape, value_states.shape, position_ids, storage_ids)
-        
-        # if attention_mask is None:
-        #     assert spec == False, "Attention mask is None only for the last prefill"
-        #     assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
-        
-        #     attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-        #     attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        #     attn_output = torch.matmul(attn_weights, value_states)
+        # print(key_states, key_states.shape)
+        # raise NotImplementedError
 
-        # else:
-
-        ############ SDPA ############
-        # print(query_states.shape, key_states.shape, value_states.shape, position_ids)
-        # print(attention_mask.shape if attention_mask is not None else None)
-        # if attention_mask is None:
-        #     with torch.backends.cuda.sdp_kernel(enable_math=False):
-        #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states)
-        # else:
-        #     with torch.backends.cuda.sdp_kernel(enable_math=False):
-        #         attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask.half())
+        # key_states = repeat_kv(key_states, self.num_key_value_groups)
+        # value_states = repeat_kv(value_states, self.num_key_value_groups)
 
         ############ Flash Attn ############
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids, kv_cache.seq_len)
@@ -181,28 +165,12 @@ class LlamaAttention(nn.Module):
         else:
             attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
 
-
-        ############ Original ############
-        # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-        # if attention_mask is not None:
-        #     attn_weights = attn_weights + attention_mask
-        # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        # attn_output = torch.matmul(attn_weights, value_states)
-
-
-        # attn_weights = torch.matmul(query_states, key_states.permute(0, 1, 3, 2)) / math.sqrt(self.head_dim)
-        # if attention_mask is not None:
-        #     attn_weights = attn_weights + attention_mask
-        # else:
-        #     assert spec == False, "Attention mask is None only for the last prefill"
-        #     assert query_states.shape[2] == 1, "Attention mask is None only for the last prefill"
-        
-        # attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
-        # attn_output = torch.matmul(attn_weights, value_states)
-        
-        # attn_output = attn_output.transpose(1, 2).contiguous()
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
+
+        # print(attn_output)
+        # raise NotImplementedError
+
         return attn_output
 
 class LlamaDecoderLayer(nn.Module):
