@@ -280,3 +280,43 @@ Log CSV: None
  98%|█████████▊| 129/131 [07:14<00:07,  3.78s/it][A
  99%|█████████▉| 130/131 [07:17<00:03,  3.79s/it][A
 100%|██████████| 131/131 [07:21<00:00,  3.72s/it][A100%|██████████| 131/131 [07:21<00:00,  3.37s/it]
+TreeBaseline Test: 100%|██████████| 1/1 [20:07<00:00, 1207.58s/it]TreeBaseline Test: 100%|██████████| 1/1 [20:07<00:00, 1207.58s/it]
+[TreeBaseline-Autoregressive] average latency: 2.9888853011652823 s
+Cached Size: 131008 | Max Budget: 131280
+Max Budget: 13072  | Real Budget: 13328  | PreFill: 130752  | Chunk Size: 8  | Chunks: 16344  | Select Sets: 1634  | Graph Init: False  | Seq Len: 13072
+tokenized_prompts length: 101
+  0%|          | 0/131 [00:00<?, ?it/s]  1%|          | 1/131 [00:03<06:52,  3.17s/it]  2%|▏         | 2/131 [00:06<06:40,  3.11s/it]  2%|▏         | 3/131 [00:09<06:34,  3.08s/it]  3%|▎         | 4/131 [00:12<06:29,  3.07s/it]  4%|▍         | 5/131 [00:15<06:26,  3.07s/it]  5%|▍         | 6/131 [00:18<06:23,  3.07s/it]  5%|▌         | 7/131 [00:21<06:36,  3.19s/it]  6%|▌         | 8/131 [00:24<06:23,  3.12s/it]  7%|▋         | 9/131 [00:27<06:14,  3.07s/it]  8%|▊         | 10/131 [00:30<06:07,  3.04s/it]  8%|▊         | 11/131 [00:33<06:01,  3.02s/it]  9%|▉         | 12/131 [00:36<05:58,  3.02s/it] 10%|▉         | 13/131 [00:39<05:55,  3.01s/it] 11%|█         | 14/131 [00:42<05:51,  3.00s/it] 11%|█▏        | 15/131 [00:45<05:48,  3.00s/it] 12%|█▏        | 16/131 [00:48<05:46,  3.01s/it] 13%|█▎        | 17/131 [00:52<05:58,  3.15s/it] 14%|█▎        | 18/131 [00:57<07:07,  3.78s/it] 15%|█▍        | 19/131 [01:04<09:07,  4.88s/it] 15%|█▌        | 20/131 [01:08<08:14,  4.45s/it] 16%|█▌        | 21/131 [01:12<07:45,  4.24s/it] 17%|█▋        | 22/131 [01:20<10:09,  5.59s/it] 18%|█▊        | 23/131 [01:24<08:49,  4.90s/it] 18%|█▊        | 24/131 [01:27<08:02,  4.51s/it] 19%|█▉        | 25/131 [01:31<07:18,  4.14s/it] 20%|█▉        | 26/131 [01:34<06:45,  3.86s/it] 21%|██        | 27/131 [01:37<06:28,  3.74s/it] 21%|██▏       | 28/131 [01:41<06:11,  3.60s/it] 22%|██▏       | 29/131 [01:44<06:02,  3.55s/it] 23%|██▎       | 30/131 [01:47<05:45,  3.42s/it] 24%|██▎       | 31/131 [01:50<05:32,  3.33s/it] 24%|██▍       | 32/131 [01:53<05:23,  3.27s/it] 25%|██▌       | 33/131 [01:56<05:16,  3.23s/it] 25%|██▌       | 33/131 [01:58<05:53,  3.60s/it]
+Traceback (most recent call last):
+  File "/home/hanshis/workspace/LongContextInfer/test/e2e_offloading_tree_all.py", line 171, in <module>
+    next_token = spectree.prefill(prefix=input_ids)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/hanshis/workspace/LongContextInfer/utils/SpecTree.py", line 72, in prefill
+    self.graph_engine.prefill(input_ids=prefix.unsqueeze(0)[:,:-1])
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/hanshis/workspace/LongContextInfer/utils/tree_infer.py", line 130, in prefill
+    return self.engine.prefill(input_ids=input_ids)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/utils/_contextlib.py", line 115, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/hanshis/workspace/LongContextInfer/utils/tree_infer.py", line 25, in prefill
+    logits = self.model(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hanshis/workspace/LongContextInfer/models/modeling_llama_tree.py", line 370, in forward
+    outputs = self.model(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/hanshis/workspace/LongContextInfer/models/modeling_llama_tree.py", line 329, in forward
+    torch.cuda.synchronize()
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/cuda/__init__.py", line 801, in synchronize
+    return torch._C._cuda_synchronize()
+RuntimeError: CUDA error: unknown error
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
+Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
+
