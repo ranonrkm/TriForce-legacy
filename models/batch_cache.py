@@ -356,10 +356,7 @@ class DistributedBatchSimpleCache:
         
         self.max_budget = max_budget
         self.hidden_size = self.config.hidden_size
-        if hasattr(self.config, 'num_key_value_heads'):
-            self.num_heads = self.config.num_key_value_heads // self.world_size
-        else:
-            self.num_heads = self.config.num_attention_heads // self.world_size
+        self.num_heads = self.config.num_key_value_heads // self.world_size
         
         self.head_dim = self.hidden_size // self.config.num_attention_heads
         self.layers = self.config.num_hidden_layers
@@ -368,7 +365,7 @@ class DistributedBatchSimpleCache:
         dtype=torch.float16
         self.key_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
         self.value_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
-        print(f"Distributed Cache Initiated for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+        print(f"[Distributed Cache] Initiated for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
     
     def print_status(self):
         print("Budget:", self.max_budget, f"| bsz: {self.bsz}", f"| Cached: {self.seq_len.cpu().numpy()}")
@@ -380,15 +377,121 @@ class DistributedBatchSimpleCache:
 
         if layer_idx == 0:
             self.seq_len += key_states.shape[-3]
-        
         return self.key_cache[layer_idx], self.value_cache[layer_idx]
 
     def reset(self):
         self.key_cache.zero_()
         self.value_cache.zero_()
         self.seq_len.zero_()
+        print(f"[Distributed Cache] Reset for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
 
     def set_len(self, length):
         self.key_cache.normal_()
         self.value_cache.normal_()
         self.seq_len = length.clone()
+
+
+
+class DistributedBatchRetrievalCache:
+
+    def __init__(self, config, max_budget=1024, bsz=1, device=None, prefill=1024, chunk_size=8, gamma=6) -> None:
+
+        self.config = config
+        self.world_size = self.config.world_size
+        self.local_rank = self.config.local_rank
+        self.device  = device
+        
+        self.hidden_size = self.config.hidden_size
+        self.num_heads = self.config.num_key_value_heads // self.world_size
+        self.num_key_value_groups = config.num_attention_heads // config.num_key_value_heads
+        self.head_dim = self.hidden_size // config.num_attention_heads
+        self.layers = self.config.num_hidden_layers
+        self.bsz = bsz
+
+        self.chunk_size = chunk_size
+        self.prefill = prefill
+        self.chunks = prefill // self.chunk_size
+        self.select_sets = max_budget // self.chunk_size
+        self.gamma = gamma
+        self.max_budget = max_budget
+        assert prefill % self.chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {self.chunk_size}"
+        assert max_budget % self.chunk_size == 0, f"max_budget should be multiple of chunk_size, got {max_budget} % {self.chunk_size}"
+        self.real_budget = max_budget + gamma
+        
+        self.device=device
+        dtype=torch.float16
+        self.key_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        print(f"[Distributed Retrieval Cache] Initiated for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def print_status(self):
+        print("Budget:", self.max_budget, f"| bsz: {self.bsz}", " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets)
+
+    def init_graph_cache(self, kv_cache, query_states, layer_idx):
+
+        # query_states: (bsz, 1, 32, head_dim) --> (bsz, 32, 1, head_dim)
+        # key_cache: (bsz, seq_len, 32, head_dim) --> (bsz, 32, head_dim, seq_len)
+        # print(query_states.shape, self.chunk_k[layer_idx].shape)
+
+        assert 1 == query_states.shape[1], "query_states should be 1 for init"
+
+        # chunk_k: (bsz, chunks, chunk_size, kv_heads, head_dim) --> (bsz, chunks, kv_heads, head_dim)
+        chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].cuda().view(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
+        chunk_k = repeat_kv(chunk_k.permute(0, 2, 1, 3), self.num_key_value_groups) # (bsz, kv_heads, chunks, head_dim)
+        
+        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 1, 3, 2)).squeeze(2) # (bsz, 32, chunks)
+
+        _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
+        topk_idx_rest += 1
+        topk_idx_first = torch.zeros((topk_idx_rest.shape[0], topk_idx_rest.shape[1], 1), device=topk_idx_rest.device, dtype=topk_idx_rest.dtype)
+        topk_idx = torch.cat([topk_idx_first, topk_idx_rest], dim=-1)  # (bsz, 32, select_sets)
+
+        if self.num_key_value_groups > 1:
+            merged_results = torch.empty((self.bsz, self.num_heads, self.select_sets), dtype=torch.long, device=topk_idx.device)
+            topk_idx = topk_idx.reshape(self.bsz, self.num_heads, self.num_key_value_groups, self.select_sets)
+            for i in range(self.bsz):
+                for j in range(self.num_heads):
+                    ret = merge_topk(topk_idx[i, j], topk_size=self.select_sets) # ret: torch.Size([select_sets])
+                    merged_results[i, j] = ret.clone()
+            
+            topk_idx = merged_results # collect ret and merge => torch.Size([bsz, num_heads, select_sets])
+
+        expanded_index_tensor = topk_idx.permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim)
+
+        # (bsz, prefill, 32, head_dim) --> (bsz, chunks, chunk_size, 32, head_dim) --> (bsz, chunks, 32, chunk_size, head_dim)
+        key_ = kv_cache.key_cache[layer_idx][:, :self.prefill].reshape(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
+        key_ = key_.permute(0, 1, 3, 2, 4)
+        result_tensor = torch.gather(key_, 1, expanded_index_tensor) # (bsz, select_sets, 32, chunk_size, head_dim)
+        # (bsz, select_sets, 32, chunk_size, head_dim) --> (bsz, select_sets*chunk_size, 32, head_dim)
+        self.key_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(self.bsz, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
+
+        value_ = kv_cache.value_cache[layer_idx][:, :self.prefill].reshape(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
+        value_ = value_.permute(0, 1, 3, 2, 4)
+        result_tensor = torch.gather(value_, 1, expanded_index_tensor)
+        self.value_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(self.bsz, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
+
+        if layer_idx == self.layers-1:
+            self.init_graph = True
+            print(f"[Distributed Retrieval Cache] Built for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int,  gamma_offset :int):
+        
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = key_states.clone().squeeze(1)
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = value_states.clone().squeeze(1)
+
+        return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1]
+
+    def update_graph_cache(self, kv_cache=None):
+        bsz = kv_cache.seq_len.shape[0]
+        for i in range(bsz):
+            self.value_cache[:,i,self.max_budget-(kv_cache.seq_len[i]-self.prefill):self.max_budget] = kv_cache.value_cache[:,i, self.prefill:kv_cache.seq_len[i]]
+            self.key_cache[:,i,self.max_budget-(kv_cache.seq_len[i]-self.prefill):self.max_budget] = kv_cache.key_cache[:,i, self.prefill:kv_cache.seq_len[i]]
+
+    def reset(self):
+        self.key_cache.zero_()
+        self.value_cache.zero_()
+        print(f"[Distributed Retrieval Cache] Reset for {self.local_rank}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def normal_(self):
+        self.key_cache.normal_()
+        self.value_cache.normal_()

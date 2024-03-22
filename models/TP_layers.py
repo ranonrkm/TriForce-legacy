@@ -143,8 +143,6 @@ class DistributedLlamaLayer:
         self.wo :torch.Tensor= hf_layer.self_attn.o_proj.weight.detach()
         self.wo :torch.Tensor=self.wo.split(self.hidden_size // self.world_size, dim=1)[self.local_rank].pin_memory()
 
-        
-
         self.gate_proj :torch.Tensor= hf_layer.mlp.gate_proj.weight.detach()
         self.gate_proj :torch.Tensor = self.gate_proj.split(self.mlp_slice, dim=0)[self.local_rank].pin_memory()
 
@@ -162,7 +160,7 @@ class DistributedLlamaLayer:
 
         self.cos_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.cos_cached
         self.sin_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.sin_cached
-    
+
     def init_gpu(self, device:str = 'cuda:0'):
 
         self.input_layernorm_weight = self.input_layernorm_weight.to(device)
@@ -187,14 +185,13 @@ class DistributedLlamaLayerBuffer:
     def __init__(self, config:DistributedOffloadingConfig) -> None:
         self.device = torch.device("cuda", config.local_rank)
         self.config = config
-        
+
     def init_space(self, layer: DistributedLlamaLayer):
 
         self.wq = torch.zeros_like(layer.wq).to(self.device)
         self.wk = torch.zeros_like(layer.wk).to(self.device)
         self.wv = torch.zeros_like(layer.wv).to(self.device)
         self.wo = torch.zeros_like(layer.wo).to(self.device)
-
 
         self.gate_proj = torch.zeros_like(layer.gate_proj).to(self.device)
         self.up_proj = torch.zeros_like(layer.up_proj).to(self.device)

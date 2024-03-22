@@ -228,8 +228,10 @@ class OffloadingFlashSimpleCache(Cache):
         self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device='cpu').pin_memory()
 
         # init layer cache buffer on chip
-        self.key_cache_buffer = torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
-        self.value_cache_buffer = torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
+        self.key_cache_buffer = torch.zeros([2, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
+        self.value_cache_buffer = torch.zeros([2, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=self.device)
+
+        self.load_stream = torch.cuda.Stream(device=self.device)
 
     def print_status(self):
         print("[Offloading Flash Simple Cache] Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
@@ -2211,8 +2213,10 @@ class OffloadingTREESimpleCache(Cache):
         self.value_cache = torch.zeros([self.layers, 1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device='cpu').pin_memory()
 
         # init layer cache buffer on chip
-        self.key_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
-        self.value_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+        self.key_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+        self.value_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+
+        self.load_stream = torch.cuda.Stream(device=self.device)
 
     def print_status(self):
         print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
@@ -2223,6 +2227,10 @@ class OffloadingTREESimpleCache(Cache):
         self.value_cache.zero_()
         self.key_cache_buffer.zero_()
         self.value_cache_buffer.zero_()
+
+    def load_cache(self, layer_idx):
+        self.key_cache_buffer[(layer_idx) % 2].copy_(self.key_cache[layer_idx].squeeze(0), non_blocking=True)
+        self.value_cache_buffer[(layer_idx) % 2].copy_(self.value_cache[layer_idx].squeeze(0), non_blocking=True)
 
     def update(
         self,
@@ -2236,11 +2244,14 @@ class OffloadingTREESimpleCache(Cache):
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.cpu()
 
         # copy k v cache to buffer
-        self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
-        self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+        # self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
+        # self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+
+        self.key_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = key_states
+        self.value_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = value_states
         
-        key = self.key_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
-        value = self.value_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
+        key = self.key_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
+        value = self.value_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
 
         if layer_idx == self.layers-1:
             self.seq_len += key_states.shape[-2]

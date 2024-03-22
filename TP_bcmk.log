@@ -1,0 +1,36 @@
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+>>>> Flash RoPE installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+>>>> Flash RoPE installed
+>>>> Flash RoPE installed
+>>>> Flash RoPE installed
+[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 128, 224, 4, 128])
+[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 128, 4102, 4, 128])
+[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 128, 4102, 4, 128])
+[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 128, 4102, 4, 128])
+[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 128, 4102, 4, 128])
+[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 128, 4102, 4, 128])
+[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 128, 4102, 4, 128])
+Rank 1/8 (Device cuda:0) is initializing parameters
+[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 128, 4102, 4, 128])
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 128, 4102, 4, 128])
+Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.09it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.76it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.61it/s]
+Rank 2/8 (Device cuda:1) is initializing parameters
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.70it/s]

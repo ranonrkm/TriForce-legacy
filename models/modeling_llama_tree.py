@@ -261,6 +261,7 @@ class LlamaModel(LlamaPreTrainedModel):
         super().__init__(config)
         self.padding_idx = config.pad_token_id
         self.vocab_size = config.vocab_size
+        self.num_layers = config.num_hidden_layers
 
         self.embed_tokens = nn.Embedding(config.vocab_size, config.hidden_size, self.padding_idx)
         self.layers = nn.ModuleList(
@@ -299,18 +300,45 @@ class LlamaModel(LlamaPreTrainedModel):
                 attention_mask, (batch_size, seq_length), inputs_embeds, past_key_values_length
             )
 
-        for decoder_layer in self.layers:
-            layer_outputs = decoder_layer(
-                hidden_states,
-                attention_mask=attention_mask,
-                position_ids=position_ids,
-                kv_cache=kv_cache,
-                graph_cache=graph_cache,
-                storage_ids=storage_ids,
-                spec=spec,
-            )
 
-            hidden_states = layer_outputs
+        if not spec:
+            # load first layer kv cache first
+            
+            idx = 0
+            kv_cache.load_cache(idx)
+
+            torch.cuda.synchronize()
+            for decoder_layer in self.layers:
+                with torch.cuda.stream(kv_cache.load_stream):
+                    layer_outputs = decoder_layer(
+                        hidden_states,
+                        attention_mask=attention_mask,
+                        position_ids=position_ids,
+                        kv_cache=kv_cache,
+                        graph_cache=graph_cache,
+                        storage_ids=storage_ids,
+                        spec=spec,
+                    )
+                    hidden_states = layer_outputs
+
+                    idx += 1
+                    # update next layer's kv cache
+                    if idx != self.num_layers:
+                        kv_cache.load_cache(idx)
+                
+                torch.cuda.synchronize()
+        else:
+            for decoder_layer in self.layers:
+                layer_outputs = decoder_layer(
+                    hidden_states,
+                    attention_mask=attention_mask,
+                    position_ids=position_ids,
+                    kv_cache=kv_cache,
+                    graph_cache=graph_cache,
+                    storage_ids=storage_ids,
+                    spec=spec,
+                )
+                hidden_states = layer_outputs
 
         hidden_states = self.norm(hidden_states)
 
