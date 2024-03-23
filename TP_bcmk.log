@@ -702,3 +702,95 @@ Traceback (most recent call last):
   File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 214, in prefill
     logits = self.inference(input_ids=input_ids[:, i*64:(i+1)*64])
   File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 197, in inference
+[2024-03-22 20:43:27,790] torch.distributed.elastic.agent.server.api: [WARNING] Received Signals.SIGTERM death signal, shutting down workers
+[2024-03-22 20:43:27,794] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94168 closing signal SIGTERM
+[2024-03-22 20:43:27,794] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94169 closing signal SIGTERM
+[2024-03-22 20:43:27,794] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94170 closing signal SIGTERM
+[2024-03-22 20:43:27,794] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94171 closing signal SIGTERM
+[2024-03-22 20:43:44,598] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94168 closing signal SIGTERM
+[2024-03-22 20:43:44,598] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94169 closing signal SIGTERM
+[2024-03-22 20:43:44,598] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94170 closing signal SIGTERM
+[2024-03-22 20:43:44,598] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 94171 closing signal SIGTERM
+Traceback (most recent call last):
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 727, in run
+    result = self._invoke_run(role)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 868, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 62, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 94103 got signal: 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 734, in run
+    self._shutdown(e.sigval)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/local_elastic_agent.py", line 311, in _shutdown
+    self._pcontext.close(death_sig)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 318, in close
+    self._close(death_sig=death_sig, timeout=timeout)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 706, in _close
+    handler.proc.wait(time_to_wait)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/subprocess.py", line 1189, in wait
+    return self._wait(timeout=timeout)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/subprocess.py", line 1927, in _wait
+    time.sleep(delay)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 62, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 94103 got signal: 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 259, in launch_agent
+    result = agent.run()
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 123, in wrapper
+    result = f(*args, **kwargs)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 739, in run
+    self._shutdown()
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/local_elastic_agent.py", line 311, in _shutdown
+    self._pcontext.close(death_sig)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 318, in close
+    self._close(death_sig=death_sig, timeout=timeout)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 706, in _close
+    handler.proc.wait(time_to_wait)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/subprocess.py", line 1189, in wait
+    return self._wait(timeout=timeout)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/subprocess.py", line 1927, in _wait
+    time.sleep(delay)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 62, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 94103 got signal: 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
+    sys.exit(main())
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
+    run(args)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
+    elastic_launch(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 281, in launch_agent
+    events.record(agent.get_event_failed())
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 747, in get_event_failed
+    raw_error=traceback.format_exc(),
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 167, in format_exc
+    return "".join(format_exception(*sys.exc_info(), limit=limit, chain=chain))
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 120, in format_exception
+    return list(TracebackException(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 495, in __init__
+    context = TracebackException(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 495, in __init__
+    context = TracebackException(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 517, in __init__
+    self.stack = StackSummary.extract(
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/traceback.py", line 336, in extract
+    limit = getattr(sys, 'tracebacklimit', None)
+  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 62, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 94103 got signal: 1

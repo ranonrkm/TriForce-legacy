@@ -500,7 +500,7 @@ def Baseline_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top
             batch_spec_stream(next_token, tokenizer)
     torch.cuda.synchronize()
     time2 = time.time()
-    return (time2 - time1) / n, gen_tokens
+    return 1000 * (time2 - time1) / n, gen_tokens
 
 @torch.inference_mode()
 def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top_p=0.9, temperature=0.6, verbose=False, gamma=6, local_rank=0):
@@ -535,12 +535,8 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         for gamma_offset in range(gamma):
             position_ids = graph_engine.kv_cache.seq_len[:, None] + gamma_offset
             
-            # if local_rank == 0:
-            #     print(pred_token_idx, position_ids, gamma_offset)
-            
-            probs = graph_engine.retrieval_inference(input_ids=pred_token_idx, gamma_offset=gamma_offset, position_ids=position_ids)
-
-            pred_token_idx = sample_dist(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p), bsz, tokens=1)
+            probs = graph_engine.retrieval_graph_inference(input_ids=pred_token_idx, gamma_offset=gamma_offset, position_ids=position_ids)
+            pred_token_idx = sample_dist(probs, bsz, tokens=1)
 
             speculation_probs[:, gamma_offset] = probs
             generated_ids[:, gamma_offset] = pred_token_idx.squeeze()
@@ -548,6 +544,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
             draft_count += bsz
 
             dist.barrier()
+        # exit()
 
         # verification
         verify_tokens = torch.cat([next_token, generated_ids], dim=1)
@@ -575,10 +572,9 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                     n[j] += 1
                     pred_token_idx = token
 
-                    if local_rank == 0:
-                        spec_stream(pred_token_idx, tokenizer, 'green')
                     if verbose:
-                        # spec_stream(pred_token_idx, tokenizer, 'green')
+                        if local_rank == 0:
+                            spec_stream(pred_token_idx, tokenizer, 'green')
                         gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
                     # if eos
                     if tokenizer.eos_token_id == token.item():
@@ -589,13 +585,11 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                     # pred_token_idx = resample[j, i].unsqueeze(0)
                     
                     #!!! NEED REVISE
-                    # pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=bsz, tokens=1)
-                    pred_token_idx = sample_dist(verify_probs[j, i], bsz=bsz, tokens=1)
+                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=bsz, tokens=1)
                     
-                    if local_rank == 0:
-                        spec_stream(pred_token_idx, tokenizer, 'red')
                     if verbose:
-                        # spec_stream(pred_token_idx, tokenizer, 'red')
+                        if local_rank == 0:
+                            spec_stream(pred_token_idx, tokenizer, 'red')
                         gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
                     break
 
@@ -607,10 +601,9 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                 n[j] += 1
                 pred_token_idx = sample_dist(verify_probs[j, -1], bsz=bsz, tokens=1)
 
-                if local_rank == 0:
-                    spec_stream(pred_token_idx, tokenizer, 'blue')
                 if verbose:
-                    # spec_stream(pred_token_idx, tokenizer, 'blue')
+                    if local_rank == 0:
+                        spec_stream(pred_token_idx, tokenizer, 'blue')
                     gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
 
             next_token[j] = pred_token_idx.unsqueeze(0)
@@ -631,8 +624,8 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
     acceptance_rate = accepted_count / draft_count
     # assert round(acceptance_rate*gamma +1,2)  == round(avg_tokens,2), f"{acceptance_rate*gamma +1} != {avg_tokens}"
     assert total_count == n.sum().item(), f"{total_count} != {n.sum().item()}"
-    latency = (time2 - time1) / (total_count / bsz) *1000
-    graph_engine.engine.kv_cache.print_status()
+    latency = (time2 - time1) / (total_count / bsz) * 1000
+    graph_engine.kv_cache.print_status()
     print(f"acceptance rate: {acceptance_rate:.4f} | avg tokens: {avg_tokens:.4f} | latency: {latency:.4f} ms")
     if verbose:
         return acceptance_rate, avg_tokens, latency, gen_tokens

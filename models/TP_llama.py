@@ -7,6 +7,8 @@ import math
 import torch.nn.functional as F
 from torch import nn
 from typing import List, Optional, Tuple, Union
+import gc
+
 from .TP_layers import DistributedLlamaLayer, DistributedLlamaLayerBuffer, DistributedOffloadingConfig
 from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval
 import torch.distributed as dist
@@ -53,14 +55,16 @@ class DistributedLlama:
 
         self.temperature = temperature
         self.top_p = top_p
+        self.gamma = gamma
+        self.bsz = bsz
         
         if kv_offload:
-            self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+gen_len, bsz=bsz, device='cpu')
+            self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
             raise NotImplementedError("KV offload is not supported")
             # self.kv_buffer = KVCacheBuffer(self.config, device=self.device, dtype=dtype)
         else:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
-            self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
+        self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
 
         self.hidden_size = self.config.hidden_size
         self.num_heads = self.config.num_attention_heads
@@ -94,6 +98,7 @@ class DistributedLlama:
         for id in range(self.on_chip_layers):
             self.layers[id].to_gpu(device=self.device)
 
+    @torch.inference_mode()
     def layer_compute(self, 
             buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],
             layer_idx :int, 
@@ -154,6 +159,7 @@ class DistributedLlama:
         self.kv_cache.reset()
         self.retrieval_cache.reset()
 
+    @torch.inference_mode()
     def inference(self,
             input_ids: torch.LongTensor,
             position_ids: torch.LongTensor=None,
@@ -208,18 +214,20 @@ class DistributedLlama:
         logits = F.linear(hidden_states, self.lm_head).float()
         return logits
 
+    @torch.inference_mode()
     def prefill(self, input_ids: torch.LongTensor):
         iter_prefill = math.ceil(input_ids.shape[1] / 64)
         for i in range(iter_prefill):
             logits = self.inference(input_ids=input_ids[:, i*64:(i+1)*64])
         return logits
     
+    @torch.inference_mode()
     def build_retrieval_cache(self, input_ids: torch.LongTensor):
         assert input_ids.shape[-1] == 1
         logits = self.inference(input_ids=input_ids, retrieval_cache=self.retrieval_cache)
         return logits
     
-
+    @torch.inference_mode()
     def layer_speculation(self, 
             buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],
             layer_idx :int, 
@@ -277,6 +285,7 @@ class DistributedLlama:
         hidden_states = residual + hidden_states
         return hidden_states
     
+    @torch.inference_mode()
     def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
         hidden_states = F.embedding(input_ids, self.embed_tokens)
 
@@ -290,4 +299,53 @@ class DistributedLlama:
         )
 
         logits = F.linear(hidden_states, self.lm_head).float()
+        # print(logits)
         return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
+    
+    @torch.inference_mode()
+    def capture_graph_retrieval_inference(self, gamma_offset: int, mempool, n_warmups: int):
+        
+        static_input_ids = torch.full((self.bsz, 1), 0, dtype=torch.long, device=self.device)
+        static_position_ids = torch.full((self.bsz, 1), 1024, dtype=torch.long, device=self.device)
+        
+        s = torch.cuda.Stream()
+        s.wait_stream(torch.cuda.current_stream())
+        with torch.cuda.stream(s):
+            for _ in range(n_warmups):
+                static_logits = self.retrieval_inference(input_ids=static_input_ids, gamma_offset=gamma_offset, position_ids=static_position_ids)
+            s.synchronize()
+        torch.cuda.current_stream().wait_stream(s)
+
+        print(f"[retrieval run] capturing graph for spec len {gamma_offset} (temp={self.temperature}, top_p={self.top_p})...")
+        dist.barrier()
+        graph = torch.cuda.CUDAGraph()
+        with torch.cuda.graph(graph, pool=mempool):
+            static_logits = self.retrieval_inference(input_ids=static_input_ids, gamma_offset=gamma_offset, position_ids=static_position_ids)
+        dist.barrier()
+        def run(input_ids, position_ids):
+            static_input_ids.copy_(input_ids)
+            static_position_ids.copy_(position_ids)
+            graph.replay()
+            return static_logits.clone()
+        
+        return run
+
+
+    @torch.inference_mode()
+    def initialize_cuda_graph(self):
+        self.callables = {}
+        gc.collect()
+        self.mempool = torch.cuda.graphs.graph_pool_handle()
+
+        for gamma_offset in range(self.gamma):
+            self.callables[gamma_offset] = self.capture_graph_retrieval_inference(
+                                                gamma_offset=gamma_offset,
+                                                mempool=self.mempool,
+                                                n_warmups=24,
+                                            )
+
+        self.reset()
+
+    @torch.inference_mode()
+    def retrieval_graph_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
+        return self.callables[gamma_offset](input_ids, position_ids)

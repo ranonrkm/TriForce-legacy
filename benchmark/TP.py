@@ -13,6 +13,7 @@ from models.TP_llama import distributed_init, DistributedLlama
 from models.modeling_llama import LlamaForCausalLM
 from transformers import AutoTokenizer
 import numpy as np
+import time
 
 local_rank, world_size = distributed_init()
 device = torch.device("cuda", local_rank)
@@ -32,7 +33,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--budget', type=int,  default=4096)
     parser.add_argument('--bsz', type=int, default=1)
-    parser.add_argument('--file', type=str, default='')
+    parser.add_argument('--T', type=int, default=1000, help='repeat times')
     args = parser.parse_args()
     
     return args
@@ -46,6 +47,7 @@ temperature = 0.6
 top_p = 0.9
 retrieval_budget = args.budget
 gamma = args.gamma
+T = args.T
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
 llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma)
@@ -57,37 +59,37 @@ for rank in range(world_size):
         del hf_model
     dist.barrier()
 
-llm.initialize_cuda_graph()
-
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
 input_ids = tokenized_prompts[0][:,:prefill].repeat(bsz, 1).to(device)
 
-# prompts = "Speculative decoding is a technique that allows the model to generate multiple tokens in parallel."
-# input_ids = tokenizer.encode(prompts, return_tensors="pt").to(device)
-# input_ids = input_ids.repeat(2, 1)
+llm.prefill(input_ids=input_ids[:,:-1])
+logits = llm.build_retrieval_cache(input_ids=input_ids[:,-1:])
 
-all_speed_up = []
-all_acc_list = []
+LEN = [1,2,4,5,6,7,8,9,10,11,12,12,13,14,15,16,32,64,96,128]
 
-baseline_latency, gen_tokens = Baseline_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
-if local_rank == 0:
-    # llm.kv_cache.print_status()
-    # print(tokenizer.batch_decode(gen_tokens))
-    print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
-    if args.file:
-        with open(args.file, 'a') as f:
-            f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
-dist.barrier()
+with torch.inference_mode():
+    for l in LEN:
+        sentence = torch.randint(low=3, high=30000, size=(bsz, l)).to(llm.device)
+        torch.cuda.synchronize()
+        t1 = time.time()
+        for _ in range(T):
+            llm.inference(input_ids=sentence)
+            llm.kv_cache.seq_len -= l
+        torch.cuda.synchronize()
+        t2 = time.time()
+        foward_time = (t2 - t1) / T * 1000
 
-# acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
-# if local_rank == 0:
-#     # print(tokenizer.batch_decode(gen_tokens))
-#     llm.kv_cache.print_status()
-#     print(colored(f"[Retrieval-Speculative-Decoding] average latency: {retrieval_latency} ms", "red"))
-#     all_speed_up.append(baseline_latency / retrieval_latency)
-#     all_acc_list.append(acceptance_rate)
-# dist.barrier()
+        torch.cuda.synchronize()
+        t1 = time.time()
+        position_ids = llm.kv_cache.seq_len[:, None] + gamma -1
+        input_ids = torch.randint(low=3, high=30000, size=(bsz, 1)).to(llm.device)
+        for _ in range(T):
+            llm.retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
+        torch.cuda.synchronize()
+        t2 = time.time()
+        draft_time = (t2 - t1) / T * 1000
 
-# print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
-# print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")
+        if local_rank == 0:
+            print(f"bsz={bsz}, prefill={prefill}, verify_len={l}, foward_time={foward_time}, draft_time={draft_time}", flush=True)
+

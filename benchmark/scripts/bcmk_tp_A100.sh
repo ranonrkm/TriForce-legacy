@@ -29,4 +29,4 @@ CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=48 torchrun --nproc_per_node=1 test/TP_ba
 CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=48 torchrun --nproc_per_node=1 test/TP_baseline.py --prefill 128 --bsz 8 --gen_len 128 --budget 0 --file tp_A100.csv
 CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=48 torchrun --nproc_per_node=1 test/TP_baseline.py --prefill 128 --bsz 4 --gen_len 128 --budget 0 --file tp_A100.csv
 CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=48 torchrun --nproc_per_node=1 test/TP_baseline.py --prefill 128 --bsz 2 --gen_len 128 --budget 0 --file tp_A100.csv
-CUDA_VISIBLE_DEVICES=1 OMP_NUM_THREADS=48 torchrun --nproc_per_node=1 test/TP_baseline.py --prefill 128 --bsz 1 --gen_len 128 --budget 0 --file tp_A100.csv
+CUDA_VISIBLE_DEVICES=8,9 OMP_NUM_THREADS=48 torchrun --nproc_per_node=2 test/TP_baseline.py --prefill 128 --bsz 1 --gen_len 128 --budget 0 --file tp_A100.csv

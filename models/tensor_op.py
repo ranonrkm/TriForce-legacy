@@ -152,10 +152,6 @@ def TP_Attention(
     value_states = value_states.view(bsz, q_len, local_num_key_value_heads, head_dim)
     #[bsz, q_len, local_num_kv_heads, head_dim]
 
-        
-    # kv_seq_len = key_states.shape[-2]
-    # kv_seq_len += kv_buffer.kv_offset
-
     cos = cos_cache.to(value_states.dtype)
     sin = sin_cache.to(value_states.dtype)
 
@@ -172,6 +168,7 @@ def TP_Attention(
     if flash_attn:
         attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_buffer.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
     else:
+        raise ValueError("Attention mask is required for TP-Attention")
         key_states = repeat_kv(key_states, num_key_value_groups)
         value_states = repeat_kv(value_states, num_key_value_groups)
 
@@ -186,6 +183,21 @@ def TP_Attention(
         attn_output = attn_output.transpose(1, 2).contiguous()
 
     attn_output = attn_output.reshape(bsz, q_len, local_num_heads * head_dim)
+
+    # if torch.distributed.get_rank() ==0 and layer_idx==1 and position_ids.shape[-1]==1:
+    #     # print("Correct Key:", key_states[:,:10, 16], "Correct Value:", value_states[:,:10, 16], "Correct Q: ",query_states)
+    #     print('GT ATTN: ', attn_output)
+    #     # save to disk
+    #     state_dict = {
+    #         'hidden_states': hidden_states,
+    #         'attn_output': attn_output,
+    #         'key_states': key_states,
+    #         'value_states': value_states,
+    #         'query_states': query_states,
+    #         'position_ids': position_ids
+    #     }
+    #     torch.save(state_dict, 'gt.pt')
+    #     print(position_ids)
 
     #[bsz, q_len, h // tp]
     hidden_states = F.linear(attn_output, wo)
@@ -236,15 +248,34 @@ def TP_Attention_Retrieval(
 
     key_states, value_states = retrieval_cache.update(key_states=key_states, value_states=value_states, layer_idx=layer_idx, gamma_offset=gamma_offset)
 
-    # if torch.distributed.get_rank() ==0:
-    #     # print("Key:", key_states, "Value:", value_states, "Q: ",query_states)
+    # if torch.distributed.get_rank() ==0 and layer_idx==1:
+    #     print("Spec Key:", key_states[:,:10, 16], "Spec Value:", value_states[:,:10, 16], "Spec Q: ",query_states)
     #     print(position_ids)
     if flash_attn:
-        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
+        # attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
+        attn_weights = torch.matmul(query_states.transpose(1,2), key_states.transpose(1,2).transpose(2, 3)) / math.sqrt(head_dim)
+        attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        
+        attn_output = torch.matmul(attn_weights, value_states.transpose(1,2))
+        attn_output = attn_output.transpose(1, 2).contiguous()
     else:
         raise ValueError("Non-Flash-Attn Retrieval TP-Attention is not implemented yet")
 
     attn_output = attn_output.reshape(bsz, q_len, local_num_heads * head_dim)
+
+    # if torch.distributed.get_rank() ==0 and layer_idx==1 and position_ids.shape[-1]==1:
+    #     # print("Correct Key:", key_states[:,:10, 16], "Correct Value:", value_states[:,:10, 16], "Correct Q: ",query_states)
+    #     print("ATTN-retrieval: ", attn_output)
+    #     state_dict = {
+    #         'hidden_states': hidden_states,
+    #         'attn_output': attn_output,
+    #         'key_states': key_states,
+    #         'value_states': value_states,
+    #         'query_states': query_states,
+    #         'position_ids': position_ids
+    #     }
+    #     torch.save(state_dict, 're.pt')
+    #     print(position_ids)
 
     #[bsz, q_len, h // tp]
     hidden_states = F.linear(attn_output, wo)
