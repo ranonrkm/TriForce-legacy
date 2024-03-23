@@ -42,9 +42,10 @@ bsz = args.bsz
 gen_len = args.gen_len
 temperature = 0.6
 top_p = 0.9
+retrieval_budget = args.budget
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")

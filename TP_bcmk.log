@@ -1358,3 +1358,17 @@ Rank 1/1 (Device cuda:0) is initializing parameters
 [Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 2, 4102, 32, 128])
 Rank 1/1 (Device cuda:0) is initializing parameters
 Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.00it/s]
+Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.27it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  7.23it/s]Resolving data files:  35%|███▍      | 8/23 [00:01<00:01, 11.02it/s]Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 18.38it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.69it/s]
+[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 2, 224, 32, 128])
+[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 2, 4102, 32, 128])
+[Baseline-Autoregressive] average latency: 0.02748984843492508 ms
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 1, 224, 32, 128])
+[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 1, 4102, 32, 128])
+Rank 1/1 (Device cuda:0) is initializing parameters
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.27it/s]
+Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.92it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  8.47it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 31.22it/s]
+[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 1, 224, 32, 128])
+[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 1, 4102, 32, 128])
+[Baseline-Autoregressive] average latency: 0.026315756142139435 ms
