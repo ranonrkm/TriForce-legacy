@@ -234,7 +234,7 @@ def TP_Attention_Retrieval(
     query_states = query_states.transpose(1, 2)
     key_states = key_states.transpose(1, 2)
 
-    key_states, value_states = retrieval_cache.update(key_states, value_states, layer_idx, gamma_offset=gamma_offset)
+    key_states, value_states = retrieval_cache.update(key_states=key_states, value_states=value_states, layer_idx=layer_idx, gamma_offset=gamma_offset)
 
     # if torch.distributed.get_rank() ==0:
     #     # print("Key:", key_states, "Value:", value_states, "Q: ",query_states)

@@ -278,11 +278,9 @@ class DistributedLlama:
         return hidden_states
     
     def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
-        # kv_len = self.kv_cache.kv_offset
         hidden_states = F.embedding(input_ids, self.embed_tokens)
 
         for idx in range(self.num_layers):
-            # print(f"Rank {self.local_rank} is computing layer {idx} with {hidden_states.device} using {self.layers[idx].wq.device}")
             hidden_states = self.layer_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=None, retrieval_cache=self.retrieval_cache, gamma_offset=gamma_offset)
 
         hidden_states = RMSNorm(
