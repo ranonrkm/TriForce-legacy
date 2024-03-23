@@ -70,8 +70,8 @@ if local_rank == 0:
     # print(tokenizer.batch_decode(gen_tokens))
     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
     if args.file:
-    with open(args.file, 'a') as f:
-        f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
+        with open(args.file, 'a') as f:
+            f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
 dist.barrier()
 
 # retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
