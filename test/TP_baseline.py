@@ -31,6 +31,7 @@ def parse_arguments():
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--budget', type=int,  default=4096)
     parser.add_argument('--bsz', type=int, default=1)
+    parser.add_argument('--file', type=str, default='')
     args = parser.parse_args()
     
     return args
@@ -69,6 +70,9 @@ if local_rank == 0:
     # print(tokenizer.batch_decode(gen_tokens))
     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
 dist.barrier()
+if args.file:
+    with open(args.file, 'a') as f:
+        f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
 
 # retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
 # if local_rank == 0:
