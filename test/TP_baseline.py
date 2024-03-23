@@ -69,10 +69,10 @@ if local_rank == 0:
     # llm.kv_cache.print_status()
     # print(tokenizer.batch_decode(gen_tokens))
     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} ms", "red"))
-dist.barrier()
-if args.file:
+    if args.file:
     with open(args.file, 'a') as f:
         f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
+dist.barrier()
 
 # retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
 # if local_rank == 0:

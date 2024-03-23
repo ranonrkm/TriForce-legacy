@@ -1,632 +1,36 @@
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 128, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 128, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 128, 4102, 4, 128])
-Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.17s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.26it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.28it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.12it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.52it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.30it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.13it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.19it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.02it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.97it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.36it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.65it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.49it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.32it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.97it/s]Resolving data files:  17%|█▋        | 4/23 [00:00<00:02,  7.25it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.34it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:  35%|███▍      | 8/23 [00:00<00:01, 12.98it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.34it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:21,  1.03it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:05,  3.41it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.17it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.12it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.17s/it]Resolving data files:   4%|▍         | 1/23 [00:00<00:09,  2.34it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.17it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.88it/s]
-Resolving data files:  22%|██▏       | 5/23 [00:01<00:03,  5.56it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:23,  1.07s/it]Resolving data files:  52%|█████▏    | 12/23 [00:01<00:00, 15.28it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.33it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:11,  1.86it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:07,  2.80it/s]Resolving data files:  35%|███▍      | 8/23 [00:01<00:01,  9.35it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.79it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.33it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.17it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:05,  3.50it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.64it/s]Resolving data files:  52%|█████▏    | 12/23 [00:01<00:00, 12.62it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.34it/s]
-Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 21.92it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.96it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.84it/s]
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 128, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 128, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 128, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.03083408623933792 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 64, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 64, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.05it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.89it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.48it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.27it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.10it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.25it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.23it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.42it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.20it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.03it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.68it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.36it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.10it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:22,  1.03s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.21it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:24,  1.10s/it]Resolving data files:  17%|█▋        | 4/23 [00:01<00:04,  4.47it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:22,  1.01s/it]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.48it/s]Resolving data files:  22%|██▏       | 5/23 [00:01<00:03,  5.57it/s]Resolving data files:  35%|███▍      | 8/23 [00:01<00:01,  9.16it/s]Resolving data files:  26%|██▌       | 6/23 [00:01<00:02,  5.87it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:10,  2.00it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.10it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:24,  1.10s/it]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.81it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.95it/s]
-Resolving data files:  13%|█▎        | 3/23 [00:01<00:05,  3.50it/s]Resolving data files:  48%|████▊     | 11/23 [00:01<00:00, 12.08it/s]Resolving data files:  17%|█▋        | 4/23 [00:01<00:04,  4.22it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:09,  2.26it/s]Resolving data files:  57%|█████▋    | 13/23 [00:01<00:00, 13.46it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.47it/s]
-Resolving data files:  48%|████▊     | 11/23 [00:01<00:00, 15.17it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.32it/s]Resolving data files:  22%|██▏       | 5/23 [00:01<00:02,  6.31it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.72it/s]
-Resolving data files:  57%|█████▋    | 13/23 [00:01<00:00, 15.84it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.41it/s]
-Resolving data files:  78%|███████▊  | 18/23 [00:01<00:00, 16.07it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.36it/s]
-Resolving data files:  83%|████████▎ | 19/23 [00:01<00:00, 25.99it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.97it/s]
-Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.57it/s]Resolving data files:  52%|█████▏    | 12/23 [00:01<00:00, 16.79it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 20.85it/s]
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 64, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 64, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 64, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.02915795147418976 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 32, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 32, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.18it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.02it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.07it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.92it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.00it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.86it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.93it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.04it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.89it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.97it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.32it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.95it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.33it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.14it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.89it/s]Resolving data files:  30%|███       | 7/23 [00:01<00:01,  8.93it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.05it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:21,  1.00it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:27,  1.26s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:11,  1.89it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:08,  2.58it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.16s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.69it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:09,  2.13it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:06,  3.32it/s]Resolving data files:  35%|███▍      | 8/23 [00:01<00:01,  8.82it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.60it/s]
-Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 14.23it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 14.81it/s]
-Resolving data files:  30%|███       | 7/23 [00:01<00:02,  7.51it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.56it/s]
-Resolving data files:  17%|█▋        | 4/23 [00:01<00:04,  4.58it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:14,  1.48it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.70it/s]
-Resolving data files:  39%|███▉      | 9/23 [00:01<00:01,  8.14it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.22it/s]
-Resolving data files:  30%|███       | 7/23 [00:01<00:02,  7.90it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.80it/s]
-Resolving data files:  22%|██▏       | 5/23 [00:01<00:04,  3.80it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.77it/s]
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 32, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 32, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 32, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.02852039784193039 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 16, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 16, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.06it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.91it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.97it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.23s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.09it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.12it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.96it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.02it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.88it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.86it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.22it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.20it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.92it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.16it/s]Resolving data files:  17%|█▋        | 4/23 [00:01<00:03,  4.89it/s]Resolving data files:  48%|████▊     | 11/23 [00:01<00:00, 16.35it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.45it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.25it/s]Resolving data files:  39%|███▉      | 9/23 [00:01<00:01, 10.71it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.37it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.13it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:08,  2.50it/s]Resolving data files:  22%|██▏       | 5/23 [00:01<00:02,  6.28it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.73it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.14s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:11,  1.90it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.17it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:07,  2.86it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.97it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:29,  1.35s/it]Resolving data files:  13%|█▎        | 3/23 [00:01<00:07,  2.73it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.27it/s]
-Resolving data files:  30%|███       | 7/23 [00:01<00:01,  8.49it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.58it/s]
-Resolving data files:  17%|█▋        | 4/23 [00:01<00:05,  3.33it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.15it/s]
-Resolving data files:  13%|█▎        | 3/23 [00:01<00:06,  2.91it/s]Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 21.14it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.11it/s]
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 16, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 16, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 16, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.027580156922340393 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 8, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 8, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.62it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.52it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.33it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.06it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.91it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.21it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.04it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.10it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.94it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.64it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.35it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.22it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.05it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.97it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.20it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.14it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:09,  2.34it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.06it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.05it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:05,  3.77it/s]Resolving data files:  26%|██▌       | 6/23 [00:01<00:02,  6.96it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:06,  3.17it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.15it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:11,  1.90it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.94it/s]
-Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  8.47it/s]Resolving data files:  26%|██▌       | 6/23 [00:01<00:02,  6.76it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.20it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 27.30it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:28,  1.28s/it]Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 15.07it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.50it/s]
-Resolving data files:  30%|███       | 7/23 [00:01<00:01,  9.29it/s]Resolving data files:  78%|███████▊  | 18/23 [00:01<00:00, 17.22it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.99it/s]
-Resolving data files:  65%|██████▌   | 15/23 [00:01<00:00, 18.00it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.86it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:24,  1.12s/it]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.52it/s]
-Resolving data files:  26%|██▌       | 6/23 [00:01<00:03,  5.34it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.85it/s]
-Resolving data files:  43%|████▎     | 10/23 [00:01<00:01, 10.88it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.10it/s]
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 8, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 8, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 8, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.02782461792230606 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 4, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 4, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s][Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 4, 4102, 4, 128])
-Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.72it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.43it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.36it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.11it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.95it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.30it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.03it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.87it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.23it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.07it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.44it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.21it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.05it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.18it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.01it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.07it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.91it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.98it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:06,  3.18it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:21,  1.02it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.21it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:23,  1.05s/it]Resolving data files:   9%|▊         | 2/23 [00:00<00:05,  4.04it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.18s/it]Resolving data files:  48%|████▊     | 11/23 [00:01<00:01, 11.75it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.77it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:27,  1.25s/it]Resolving data files:  13%|█▎        | 3/23 [00:00<00:04,  4.38it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.69it/s]Resolving data files:  26%|██▌       | 6/23 [00:01<00:02,  5.75it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.18s/it]Resolving data files:  13%|█▎        | 3/23 [00:01<00:07,  2.53it/s]Resolving data files:  35%|███▍      | 8/23 [00:00<00:01, 13.50it/s]Resolving data files:  22%|██▏       | 5/23 [00:01<00:03,  5.12it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:31,  1.44s/it]Resolving data files:  91%|█████████▏| 21/23 [00:01<00:00, 23.46it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.53it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.13it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.11it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.66it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.56it/s]
-Resolving data files:  52%|█████▏    | 12/23 [00:00<00:00, 19.53it/s]Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 14.45it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 14.68it/s]
-Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 12.05it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 14.65it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.14it/s]
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 4, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 4, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 4, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.02794230729341507 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 2, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 2, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.53it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.44it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.24it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.25it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.25it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.00it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.83it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.33it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.92it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.29it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.04it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.88it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.93it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.26it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.36it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.05it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.91it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.29it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.39it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:08,  2.38it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:04,  4.11it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.77it/s]
-Resolving data files:  30%|███       | 7/23 [00:00<00:01, 10.25it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:24,  1.11s/it]Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.07it/s]Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 27.27it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 20.83it/s]
-Resolving data files:  48%|████▊     | 11/23 [00:01<00:00, 12.08it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.27it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:27,  1.26s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:10,  1.96it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  6.51it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:29,  1.35s/it]Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.68it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:21,  1.02it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:06,  2.89it/s]Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 14.29it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 14.91it/s]
-Resolving data files:  57%|█████▋    | 13/23 [00:01<00:00, 17.55it/s]Resolving data files:  96%|█████████▌| 22/23 [00:01<00:00, 20.28it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.61it/s]
-Resolving data files:  65%|██████▌   | 15/23 [00:01<00:00, 17.30it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.30it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 20.64it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.57it/s]
-Resolving data files:  39%|███▉      | 9/23 [00:01<00:01, 11.03it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.73it/s]
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 2, 4102, 4, 128])
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 2, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 2, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.028489671647548676 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 5/8 on cuda:5, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 0/8 on cuda:0, shape: torch.Size([32, 1, 4102, 4, 128])
-Rank 1/8 (Device cuda:0) is initializing parameters
-[Distributed Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 2/8 on cuda:2, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 3/8 on cuda:3, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 6/8 on cuda:6, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Initiated for 7/8 on cuda:7, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 1/8 on cuda:1, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Retrieval Cache] Initiated for 4/8 on cuda:4, shape: torch.Size([32, 1, 4102, 4, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.39it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 2/8 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.92it/s]
-Rank 3/8 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.14it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.98it/s]
-Rank 4/8 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 5/8 (Device cuda:4) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.17it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.00it/s]
-Rank 6/8 (Device cuda:5) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.40it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.15it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 7/8 (Device cuda:6) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.20it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.03it/s]
-Rank 8/8 (Device cuda:7) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.09it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.94it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.33it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:08,  2.54it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.65it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:02,  6.89it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:09,  2.42it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:22,  1.01s/it]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.87it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.11it/s]Resolving data files:  26%|██▌       | 6/23 [00:00<00:01, 12.34it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.29it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.32it/s]Resolving data files:  43%|████▎     | 10/23 [00:00<00:00, 18.04it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:03,  5.35it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:23,  1.07s/it]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 28.37it/s]
-Resolving data files:   4%|▍         | 1/23 [00:01<00:25,  1.15s/it]Resolving data files:  22%|██▏       | 5/23 [00:01<00:03,  5.36it/s]Resolving data files:  43%|████▎     | 10/23 [00:01<00:00, 13.08it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.18it/s]
-Resolving data files:  74%|███████▍  | 17/23 [00:01<00:00, 15.83it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.93it/s]
-Resolving data files:  17%|█▋        | 4/23 [00:00<00:03,  5.35it/s]Resolving data files:  17%|█▋        | 4/23 [00:00<00:03,  5.42it/s]Resolving data files:  65%|██████▌   | 15/23 [00:01<00:00, 17.69it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  6.32it/s]Resolving data files:  26%|██▌       | 6/23 [00:01<00:02,  7.41it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.83it/s]
-Resolving data files:  26%|██▌       | 6/23 [00:01<00:03,  5.57it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 16.78it/s]
-Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.41it/s]
-Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.09it/s]
-[Distributed Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 3/8 on cuda:3, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 6/8 on cuda:6, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 7/8 on cuda:7, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 2/8 on cuda:2, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 5/8 on cuda:5, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 1/8 on cuda:1, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 4/8 on cuda:4, shape: torch.Size([32, 1, 4102, 4, 128])
-[Distributed Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 1, 224, 4, 128])
-[Distributed Retrieval Cache] Reset for 0/8 on cuda:0, shape: torch.Size([32, 1, 4102, 4, 128])
-[Baseline-Autoregressive] average latency: 0.02849690616130829 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 128, 224, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 128, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 128, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 128, 224, 8, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 0 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 2 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 1 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 3 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 19:53:09,012] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 33035) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 73
+    with open(args.file, 'a') as f:
+    ^
+IndentationError: expected an indented block
+[2024-03-22 20:20:59,064] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 65281) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
 Traceback (most recent call last):
   File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
     sys.exit(main())
@@ -646,729 +50,61 @@ test/TP_baseline.py FAILED
 ------------------------------------------------------------
 Failures:
 [1]:
-  time      : 2024-03-22_19:53:09
+  time      : 2024-03-22_20:20:59
   host      : lovelace.ece.local.cmu.edu
   rank      : 1 (local_rank: 1)
-  exitcode  : 1 (pid: 33036)
+  exitcode  : 1 (pid: 65282)
   error_file: <N/A>
   traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
 [2]:
-  time      : 2024-03-22_19:53:09
+  time      : 2024-03-22_20:20:59
   host      : lovelace.ece.local.cmu.edu
   rank      : 2 (local_rank: 2)
-  exitcode  : 1 (pid: 33037)
+  exitcode  : 1 (pid: 65283)
   error_file: <N/A>
   traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
 [3]:
-  time      : 2024-03-22_19:53:09
+  time      : 2024-03-22_20:20:59
   host      : lovelace.ece.local.cmu.edu
   rank      : 3 (local_rank: 3)
-  exitcode  : 1 (pid: 33038)
+  exitcode  : 1 (pid: 65284)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[4]:
+  time      : 2024-03-22_20:20:59
+  host      : lovelace.ece.local.cmu.edu
+  rank      : 4 (local_rank: 4)
+  exitcode  : 1 (pid: 65285)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[5]:
+  time      : 2024-03-22_20:20:59
+  host      : lovelace.ece.local.cmu.edu
+  rank      : 5 (local_rank: 5)
+  exitcode  : 1 (pid: 65286)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[6]:
+  time      : 2024-03-22_20:20:59
+  host      : lovelace.ece.local.cmu.edu
+  rank      : 6 (local_rank: 6)
+  exitcode  : 1 (pid: 65287)
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[7]:
+  time      : 2024-03-22_20:20:59
+  host      : lovelace.ece.local.cmu.edu
+  rank      : 7 (local_rank: 7)
+  exitcode  : 1 (pid: 65289)
   error_file: <N/A>
   traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
 ------------------------------------------------------------
 Root Cause (first observed failure):
 [0]:
-  time      : 2024-03-22_19:53:09
+  time      : 2024-03-22_20:20:59
   host      : lovelace.ece.local.cmu.edu
   rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 33035)
+  exitcode  : 1 (pid: 65281)
   error_file: <N/A>
   traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
 ============================================================
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 64, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 64, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 64, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 64, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.39it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.09it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.93it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.58it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.46it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.27it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.67it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.36it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:13,  1.67it/s]Resolving data files:  39%|███▉      | 9/23 [00:00<00:00, 14.82it/s]Resolving data files:  91%|█████████▏| 21/23 [00:00<00:00, 33.57it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.19it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.23it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:20,  1.08it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.23it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:23,  1.05s/it]Resolving data files:  22%|██▏       | 5/23 [00:01<00:02,  6.53it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.85it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:11,  1.81it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.22it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:12,  1.67it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.72it/s]
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 64, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 64, 4102, 8, 128])
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 64, 4102, 8, 128])
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 64, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 64, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.028658539056777954 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 32, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 32, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 32, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 32, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.39it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.71it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.54it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.37it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.47it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.31it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.51it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.32it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.95it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.98it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.55it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:07,  2.82it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:07,  2.75it/s]Resolving data files:  87%|████████▋ | 20/23 [00:00<00:00, 36.66it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 26.78it/s]
-Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.61it/s]
-Resolving data files:   9%|▊         | 2/23 [00:00<00:08,  2.37it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:24,  1.12s/it]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 20.42it/s]
-Resolving data files:  22%|██▏       | 5/23 [00:01<00:02,  6.13it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.30it/s]
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 32, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 32, 4102, 8, 128])
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 32, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 32, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 32, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.02696329355239868 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 16, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 16, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 16, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 16, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.63it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.44it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.27it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.12it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.96it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.05it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.90it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.93it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:03,  5.56it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 33.41it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.43it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:12,  1.71it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:13,  1.61it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:03,  5.03it/s]Resolving data files:  30%|███       | 7/23 [00:00<00:01,  9.89it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.83it/s]
-Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 30.43it/s]
-Resolving data files:   9%|▊         | 2/23 [00:00<00:07,  2.85it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  7.41it/s]Resolving data files:  30%|███       | 7/23 [00:01<00:01,  9.81it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.40it/s]
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 16, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 16, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 16, 4102, 8, 128])
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 16, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 16, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.027348965406417847 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 8, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 8, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 8, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 8, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.75it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.65it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.46it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.47it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.28it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.49it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.29it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.63it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.52it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.33it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.29it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.41it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.21it/s]Resolving data files:  61%|██████    | 14/23 [00:00<00:00, 19.74it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 24.80it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.41it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.70it/s]
-Resolving data files:   9%|▊         | 2/23 [00:00<00:08,  2.56it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 26.02it/s]
-Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  6.27it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.92it/s]
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 8, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 8, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 8, 4102, 8, 128])
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 8, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 8, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.027546264231204987 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 4, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.75it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.64it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.45it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.29it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.01it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.47it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.25it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.09it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.48it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.37it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.18it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.43it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.45it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.30it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.21it/s]Resolving data files:  13%|█▎        | 3/23 [00:00<00:04,  4.43it/s]Resolving data files:  39%|███▉      | 9/23 [00:00<00:01, 11.76it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.27it/s]
-Resolving data files:  43%|████▎     | 10/23 [00:00<00:01, 12.33it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.06it/s]
-Resolving data files:  78%|███████▊  | 18/23 [00:00<00:00, 29.19it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.74it/s]
-Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.19it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 22.85it/s]
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 4, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 4, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 4, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.03014647215604782 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 2, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 2, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 2, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 2, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.47it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.28it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.45it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.13it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.22it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.54it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.42it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.23it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:13,  1.64it/s]Resolving data files:  26%|██▌       | 6/23 [00:00<00:01,  9.83it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.41it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 27.59it/s]
-Resolving data files:  35%|███▍      | 8/23 [00:00<00:01, 12.91it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 28.43it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.25it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.56it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.19it/s]Resolving data files:  30%|███       | 7/23 [00:00<00:01, 11.85it/s]Resolving data files:  13%|█▎        | 3/23 [00:01<00:06,  3.26it/s]Resolving data files:  48%|████▊     | 11/23 [00:00<00:00, 13.81it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 23.20it/s]
-Resolving data files:  17%|█▋        | 4/23 [00:01<00:04,  4.23it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 18.06it/s]
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 2, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 2, 4102, 8, 128])
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 2, 4102, 8, 128])
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 2, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 2, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.02698042243719101 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 3/4 on cuda:3, shape: torch.Size([32, 1, 4102, 8, 128])
-[Distributed Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Initiated for 1/4 on cuda:1, shape: torch.Size([32, 1, 4102, 8, 128])
-[Distributed Retrieval Cache] Initiated for 0/4 on cuda:0, shape: torch.Size([32, 1, 4102, 8, 128])
-Rank 1/4 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 2/4 on cuda:2, shape: torch.Size([32, 1, 4102, 8, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.17it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.01it/s]
-Rank 2/4 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.34it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.92it/s]
-Rank 3/4 (Device cuda:2) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.40it/s]
-Rank 4/4 (Device cuda:3) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.44it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.28it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.36it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.50it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.15it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:16,  1.34it/s]Resolving data files:  43%|████▎     | 10/23 [00:00<00:00, 15.58it/s]Resolving data files:   9%|▊         | 2/23 [00:01<00:09,  2.11it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 27.01it/s]
-Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 17.84it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.15it/s]
-Resolving data files:  48%|████▊     | 11/23 [00:01<00:01,  8.49it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 15.12it/s]
-Resolving data files:  17%|█▋        | 4/23 [00:01<00:05,  3.31it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 17.12it/s]
-[Distributed Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 0/4 on cuda:0, shape: torch.Size([32, 1, 4102, 8, 128])
-[Distributed Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 3/4 on cuda:3, shape: torch.Size([32, 1, 4102, 8, 128])
-[Distributed Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 2/4 on cuda:2, shape: torch.Size([32, 1, 4102, 8, 128])
-[Distributed Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 1, 224, 8, 128])
-[Distributed Retrieval Cache] Reset for 1/4 on cuda:1, shape: torch.Size([32, 1, 4102, 8, 128])
-[Baseline-Autoregressive] average latency: 0.02647288143634796 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 128, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 128, 224, 16, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 423, in __init__
-    self.key_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 64.09 GiB. GPU 1 has a total capacity of 44.32 GiB of which 36.89 GiB is free. Including non-PyTorch memory, this process has 7.42 GiB memory in use. Of the allocated memory 7.00 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 423, in __init__
-    self.key_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 64.09 GiB. GPU 0 has a total capacity of 44.32 GiB of which 36.89 GiB is free. Including non-PyTorch memory, this process has 7.42 GiB memory in use. Of the allocated memory 7.00 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 19:59:25,558] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 46152) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-[1]:
-  time      : 2024-03-22_19:59:25
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 1 (local_rank: 1)
-  exitcode  : 1 (pid: 46153)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_19:59:25
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 46152)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 64, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 64, 224, 16, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 1 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 0 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 19:59:41,977] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 46584) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-[1]:
-  time      : 2024-03-22_19:59:41
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 1 (local_rank: 1)
-  exitcode  : 1 (pid: 46585)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_19:59:41
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 46584)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 32, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 32, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 32, 4102, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 32, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.71it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.56it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.38it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.72it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.41it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:10,  2.01it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:13,  1.65it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  6.07it/s]Resolving data files:  30%|███       | 7/23 [00:00<00:01, 12.26it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 28.28it/s]
-Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 17.93it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.56it/s]
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 32, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 32, 4102, 16, 128])
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 32, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 32, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.027955390512943268 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 16, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 16, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 16, 4102, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 16, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.70it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.51it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.35it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.68it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.55it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.37it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.49it/s]Resolving data files:  35%|███▍      | 8/23 [00:00<00:01, 13.15it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 28.08it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.41it/s]Resolving data files:  78%|███████▊  | 18/23 [00:00<00:00, 23.94it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 24.14it/s]
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 16, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 16, 4102, 16, 128])
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 16, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 16, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.026953794062137604 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 8, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 8, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 8, 4102, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 8, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.73it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.42it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.38it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:13,  1.68it/s]Resolving data files:  17%|█▋        | 4/23 [00:00<00:03,  5.27it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 25.60it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.15it/s]Resolving data files:  83%|████████▎ | 19/23 [00:01<00:00, 22.62it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.14it/s]
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 8, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 8, 4102, 16, 128])
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 8, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 8, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.02706369012594223 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 4, 224, 16, 128])
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 4, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 4, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 4, 4102, 16, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.75it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.65it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.46it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.71it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.57it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.39it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:19,  1.14it/s]Resolving data files:  52%|█████▏    | 12/23 [00:00<00:00, 16.07it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.29it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.85it/s]
-Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.59it/s]Resolving data files:  70%|██████▉   | 16/23 [00:01<00:00, 12.91it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 14.28it/s]
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 4, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 4, 4102, 16, 128])
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 4, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 4, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.026953183114528656 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 2, 224, 16, 128])
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 2, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 2, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 2, 4102, 16, 128])
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.74it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.61it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.43it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.69it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.50it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.33it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:12,  1.72it/s]Resolving data files:   9%|▊         | 2/23 [00:00<00:07,  2.85it/s]Resolving data files:   4%|▍         | 1/23 [00:01<00:22,  1.04s/it]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 21.52it/s]
-Resolving data files:  13%|█▎        | 3/23 [00:00<00:05,  3.58it/s]Resolving data files:  17%|█▋        | 4/23 [00:01<00:04,  4.07it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.85it/s]
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 2, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 2, 4102, 16, 128])
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 2, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 2, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.026925675570964813 ms
->>>> Flash Attention installed
->>>> Flash Attention installed
->>>> Flash RoPE installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 1, 224, 16, 128])
-[Distributed Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 1, 224, 16, 128])
-[Distributed Retrieval Cache] Initiated for 1/2 on cuda:1, shape: torch.Size([32, 1, 4102, 16, 128])
-[Distributed Retrieval Cache] Initiated for 0/2 on cuda:0, shape: torch.Size([32, 1, 4102, 16, 128])
-Rank 1/2 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.77it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.48it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.34it/s]
-Rank 2/2 (Device cuda:1) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.74it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.62it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.44it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:15,  1.42it/s]Resolving data files:  52%|█████▏    | 12/23 [00:00<00:00, 15.77it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 24.13it/s]
-Resolving data files:   4%|▍         | 1/23 [00:00<00:18,  1.18it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 26.13it/s]
-[Distributed Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 1, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 0/2 on cuda:0, shape: torch.Size([32, 1, 4102, 16, 128])
-[Distributed Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 1, 224, 16, 128])
-[Distributed Retrieval Cache] Reset for 1/2 on cuda:1, shape: torch.Size([32, 1, 4102, 16, 128])
-[Baseline-Autoregressive] average latency: 0.02675537019968033 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 128, 224, 32, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 423, in __init__
-    self.key_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 128.19 GiB. GPU 0 has a total capacity of 44.32 GiB of which 29.89 GiB is free. Including non-PyTorch memory, this process has 14.42 GiB memory in use. Of the allocated memory 14.00 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 20:04:07,079] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 53376) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-  <NO_OTHER_FAILURES>
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_20:04:07
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 53376)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 64, 224, 32, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 423, in __init__
-    self.key_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 64.09 GiB. GPU 0 has a total capacity of 44.32 GiB of which 36.89 GiB is free. Including non-PyTorch memory, this process has 7.42 GiB memory in use. Of the allocated memory 7.00 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 20:04:18,536] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 53793) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-  <NO_OTHER_FAILURES>
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_20:04:18
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 53793)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 32, 224, 32, 128])
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 47, in <module>
-    llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 63, in __init__
-    self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
-  File "/home/hanshis/workspace/LongContextInfer/models/batch_cache.py", line 424, in __init__
-    self.value_cache=torch.zeros([self.layers, bsz, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.05 GiB. GPU 0 has a total capacity of 44.32 GiB of which 8.34 GiB is free. Including non-PyTorch memory, this process has 35.96 GiB memory in use. Of the allocated memory 35.55 GiB is allocated by PyTorch, and 2.00 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 20:04:34,974] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 54142) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-  <NO_OTHER_FAILURES>
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_20:04:34
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 54142)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 16, 224, 32, 128])
-[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 16, 4102, 32, 128])
-Rank 1/1 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.60it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.46it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.28it/s]
-Traceback (most recent call last):
-  File "/home/hanshis/workspace/LongContextInfer/test/TP_baseline.py", line 52, in <module>
-    llm.init_parameters(hf_model=hf_model)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_llama.py", line 95, in init_parameters
-    self.layers[id].to_gpu(device=self.device)
-  File "/home/hanshis/workspace/LongContextInfer/models/TP_layers.py", line 175, in to_gpu
-    self.wk = self.wk.to(device)
-torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 32.00 MiB. GPU 0 has a total capacity of 44.32 GiB of which 3.75 MiB is free. Including non-PyTorch memory, this process has 44.27 GiB memory in use. Of the allocated memory 43.86 GiB is allocated by PyTorch, and 1.49 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
-[2024-03-22 20:04:56,403] torch.distributed.elastic.multiprocessing.api: [ERROR] failed (exitcode: 1) local_rank: 0 (pid: 54498) of binary: /home/hanshis/anaconda3/envs/torch/bin/python
-Traceback (most recent call last):
-  File "/home/hanshis/anaconda3/envs/torch/bin/torchrun", line 8, in <module>
-    sys.exit(main())
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
-    return f(*args, **kwargs)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
-    run(args)
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
-    elastic_launch(
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
-    return launch_agent(self._config, self._entrypoint, list(args))
-  File "/home/hanshis/anaconda3/envs/torch/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 268, in launch_agent
-    raise ChildFailedError(
-torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
-============================================================
-test/TP_baseline.py FAILED
-------------------------------------------------------------
-Failures:
-  <NO_OTHER_FAILURES>
-------------------------------------------------------------
-Root Cause (first observed failure):
-[0]:
-  time      : 2024-03-22_20:04:56
-  host      : lovelace.ece.local.cmu.edu
-  rank      : 0 (local_rank: 0)
-  exitcode  : 1 (pid: 54498)
-  error_file: <N/A>
-  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
-============================================================
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 8, 224, 32, 128])
-[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 8, 4102, 32, 128])
-Rank 1/1 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.59it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.35it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.19it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.23it/s]Resolving data files:  17%|█▋        | 4/23 [00:00<00:03,  5.27it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 23.00it/s]
-[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 8, 224, 32, 128])
-[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 8, 4102, 32, 128])
-[Baseline-Autoregressive] average latency: 0.026432618498802185 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 4, 224, 32, 128])
-[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 4, 4102, 32, 128])
-Rank 1/1 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.46it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.19it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.04it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:14,  1.54it/s]Resolving data files:  35%|███▍      | 8/23 [00:00<00:01, 13.10it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 29.36it/s]
-[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 4, 224, 32, 128])
-[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 4, 4102, 32, 128])
-[Baseline-Autoregressive] average latency: 0.026177994906902313 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 2, 224, 32, 128])
-[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 2, 4102, 32, 128])
-Rank 1/1 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.41it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.00it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:17,  1.27it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  7.23it/s]Resolving data files:  35%|███▍      | 8/23 [00:01<00:01, 11.02it/s]Resolving data files:  61%|██████    | 14/23 [00:01<00:00, 18.38it/s]Resolving data files: 100%|██████████| 23/23 [00:01<00:00, 19.69it/s]
-[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 2, 224, 32, 128])
-[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 2, 4102, 32, 128])
-[Baseline-Autoregressive] average latency: 0.02748984843492508 ms
->>>> Flash Attention installed
->>>> Flash RoPE installed
-[Distributed Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 1, 224, 32, 128])
-[Distributed Retrieval Cache] Initiated for 0/1 on cuda:0, shape: torch.Size([32, 1, 4102, 32, 128])
-Rank 1/1 (Device cuda:0) is initializing parameters
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.66it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.43it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.27it/s]
-Resolving data files:   0%|          | 0/23 [00:00<?, ?it/s]Resolving data files:   4%|▍         | 1/23 [00:00<00:11,  1.92it/s]Resolving data files:  22%|██▏       | 5/23 [00:00<00:02,  8.47it/s]Resolving data files: 100%|██████████| 23/23 [00:00<00:00, 31.22it/s]
-[Distributed Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 1, 224, 32, 128])
-[Distributed Retrieval Cache] Reset for 0/1 on cuda:0, shape: torch.Size([32, 1, 4102, 32, 128])
-[Baseline-Autoregressive] average latency: 0.026315756142139435 ms
