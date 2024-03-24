@@ -121,6 +121,7 @@ class LlamaAttention(nn.Module):
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = -1,
         spec=False,
+        attn_method='flash',
     ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
         bsz, q_len, _ = hidden_states.size()
 
@@ -151,16 +152,37 @@ class LlamaAttention(nn.Module):
             if graph_cache is not None and query_states.shape[1] == 1:
                 graph_cache.init_graph_cache(kv_cache, query_states, self.layer_idx)
 
-        # key_states = repeat_kv(key_states, self.num_key_value_groups)
-        # value_states = repeat_kv(value_states, self.num_key_value_groups)
-
         ############ Flash Attn ############
         # print(query_states.shape, key_states.shape, value_states.shape, position_ids, kv_cache.seq_len)
         if spec: # spec do not need kv_cache.seq_len, just full
             # print(query_states.shape, key_states.shape, value_states.shape)
             attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
         else:
-            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+            if attn_method == 'flash':
+                attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+            elif attn_method == 'flash_repeat':
+                key_states = repeat_kv(key_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                value_states = repeat_kv(value_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_cache.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(self.head_dim, dtype=torch.float16)), causal=True)
+            elif attn_method == 'sdpa':
+                key_states = repeat_kv(key_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                value_states = repeat_kv(value_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                with torch.backends.cuda.sdp_kernel(enable_math=False):
+                    # print(query_states.shape, key_states.shape, value_states.shape)
+                    attn_output = F.scaled_dot_product_attention(query_states.transpose(1,2),key_states.transpose(1,2),value_states.transpose(1,2), is_causal=True)
+            elif attn_method == 'vanilla':
+                key_states = repeat_kv(key_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                value_states = repeat_kv(value_states.transpose(1,2), self.num_key_value_groups).transpose(1,2)
+                query_states= query_states.transpose(1,2)
+                key_states= key_states.transpose(1,2)
+                value_states= value_states.transpose(1,2)
+                attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+                # attn_weights = attn_weights + attention_mask
+                attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+                attn_output = torch.matmul(attn_weights, value_states)
+                attn_output = attn_output.transpose(1, 2).contiguous()
+            else:
+                raise NotImplementedError
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)
         attn_output = self.o_proj(attn_output)
@@ -168,6 +190,7 @@ class LlamaAttention(nn.Module):
         return attn_output
 
 class LlamaDecoderLayer(nn.Module):
+
     def __init__(self, config: LlamaConfig, layer_idx: int):
         super().__init__()
         self.hidden_size = config.hidden_size
@@ -190,6 +213,7 @@ class LlamaDecoderLayer(nn.Module):
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = -1,
         spec=False,
+        attn_method='flash',
     ) -> Tuple[torch.FloatTensor, Optional[Tuple[torch.FloatTensor, torch.FloatTensor]]]:
 
         residual = hidden_states
@@ -205,6 +229,7 @@ class LlamaDecoderLayer(nn.Module):
             storage_ids=storage_ids,
             gamma_offset=gamma_offset,
             spec=spec,
+            attn_method=attn_method,
         )
         hidden_states = residual + hidden_states
 
@@ -262,6 +287,7 @@ class LlamaModel(LlamaPreTrainedModel):
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = -1,
         spec=False,
+        attn_method='flash',
     ):
         batch_size, seq_length = input_ids.shape[:2]
         if position_ids is None:
@@ -291,6 +317,7 @@ class LlamaModel(LlamaPreTrainedModel):
                 storage_ids=storage_ids,
                 gamma_offset=gamma_offset,
                 spec=spec,
+                attn_method=attn_method,
             )
 
             hidden_states = layer_outputs
@@ -321,6 +348,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
         storage_ids: Optional[torch.LongTensor] = None,
         gamma_offset: int = -1,
         spec=False,
+        attn_method='flash',
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
         outputs = self.model(
@@ -332,6 +360,7 @@ class LlamaForCausalLM(LlamaPreTrainedModel):
             storage_ids=storage_ids,
             gamma_offset=gamma_offset,
             spec=spec,
+            attn_method=attn_method
         )
 
         hidden_states = outputs
