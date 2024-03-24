@@ -13,7 +13,7 @@ from .TP_layers import DistributedLlamaLayer, DistributedLlamaLayerBuffer, Distr
 from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval
 import torch.distributed as dist
 from .configuration_llama import LlamaConfig
-from .batch_cache import DistributedBatchSimpleCache, DistributedBatchRetrievalCache
+from .batch_cache import DistributedBatchSimpleCache, DistributedBatchRetrievalCache, DistributedBatchKVCacheBuffer
 from utils.sampling import norm_logits
 
 def distributed_init():
@@ -60,8 +60,7 @@ class DistributedLlama:
         
         if kv_offload:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
-            raise NotImplementedError("KV offload is not supported")
-            # self.kv_buffer = KVCacheBuffer(self.config, device=self.device, dtype=dtype)
+            self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
         else:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
         self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
@@ -176,24 +175,15 @@ class DistributedLlama:
             position_ids = self.kv_cache.seq_len[:, None] + range_tensor
 
         if self.kv_offload:
-            raise NotImplementedError("KV offload is not supported")
             for idx in range(self.num_layers):
                 if idx >= self.on_chip_layers:
                     self.buffer.sync_copy(self.layers[idx])
-                    self.kv_buffer.copy_kv(
-                        self.kv_cache.k_cache[idx],
-                        self.kv_cache.v_cache[idx],
-                        kv_len
-                    )
-                    hidden_states = self.layer_compute(self.buffer, idx, hidden_states, position_ids, attention_mask)
+                    self.kv_buffer.copy_kv(self.kv_cache, idx)
+                    hidden_states = self.layer_compute(self.buffer, idx, hidden_states, position_ids, attention_mask, retrieval_cache)
                     self.kv_cache.copy_back_from_buffer(self.kv_buffer, idx)
                 else:
-                    self.kv_buffer.copy_kv(
-                        self.kv_cache.k_cache[idx],
-                        self.kv_cache.v_cache[idx],
-                        kv_len
-                    )
-                    hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask)
+                    self.kv_buffer.copy_kv(self.kv_cache, idx)
+                    hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
                     self.kv_cache.copy_back_from_buffer(self.kv_buffer, idx)
 
         else:

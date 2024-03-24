@@ -34,6 +34,7 @@ def parse_arguments():
     parser.add_argument('--budget', type=int,  default=4096)
     parser.add_argument('--bsz', type=int, default=1)
     parser.add_argument('--T', type=int, default=1000, help='repeat times')
+    parser.add_argument('--offloading', action='store_true', help='offloading')
     args = parser.parse_args()
     
     return args
@@ -50,7 +51,7 @@ gamma = args.gamma
 T = args.T
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma, kv_offload=args.offloading)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
@@ -79,6 +80,8 @@ with torch.inference_mode():
         torch.cuda.synchronize()
         t2 = time.time()
         foward_time = (t2 - t1) / T * 1000
+        assert llm.kv_cache.seq_len.min() == prefill
+        assert llm.kv_cache.seq_len.max() == prefill
 
         torch.cuda.synchronize()
         t1 = time.time()

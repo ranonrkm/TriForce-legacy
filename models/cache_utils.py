@@ -2193,7 +2193,7 @@ class TREESimpleCache(Cache):
         self.seq_len = offset + len(indices)
 
 class OffloadingTREESimpleCache(Cache):
-    def __init__(self, model, max_budget=1024) -> None:
+    def __init__(self, model, max_budget=1024, overlap=True) -> None:
         self.key_cache: List[torch.Tensor] = []
         self.value_cache: List[torch.Tensor] = []
         self.seq_len = 0
@@ -2211,10 +2211,16 @@ class OffloadingTREESimpleCache(Cache):
         dtype = torch.float16
         self.key_cache = torch.zeros([self.layers, 1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device='cpu').pin_memory()
         self.value_cache = torch.zeros([self.layers, 1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device='cpu').pin_memory()
+        self.overlap = overlap
 
         # init layer cache buffer on chip
-        self.key_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
-        self.value_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+        if overlap:
+            self.key_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+            self.value_cache_buffer = torch.zeros([2, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+        else:
+            self.key_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+            self.value_cache_buffer = torch.zeros([1, self.num_heads, self.max_budget, self.head_dim], dtype=dtype, device=self.device)
+
 
         self.load_stream = torch.cuda.Stream(device=self.device)
 
@@ -2243,15 +2249,18 @@ class OffloadingTREESimpleCache(Cache):
         self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.cpu()
         self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.cpu()
 
+        if not self.overlap:
         # copy k v cache to buffer
-        # self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
-        # self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+            self.key_cache_buffer.copy_(self.key_cache[layer_idx], non_blocking=True)
+            self.value_cache_buffer.copy_(self.value_cache[layer_idx], non_blocking=True)
+            key = self.key_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
+            value = self.value_cache_buffer[:, :, :self.seq_len + value_states.shape[-2]]
+        else:
+            self.key_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = key_states
+            self.value_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = value_states
 
-        self.key_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = key_states
-        self.value_cache_buffer[(layer_idx) % 2][:, self.seq_len:self.seq_len + value_states.shape[-2]] = value_states
-        
-        key = self.key_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
-        value = self.value_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
+            key = self.key_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
+            value = self.value_cache_buffer[(layer_idx) % 2][:, :self.seq_len + value_states.shape[-2]].unsqueeze(0)
 
         if layer_idx == self.layers-1:
             self.seq_len += key_states.shape[-2]

@@ -35,6 +35,7 @@ def parse_arguments():
     parser.add_argument('--log_csv', action='store_true', help='log_csv')
 
     parser.add_argument('--tree_size', type=str, default='128')
+    parser.add_argument('--no_overlap', action='store_true', help='no overlap')
 
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
@@ -110,7 +111,7 @@ branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
 
-cache = OffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16)
+cache = OffloadingTREESimpleCache(target, prefill+gen_len+tree_size+16, not args.no_overlap)
 graph_cache = TREEChunkTopKCache(target, max_budget=max_budget, prefill=prefill, tree_size=tree_size, chunk_size=chunk_size)
 graph_engine = GraphInferenceEngine(target, cache, graph_cache)
 

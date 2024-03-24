@@ -391,14 +391,16 @@ class DistributedBatchSimpleCache:
         self.seq_len = length.clone()
 
     def copy_back_from_buffer(self, kv_buffer, layer_idx:int):
-        self.k_cache[layer_idx][..., self.kv_offset: kv_buffer.kv_offset, :].copy_(kv_buffer.k_cache[..., self.kv_offset: kv_buffer.kv_offset, :], non_blocking=True)
-        self.v_cache[layer_idx][..., self.kv_offset: kv_buffer.kv_offset, :].copy_(kv_buffer.v_cache[..., self.kv_offset: kv_buffer.kv_offset, :], non_blocking=True)
 
-        if layer_idx == self.num_hidden_layers - 1:
-            self.kv_offset = kv_buffer.kv_offset
-        self.seq_len = kv_buffer.seq_len.clone()
+        storage_ids = [torch.arange(start, end) for start, end in zip(self.seq_len, kv_buffer.seq_len)]
+        indices_expanded = storage_ids.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, self.num_heads, self.head_dim)
+        self.key_cache[layer_idx].scatter_(1, indices_expanded, kv_buffer.key_cache.gather(1, indices_expanded))
+        self.value_cache[layer_idx].scatter_(1, indices_expanded, kv_buffer.value_cache.gather(1, indices_expanded))
 
-class KVCacheBuffer:
+        if layer_idx == self.layers - 1:
+            self.seq_len = kv_buffer.seq_len.clone()
+
+class DistributedBatchKVCacheBuffer:
     def __init__(self, config, max_budget=1024, bsz=1, device=None) -> None:
 
         self.config = config

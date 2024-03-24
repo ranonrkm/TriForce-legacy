@@ -301,7 +301,7 @@ class LlamaModel(LlamaPreTrainedModel):
             )
 
 
-        if not spec:
+        if not spec and kv_cache.overlap == True:
             # load first layer kv cache first
             
             idx = 0
