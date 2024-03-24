@@ -75,10 +75,10 @@ with torch.inference_mode():
     for l in LEN:
         graph_engine.engine.kv_cache.set_len(seq_len)
         
-        sentence = torch.randint(low=3, high=30000, size=(bsz, l)).to(model.device)
         torch.cuda.synchronize()
         t1 = time.time()
         for _ in range(T):
+            sentence = torch.randint(low=3, high=30000, size=(bsz, l)).to(model.device)
             graph_engine.engine.model(input_ids=sentence, kv_cache=graph_engine.engine.kv_cache, graph_cache=None, attn_method=attn_method).logits
             graph_engine.engine.kv_cache.seq_len -= l
         torch.cuda.synchronize()
@@ -90,6 +90,7 @@ with torch.inference_mode():
         position_ids = graph_engine.engine.kv_cache.seq_len[:, None] + gamma -1
         input_ids = torch.randint(low=3, high=30000, size=(bsz, 1)).to(model.device)
         for _ in range(T):
+            sentence = torch.randint(low=3, high=30000, size=(bsz, l)).to(model.device)
             graph_engine.graph_retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
         torch.cuda.synchronize()
         t2 = time.time()
