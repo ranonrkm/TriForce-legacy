@@ -132,7 +132,7 @@ def benchmark_mqa_attn(attn_method, query_states, key_states, value_states, num_
 
 
 num_key_value_groups = 8
-prefill = 1024*64
+prefill = 1024*120
 
 # bsz_list = [1,2,3,4,5,6,7,8]
 bsz_list = [1,2,4,8]
