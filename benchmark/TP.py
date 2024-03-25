@@ -60,7 +60,7 @@ for rank in range(world_size):
         del hf_model
     dist.barrier()
 
-llm.initialize_cuda_graph()
+# llm.initialize_cuda_graph()
 
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
@@ -92,8 +92,8 @@ with torch.inference_mode():
         position_ids = llm.kv_cache.seq_len[:, None] + gamma -1
         input_ids = torch.randint(low=3, high=30000, size=(bsz, 1)).to(llm.device)
         for _ in range(T):
-            llm.retrieval_graph_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
-            # llm.retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
+            # llm.retrieval_graph_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
+            llm.retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
         torch.cuda.synchronize()
         t2 = time.time()
         draft_time = (t2 - t1) / T * 1000

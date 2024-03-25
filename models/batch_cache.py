@@ -518,8 +518,8 @@ class DistributedBatchRetrievalCache:
 
     def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int,  gamma_offset :int):
         
-        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = key_states.clone().squeeze(1)
-        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = value_states.clone().squeeze(1)
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = key_states.squeeze(1)
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = value_states.squeeze(1)
 
         return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1]
 

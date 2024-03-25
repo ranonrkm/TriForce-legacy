@@ -531,7 +531,6 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         pred_token_idx = next_token
         
         # speculative decoding
-
         for gamma_offset in range(gamma):
             position_ids = graph_engine.kv_cache.seq_len[:, None] + gamma_offset
             

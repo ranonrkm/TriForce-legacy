@@ -151,10 +151,11 @@ def TP_Attention(
     value_states = value_states.view(bsz, q_len, local_num_key_value_heads, head_dim)
     #[bsz, q_len, local_num_kv_heads, head_dim]
 
-    cos = cos_cache.to(value_states.dtype)
-    sin = sin_cache.to(value_states.dtype)
+    # print(cos_cache.dtype, value_states.dtype, position_ids.dtype, query_states.dtype, key_states.dtype)
+    # cos = cos_cache.to(value_states.dtype)
+    # sin = sin_cache.to(value_states.dtype)
 
-    query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin, position_ids)
+    query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos_cache, sin_cache, position_ids)
 
     query_states = query_states.transpose(1, 2)
     key_states = key_states.transpose(1, 2)
@@ -308,12 +309,11 @@ def TP_MLP(
     ):
 
     up = F.linear(hidden_states, up_proj)
-
     gate = F.linear(hidden_states, gate_proj)
     gate = F.silu(gate)
     hidden_states = gate * up
-    
     hidden_states = F.linear(hidden_states, down_proj)
+    
     dist.all_reduce(hidden_states, dist.ReduceOp.SUM)
     return hidden_states
 
