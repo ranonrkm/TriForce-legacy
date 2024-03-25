@@ -75,7 +75,7 @@ class DistributedLlama:
 
         self.local_num_heads = self.num_heads // world_size
         self.local_num_key_value_heads = self.num_key_value_heads // world_size
-    
+
     def init_parameters(self, hf_model: LlamaForCausalLM):
 
         self.embed_tokens = hf_model.model.embed_tokens.weight.detach().to(self.device)
@@ -153,7 +153,8 @@ class DistributedLlama:
 
         hidden_states = residual + hidden_states
         return hidden_states
-    
+
+
     def reset(self):
         self.kv_cache.reset()
         self.retrieval_cache.reset()
@@ -200,7 +201,7 @@ class DistributedLlama:
             layernorm_variance_epsilon=self.norm_variance_epsilon,
             layernorm_weight=self.norm_weight
         )
-        
+
         logits = F.linear(hidden_states, self.lm_head).float()
         return logits
 
@@ -274,7 +275,7 @@ class DistributedLlama:
 
         hidden_states = residual + hidden_states
         return hidden_states
-    
+
     @torch.inference_mode()
     def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
         hidden_states = F.embedding(input_ids, self.embed_tokens)
@@ -291,7 +292,7 @@ class DistributedLlama:
         logits = F.linear(hidden_states, self.lm_head).float()
         # print(logits)
         return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
-    
+
     @torch.inference_mode()
     def capture_graph_retrieval_inference(self, gamma_offset: int, mempool, n_warmups: int):
         
@@ -319,7 +320,6 @@ class DistributedLlama:
             return static_logits.clone()
         
         return run
-
 
     @torch.inference_mode()
     def initialize_cuda_graph(self):
