@@ -61,7 +61,6 @@ for rank in range(world_size):
     dist.barrier()
 
 llm.initialize_cuda_graph()
-
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
 input_ids = tokenized_prompts[0][:,:prefill].repeat(bsz, 1).to(device)
