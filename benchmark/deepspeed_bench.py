@@ -41,15 +41,15 @@ def measure_latency(model, tokenizer, payload, generation_args, device):
 
 # Model Repository on huggingface.co
 # model_id = "NousResearch/Yarn-Llama-2-7b-128k"
-model_id = "meta-llama/Llama-2-7b-hf"
+model_id = "meta-llama/Llama-2-13b-hf"
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, torch_dtype=torch.float16)
 ds_model = deepspeed.init_inference(
     model=model,      # Transformers models
-    tensor_parallel={"tp_size": 2},
+    tensor_parallel={"tp_size": 4},
     dtype=torch.float16,
     )
-
+print(ds_model)
 payload = (
     "Hello my name is Philipp. I am getting in touch with you because i didn't get a response from you. What do I need to do to get my new card which I have requested 2 weeks ago? Please help me and answer this email in the next 7 days. Best regards and have a nice weekend but it"
 )

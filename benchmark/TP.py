@@ -17,7 +17,6 @@ import time
 
 local_rank, world_size = distributed_init()
 device = torch.device("cuda", local_rank)
-model_name_or_path = "NousResearch/Yarn-Llama-2-7b-128k"
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
@@ -35,6 +34,7 @@ def parse_arguments():
     parser.add_argument('--bsz', type=int, default=1)
     parser.add_argument('--T', type=int, default=1000, help='repeat times')
     parser.add_argument('--offloading', action='store_true', help='offloading')
+    parser.add_argument('--graph', action='store_true', help='graph')
     args = parser.parse_args()
     
     return args
@@ -50,6 +50,13 @@ retrieval_budget = args.budget
 gamma = args.gamma
 T = args.T
 
+if args.target == 'llama-7B-128K':
+    model_name_or_path = "NousResearch/Yarn-Llama-2-7b-128k"
+elif args.target == 'llama-13B-128K':
+    model_name_or_path = "NousResearch/Yarn-Llama-2-13b-128k"
+else:
+    model_name_or_path = args.target
+
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
 llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, bsz=bsz, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma, kv_offload=args.offloading)
 for rank in range(world_size):
@@ -60,7 +67,8 @@ for rank in range(world_size):
         del hf_model
     dist.barrier()
 
-llm.initialize_cuda_graph()
+if args.graph:
+    llm.initialize_cuda_graph()
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
 input_ids = tokenized_prompts[0][:,:prefill].repeat(bsz, 1).to(device)
@@ -91,8 +99,10 @@ with torch.inference_mode():
         position_ids = llm.kv_cache.seq_len[:, None] + gamma -1
         input_ids = torch.randint(low=3, high=30000, size=(bsz, 1)).to(llm.device)
         for _ in range(T):
-            llm.retrieval_graph_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
-            # llm.retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
+            if args.graph:
+                llm.retrieval_graph_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
+            else:
+                llm.retrieval_inference(input_ids=input_ids, gamma_offset=gamma -1, position_ids=position_ids)
         torch.cuda.synchronize()
         t2 = time.time()
         draft_time = (t2 - t1) / T * 1000

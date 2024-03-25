@@ -29,7 +29,7 @@ class DistributedLlama:
         model_name_or_path: str, 
         dtype = torch.float16,
         kv_offload = False,
-        on_chip_layers = 32,
+        on_chip_layers = 40,
         local_rank = 0,
         world_size = 1,
         prefill = 32768,
