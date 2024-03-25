@@ -305,8 +305,8 @@ class DistributedLlama:
                 static_logits = self.retrieval_inference(input_ids=static_input_ids, gamma_offset=gamma_offset, position_ids=static_position_ids)
             s.synchronize()
         torch.cuda.current_stream().wait_stream(s)
-
-        print(f"[retrieval run] capturing graph for spec len {gamma_offset} (temp={self.temperature}, top_p={self.top_p})...")
+        if self.local_rank == 0:
+            print(f"[retrieval run] capturing graph for spec len {gamma_offset} (temp={self.temperature}, top_p={self.top_p})...")
         dist.barrier()
         graph = torch.cuda.CUDAGraph()
         with torch.cuda.graph(graph, pool=mempool):
