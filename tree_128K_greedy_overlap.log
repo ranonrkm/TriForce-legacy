@@ -5634,4 +5634,11 @@ ant and serv ile writers , who
  man of observation for the people . He is a man of reflection , and 
  there fore a man of reflection for the people . He is a man of genius , 
  and therefore a man of genius for the people . He is a man of the 
- world , and therefore a man of the world for the people . He is a 
+ world , and therefore a man of the world for the people . He is a man of 
+ ex per ience , and therefore a man of experience for the people . He is a 
+ man of observation , and therefore a man of observation for the people . 
+ He is a man of reflection , and therefore a man of reflection for the 
+ people . He is a man of genius , and therefore a man of genius for the [Avg Accepted Tokens]: 12.666666666666666
+[Ours-Chain_Retrieval] average latency: 0.296892866156155 s
+[E2E Speedup]: 9.697614385785284
+  0%|          | 0/131 [00:00<?, ?it/s]  1%|          | 1/131 [00:02<06:16,  2.89s/it]  2%|▏         | 2/131 [00:05<06:13,  2.89s/it]  2%|▏         | 3/131 [00:08<06:10,  2.90s/it]  3%|▎         | 4/131 [00:11<06:08,  2.90s/it]
