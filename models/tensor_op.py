@@ -91,7 +91,6 @@ def Attention(
     key_states = key_states.view(bsz, q_len, num_key_value_heads, head_dim).transpose(1, 2)
     value_states = value_states.view(bsz, q_len, num_key_value_heads, head_dim).transpose(1, 2)
 
-        
     kv_seq_len = key_states.shape[-2]
     kv_seq_len += kv_cache.kv_offset
 
@@ -252,12 +251,12 @@ def TP_Attention_Retrieval(
     #     print("Spec Key:", key_states[:,:10, 16], "Spec Value:", value_states[:,:10, 16], "Spec Q: ",query_states)
     #     print(position_ids)
     if flash_attn:
-        # attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
-        attn_weights = torch.matmul(query_states.transpose(1,2), key_states.transpose(1,2).transpose(2, 3)) / math.sqrt(head_dim)
-        attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
+        # attn_weights = torch.matmul(query_states.transpose(1,2), key_states.transpose(1,2).transpose(2, 3)) / math.sqrt(head_dim)
+        # attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         
-        attn_output = torch.matmul(attn_weights, value_states.transpose(1,2))
-        attn_output = attn_output.transpose(1, 2).contiguous()
+        # attn_output = torch.matmul(attn_weights, value_states.transpose(1,2))
+        # attn_output = attn_output.transpose(1, 2).contiguous()
     else:
         raise ValueError("Non-Flash-Attn Retrieval TP-Attention is not implemented yet")
 
