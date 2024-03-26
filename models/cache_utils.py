@@ -2390,13 +2390,12 @@ class DistributedSimpleCache(Cache):
         self.gpu_value_cache.zero_()
 
     def update(self, key_states: torch.Tensor, value_states: torch.Tensor, layer_idx: int,) -> Tuple[torch.Tensor, torch.Tensor]:
-        raise NotImplementedError
-        assert layer_idx + 1 <= self.gpu_layer
-        self.gpu_key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
-        self.gpu_value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
+        assert layer_idx + 1 <= self.on_chip_layers, (layer_idx, self.on_chip_layers)
+        self.gpu_key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[1]] = key_states.clone()
+        self.gpu_value_cache[layer_idx][:, self.seq_len : self.seq_len + value_states.shape[1]] = value_states.clone()
 
-        key = self.gpu_key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
-        value = self.gpu_value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+        key = self.gpu_key_cache[layer_idx][:, :self.seq_len + value_states.shape[1]]
+        value = self.gpu_value_cache[layer_idx][:, :self.seq_len + value_states.shape[1]]
 
         return key, value
 
@@ -2412,8 +2411,8 @@ class DistributedSimpleCache(Cache):
         self.seq_len = offset + len(indices)
 
     def copy_back_from_buffer(self, kv_buffer, layer_idx:int):
-        self.cpu_key_cache[layer_idx][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.key_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
-        self.cpu_value_cache[layer_idx][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.value_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
+        self.cpu_key_cache[layer_idx-self.on_chip_layers][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.key_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
+        self.cpu_value_cache[layer_idx-self.on_chip_layers][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.value_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
 
         if layer_idx == self.layers - 1:
             self.seq_len = kv_buffer.seq_len
@@ -2445,9 +2444,92 @@ class DistributedKVCacheBuffer:
         self.value_cache[:,:kv_cache.seq_len].copy_(kv_cache.cpu_value_cache[layer_idx-on_chip_layers][:,:kv_cache.seq_len], non_blocking=True)
         self.seq_len = kv_cache.seq_len
 
-    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int, storage_ids :torch.Tensor):
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int):
         input_length = key_states.shape[1]
         self.key_cache[:,self.seq_len:self.seq_len + input_length] = key_states
         self.value_cache[:,self.seq_len:self.seq_len + input_length] = value_states
         self.seq_len += input_length
         return self.key_cache[:,:self.seq_len], self.value_cache[:,:self.seq_len]
+
+class DistributedRetrievalCache:
+
+    def __init__(self, config, max_budget=1024, device=None, prefill=1024, chunk_size=8, gamma=6) -> None:
+
+        self.config = config
+        self.world_size = self.config.world_size
+        self.local_rank = self.config.local_rank
+        self.device  = device
+        
+        self.hidden_size = self.config.hidden_size
+        self.num_heads = self.config.num_key_value_heads // self.world_size
+        self.num_key_value_groups = config.num_attention_heads // config.num_key_value_heads
+        self.head_dim = self.hidden_size // config.num_attention_heads
+        self.layers = self.config.num_hidden_layers
+
+        self.chunk_size = chunk_size
+        self.prefill = prefill
+        self.chunks = prefill // self.chunk_size
+        self.select_sets = max_budget // self.chunk_size
+        self.gamma = gamma
+        self.max_budget = max_budget
+        assert prefill % self.chunk_size == 0, f"prefill should be multiple of chunk_size, got {prefill} % {self.chunk_size}"
+        assert max_budget % self.chunk_size == 0, f"max_budget should be multiple of chunk_size, got {max_budget} % {self.chunk_size}"
+        self.real_budget = max_budget + gamma
+        
+        self.device=device
+        dtype=torch.float16
+        self.key_cache=torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        self.value_cache=torch.zeros([self.layers, 1, self.real_budget, self.num_heads, self.head_dim], dtype=dtype).to(device)
+        print(f"[Distributed Retrieval Cache] Initiated for {self.local_rank+1}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def print_status(self):
+        print("Budget:", self.max_budget, " | Real Budget:", self.real_budget, " | PreFill:", self.prefill, " | Chunk Size:", self.chunk_size, " | Chunks:", self.chunks, " | Select Sets:", self.select_sets)
+
+    def init_graph_cache(self, kv_cache, query_states, layer_idx):
+
+        # query_states: (bsz, 1, 32, head_dim) --> (bsz, 32, 1, head_dim)
+        # key_cache: (bsz, seq_len, 32, head_dim) --> (bsz, 32, head_dim, seq_len)
+        # print(query_states.shape, self.chunk_k[layer_idx].shape)
+
+        assert 1 == query_states.shape[1], "query_states should be 1 for init"
+
+        # chunk_k: (bsz, chunks, chunk_size, kv_heads, head_dim) --> (bsz, chunks, kv_heads, head_dim)
+        chunk_k = kv_cache.key_cache[layer_idx,:,:self.prefill].cuda().view(1, self.chunks, self.chunk_size, self.num_heads, self.head_dim).mean(dim=-3)
+        chunk_attn = torch.matmul(query_states.permute(0, 2, 1, 3), chunk_k.permute(0, 1, 3, 2)).squeeze(2) # (bsz, 32, chunks)
+        _, topk_idx_rest = torch.topk(chunk_attn[:, :, 1:], k=self.select_sets-1, dim=-1) # (bsz, 32, select_sets) --> (bsz, select_sets, 32)
+        topk_idx_rest += 1
+        topk_idx_first = torch.zeros((topk_idx_rest.shape[0], topk_idx_rest.shape[1], 1), device=topk_idx_rest.device, dtype=topk_idx_rest.dtype)
+        topk_idx = torch.cat([topk_idx_first, topk_idx_rest], dim=-1)  # (bsz, 32, select_sets)
+        expanded_index_tensor = topk_idx.permute(0, 2, 1).unsqueeze(-1).unsqueeze(-1).expand(-1, -1, -1, self.chunk_size, self.head_dim)
+
+        # (bsz, prefill, 32, head_dim) --> (bsz, chunks, chunk_size, 32, head_dim) --> (bsz, chunks, 32, chunk_size, head_dim)
+        key_ = kv_cache.key_cache[layer_idx][:, :self.prefill].reshape(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
+        key_ = key_.permute(0, 1, 3, 2, 4)
+        result_tensor = torch.gather(key_, 1, expanded_index_tensor) # (bsz, select_sets, 32, chunk_size, head_dim)
+        # (bsz, select_sets, 32, chunk_size, head_dim) --> (bsz, select_sets*chunk_size, 32, head_dim)
+        self.key_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(self.bsz, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
+
+        value_ = kv_cache.value_cache[layer_idx][:, :self.prefill].reshape(self.bsz, self.chunks, self.chunk_size, self.num_heads, self.head_dim).cuda()
+        value_ = value_.permute(0, 1, 3, 2, 4)
+        result_tensor = torch.gather(value_, 1, expanded_index_tensor)
+        self.value_cache[layer_idx][:,:self.max_budget] = result_tensor.permute(0, 1, 3, 2, 4).reshape(self.bsz, self.select_sets*self.chunk_size, self.num_heads, self.head_dim).clone()
+
+        if layer_idx == self.layers-1:
+            self.init_graph = True
+            print(f"[Distributed Retrieval Cache] Built for {self.local_rank+1}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int, gamma_offset :int):
+        
+        self.key_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = key_states.squeeze(1)
+        self.value_cache[layer_idx][:, self.real_budget-self.gamma+gamma_offset] = value_states.squeeze(1)
+
+        return self.key_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1], self.value_cache[layer_idx][:,:self.real_budget-self.gamma+gamma_offset+1]
+
+    def update_graph_cache(self, kv_cache=None):
+        self.value_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.value_cache[:,:,self.prefill:kv_cache.seq_len]
+        self.key_cache[:,:,self.max_budget-(kv_cache.seq_len-self.prefill):self.max_budget] = kv_cache.key_cache[:,:,self.prefill:kv_cache.seq_len]
+
+    def reset(self):
+        self.key_cache.zero_()
+        self.value_cache.zero_()
+        print(f"[Distributed Retrieval Cache] Reset for {self.local_rank+1}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")

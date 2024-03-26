@@ -26,7 +26,7 @@ def parse_arguments():
     parser.add_argument('--target', type=str, default='llama-7B-128K', help='target model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
-    parser.add_argument('--gen_len', type=int, default=256, help='generation length')
+    parser.add_argument('--gen_len', type=int, default=64, help='generation length')
     parser.add_argument('--gamma', type=int, default=6, help='gamma')
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--budget', type=int,  default=4096)
@@ -46,7 +46,7 @@ retrieval_budget = args.budget
 gamma = args.gamma
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma, kv_offload=True, on_chip_layers=0)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, gamma=gamma, kv_offload=True, on_chip_layers=10)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")

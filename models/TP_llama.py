@@ -58,13 +58,14 @@ class DistributedLlama:
         self.top_p = top_p
         self.gamma = gamma
         self.bsz = bsz
+        self.load_stream = torch.cuda.Stream(device=self.device)
         
         if kv_offload:
             assert bsz == 1
             # self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
             # self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
-            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+3*gen_len, device='cpu')
-            self.kv_buffer = DistributedKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, device=self.device)
+            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+3*gen_len, device=self.device, on_chip_layers=on_chip_layers)
+            self.kv_buffer = [DistributedKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, device=self.device) for _ in range(2)]
         else:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
         self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
@@ -127,7 +128,7 @@ class DistributedLlama:
             wo=buffer.wo,
             sin_cache=self.layers[layer_idx].sin_cache,
             cos_cache=self.layers[layer_idx].cos_cache,
-            kv_buffer=self.kv_buffer if (layer_idx >= self.on_chip_layers) else self.kv_cache,
+            kv_buffer=self.kv_buffer[(layer_idx) % 2] if (layer_idx >= self.on_chip_layers) else self.kv_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,
             local_num_key_value_heads=self.local_num_key_value_heads,
@@ -182,11 +183,24 @@ class DistributedLlama:
                 position_ids = position_ids.unsqueeze(0)
 
         if self.kv_offload:
+            self.kv_buffer[(self.on_chip_layers) % 2].copy_kv(self.kv_cache, self.on_chip_layers)
+            # torch.cuda.synchronize()
             for idx in range(self.num_layers):
                 if idx >= self.on_chip_layers:
-                    self.kv_buffer.copy_kv(self.kv_cache, idx)
-                    hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
-                    self.kv_cache.copy_back_from_buffer(self.kv_buffer, idx)
+                    torch.cuda.synchronize() # !!! MUST
+                    with torch.cuda.stream(self.load_stream):
+                        hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
+                        self.kv_cache.copy_back_from_buffer(self.kv_buffer[(idx) % 2], idx)
+                    # torch.cuda.current_stream().wait_stream(self.load_stream)
+                    # self.load_stream.wait_stream(torch.cuda.current_stream())
+                    # self.load_stream.synchronize()
+                    if idx != self.num_layers - 1:
+                        self.kv_buffer[(idx + 1) % 2].copy_kv(self.kv_cache, idx + 1)
+                    torch.cuda.synchronize()
+                # if idx >= self.on_chip_layers:
+                #     self.kv_buffer[(idx) % 2].copy_kv(self.kv_cache, idx)
+                #     hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
+                #     self.kv_cache.copy_back_from_buffer(self.kv_buffer[(idx) % 2], idx)
                 else:
                     hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
 
@@ -205,17 +219,17 @@ class DistributedLlama:
 
     @torch.inference_mode()
     def prefill(self, input_ids: torch.LongTensor):
-        iter_prefill = math.ceil(input_ids.shape[1] / 1024)
+        iter_prefill = math.ceil(input_ids.shape[1] / 128)
         for i in tqdm(range(iter_prefill)):
-            logits = self.inference(input_ids=input_ids[:, i*1024:(i+1)*1024])
+            logits = self.inference(input_ids=input_ids[:, i*128:(i+1)*128])
         return logits
-    
+
     @torch.inference_mode()
     def build_retrieval_cache(self, input_ids: torch.LongTensor):
         assert input_ids.shape[-1] == 1
         logits = self.inference(input_ids=input_ids, retrieval_cache=self.retrieval_cache)
         return logits
-    
+
     @torch.inference_mode()
     def layer_speculation(self, 
             buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],

@@ -65,7 +65,10 @@ def norm_logits(logits : torch.Tensor, temperature=0.6, top_k=-1, top_p=0.9) -> 
 
 
 def sample(probs : torch.Tensor, num_samples=1):
+    # try:
     idx_next = torch.multinomial(probs, num_samples=num_samples, replacement=True)
+    # except:
+    #     idx_next = torch.LongTensor([[0]]).cuda()
     return idx_next
 
 
