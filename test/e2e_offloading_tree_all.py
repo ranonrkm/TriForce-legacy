@@ -186,7 +186,6 @@ for input_ids in tokenized_prompts:
         time2 = time.time()
         method_latency = (time2 - time1)/n
         print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
-        # TreeBaseline_latency = 3.829643356800079
         print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
         print(colored(f"[E2E Speedup]: {TreeBaseline_latency / method_latency}", "red"))
 

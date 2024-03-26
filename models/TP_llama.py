@@ -1,4 +1,3 @@
-from tkinter import NO
 from transformers import LlamaForCausalLM, LlamaConfig
 import torch
 from transformers.models.llama.modeling_llama import LlamaDecoderLayer
@@ -8,12 +7,14 @@ import torch.nn.functional as F
 from torch import nn
 from typing import List, Optional, Tuple, Union
 import gc
+from tqdm import tqdm
 
 from .TP_layers import DistributedLlamaLayer, DistributedLlamaLayerBuffer, DistributedOffloadingConfig
 from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval
 import torch.distributed as dist
 from .configuration_llama import LlamaConfig
 from .batch_cache import DistributedBatchSimpleCache, DistributedBatchRetrievalCache, DistributedBatchKVCacheBuffer
+from .cache_utils import DistributedKVCacheBuffer, DistributedSimpleCache
 from utils.sampling import norm_logits
 
 def distributed_init():
@@ -29,11 +30,11 @@ class DistributedLlama:
         model_name_or_path: str, 
         dtype = torch.float16,
         kv_offload = False,
-        on_chip_layers = 40,
+        on_chip_layers = 32,
         local_rank = 0,
         world_size = 1,
         prefill = 32768,
-        bsz = 2,
+        bsz = 1,
         gen_len = 256,
         retrieval_budget = 4096,
         retrieval_chunk_size = 8,
@@ -59,8 +60,11 @@ class DistributedLlama:
         self.bsz = bsz
         
         if kv_offload:
-            self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
-            self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
+            assert bsz == 1
+            # self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
+            # self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
+            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+3*gen_len, device='cpu')
+            self.kv_buffer = DistributedKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, device=self.device)
         else:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
         self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
@@ -84,7 +88,7 @@ class DistributedLlama:
         self.norm_weight = hf_model.model.norm.weight.detach().to(self.device)
         self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
         self.layers :list[DistributedLlamaLayer] = []
-        
+
         for idx, hf_layer in enumerate(hf_model.model.layers):
             layer = DistributedLlamaLayer(idx, self.config)
             layer.init_parameters(hf_layer=hf_layer)
@@ -92,9 +96,7 @@ class DistributedLlama:
             self.layers.append(layer)
 
         self.num_layers = len(self.layers)
-        # self.buffer = DistributedLlamaLayerBuffer(self.config)
-        # self.buffer.init_space(self.layers[0])
-        for id in range(self.on_chip_layers):
+        for id in range(self.num_layers):
             self.layers[id].to_gpu(device=self.device)
 
     @torch.inference_mode()
@@ -113,7 +115,7 @@ class DistributedLlama:
             layernorm_variance_epsilon=self.layers[layer_idx].input_layernorm_variance_epsilon,
             layernorm_weight=self.layers[layer_idx].input_layernorm_weight
         )
-        
+
         hidden_states = TP_Attention(
             hidden_states=hidden_states,
             attention_mask=attention_mask,
@@ -125,7 +127,7 @@ class DistributedLlama:
             wo=buffer.wo,
             sin_cache=self.layers[layer_idx].sin_cache,
             cos_cache=self.layers[layer_idx].cos_cache,
-            kv_buffer=self.kv_buffer if self.kv_offload else self.kv_cache,
+            kv_buffer=self.kv_buffer if (layer_idx >= self.on_chip_layers) else self.kv_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,
             local_num_key_value_heads=self.local_num_key_value_heads,
@@ -134,7 +136,7 @@ class DistributedLlama:
             flash_attn=self.flash_attn,
             retrieval_cache=retrieval_cache
         )
-        
+
         hidden_states = residual + hidden_states
         residual = hidden_states
 
@@ -173,28 +175,24 @@ class DistributedLlama:
             batch_size, seq_length = input_ids.shape[:2]
             range_tensor = torch.arange(seq_length, dtype=torch.long, device=self.device)
             # print(kv_cache.seq_len, range_tensor)
-            position_ids = self.kv_cache.seq_len[:, None] + range_tensor
+            if batch_size > 1:
+                position_ids = self.kv_cache.seq_len[:, None] + range_tensor
+            else:
+                position_ids = self.kv_cache.seq_len + range_tensor
+                position_ids = position_ids.unsqueeze(0)
 
         if self.kv_offload:
             for idx in range(self.num_layers):
                 if idx >= self.on_chip_layers:
-                    self.buffer.sync_copy(self.layers[idx])
-                    self.kv_buffer.copy_kv(self.kv_cache, idx)
-                    hidden_states = self.layer_compute(self.buffer, idx, hidden_states, position_ids, attention_mask, retrieval_cache)
-                    self.kv_cache.copy_back_from_buffer(self.kv_buffer, idx)
-                else:
                     self.kv_buffer.copy_kv(self.kv_cache, idx)
                     hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
                     self.kv_cache.copy_back_from_buffer(self.kv_buffer, idx)
+                else:
+                    hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
 
         else:
             for idx in range(self.num_layers):
-                if idx < self.on_chip_layers:
-                    # print(f"Rank {self.local_rank} is computing layer {idx} with {hidden_states.device} using {self.layers[idx].wq.device}")
-                    hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
-                else:
-                    self.buffer.sync_copy(self.layers[idx])
-                    hidden_states = self.layer_compute(self.buffer, idx, hidden_states, position_ids, attention_mask)
+                hidden_states = self.layer_compute(self.layers[idx], idx, hidden_states, position_ids, attention_mask, retrieval_cache)
 
         hidden_states = RMSNorm(
             hidden_states=hidden_states,
@@ -207,9 +205,9 @@ class DistributedLlama:
 
     @torch.inference_mode()
     def prefill(self, input_ids: torch.LongTensor):
-        iter_prefill = math.ceil(input_ids.shape[1] / 64)
-        for i in range(iter_prefill):
-            logits = self.inference(input_ids=input_ids[:, i*64:(i+1)*64])
+        iter_prefill = math.ceil(input_ids.shape[1] / 1024)
+        for i in tqdm(range(iter_prefill)):
+            logits = self.inference(input_ids=input_ids[:, i*1024:(i+1)*1024])
         return logits
     
     @torch.inference_mode()
@@ -290,7 +288,6 @@ class DistributedLlama:
         )
 
         logits = F.linear(hidden_states, self.lm_head).float()
-        # print(logits)
         return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
 
     @torch.inference_mode()

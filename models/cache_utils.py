@@ -2350,3 +2350,104 @@ class PartialOffloadingTREESimpleCache(Cache):
             self.seq_len += key_states.shape[-2]
 
         return key, value
+
+
+############## Dist Cache for 4090s ###############
+class DistributedSimpleCache(Cache):
+    def __init__(self, config, max_budget=1024, device=None, on_chip_layers=0):
+        self.config = config
+        self.world_size = self.config.world_size
+        self.local_rank = self.config.local_rank
+        self.device  = device
+        
+        self.max_budget = max_budget
+        self.hidden_size = self.config.hidden_size
+        self.num_heads = self.config.num_key_value_heads // self.world_size
+        
+        self.head_dim = self.hidden_size // self.config.num_attention_heads
+        self.layers = self.config.num_hidden_layers
+        
+        self.seq_len = 0
+        dtype=torch.float16
+        self.on_chip_layers = on_chip_layers
+
+        self.gpu_key_cache = torch.zeros([self.on_chip_layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=device)
+        self.gpu_value_cache = torch.zeros([self.on_chip_layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device=device)
+
+        self.cpu_key_cache=torch.zeros([self.layers-self.on_chip_layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device='cpu', pin_memory=True)
+        self.cpu_value_cache=torch.zeros([self.layers-self.on_chip_layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype, device='cpu', pin_memory=True)
+
+        print(f"[Distributed Cache] Initiated for {self.local_rank+1}/{self.world_size}, cpu: {self.cpu_key_cache.shape}, {self.device}: {self.gpu_key_cache.shape}")
+
+    def print_status(self):
+        print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
+
+    def reset(self):
+        self.seq_len = 0
+        self.cpu_key_cache.zero_()
+        self.cpu_value_cache.zero_()
+        self.gpu_key_cache.zero_()
+        self.gpu_value_cache.zero_()
+
+    def update(self, key_states: torch.Tensor, value_states: torch.Tensor, layer_idx: int,) -> Tuple[torch.Tensor, torch.Tensor]:
+        raise NotImplementedError
+        assert layer_idx + 1 <= self.gpu_layer
+        self.gpu_key_cache[layer_idx][:, :, self.seq_len : self.seq_len + key_states.shape[-2]] = key_states.clone()
+        self.gpu_value_cache[layer_idx][:, :, self.seq_len : self.seq_len + value_states.shape[-2]] = value_states.clone()
+
+        key = self.gpu_key_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+        value = self.gpu_value_cache[layer_idx][:, :, :self.seq_len + value_states.shape[-2]]
+
+        return key, value
+
+    def gather_kv_incremental(self, indices: list[int], offset:int):
+        # print(indices, offset)
+        indices = [i + offset for i in indices]
+        self.key_cache[:,:, offset:offset + len(indices)] = self.key_cache[:,:, indices]
+        self.value_cache[:,:, offset:offset + len(indices)] = self.value_cache[:,:, indices]
+
+        self.key_cache[:,:, offset + len(indices):] = 0.0
+        self.value_cache[:,:, offset + len(indices):] = 0.0
+
+        self.seq_len = offset + len(indices)
+
+    def copy_back_from_buffer(self, kv_buffer, layer_idx:int):
+        self.cpu_key_cache[layer_idx][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.key_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
+        self.cpu_value_cache[layer_idx][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.value_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
+
+        if layer_idx == self.layers - 1:
+            self.seq_len = kv_buffer.seq_len
+
+
+class DistributedKVCacheBuffer:
+    def __init__(self, config, max_budget=1024, device=None) -> None:
+
+        self.config = config
+        self.max_budget = max_budget
+        self.device = device
+        self.dtype = torch.float16
+
+        self.world_size = config.world_size
+        self.local_rank = config.local_rank
+
+        self.num_hidden_layers = config.num_hidden_layers
+        self.num_heads = config.num_key_value_heads // self.world_size
+        self.head_dim = config.hidden_size // config.num_attention_heads
+
+        self.key_cache = torch.zeros(1, self.max_budget, self.num_heads, self.head_dim, device=self.device,dtype=self.dtype)
+        self.value_cache = torch.zeros(1, self.max_budget, self.num_heads, self.head_dim, device=self.device,dtype=self.dtype)
+        self.seq_len = 0
+        print(f"[Distributed Cache Buffer] Initiated for {self.local_rank+1}/{self.world_size}, {self.key_cache.shape} on {self.device}")
+
+    def copy_kv(self, kv_cache, layer_idx):
+        on_chip_layers = kv_cache.on_chip_layers
+        self.key_cache[:,:kv_cache.seq_len].copy_(kv_cache.cpu_key_cache[layer_idx-on_chip_layers][:,:kv_cache.seq_len], non_blocking=True)
+        self.value_cache[:,:kv_cache.seq_len].copy_(kv_cache.cpu_value_cache[layer_idx-on_chip_layers][:,:kv_cache.seq_len], non_blocking=True)
+        self.seq_len = kv_cache.seq_len
+
+    def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int, storage_ids :torch.Tensor):
+        input_length = key_states.shape[1]
+        self.key_cache[:,self.seq_len:self.seq_len + input_length] = key_states
+        self.value_cache[:,self.seq_len:self.seq_len + input_length] = value_states
+        self.seq_len += input_length
+        return self.key_cache[:,:self.seq_len], self.value_cache[:,:self.seq_len]

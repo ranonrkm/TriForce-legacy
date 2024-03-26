@@ -346,7 +346,6 @@ class BatchStreamEvictionCache:
 
 ################### Distributed KV cache ####################
 class DistributedBatchSimpleCache:
-
     def __init__(self, config, max_budget=1024, bsz=1, device=None) -> None:
         
         self.config = config
@@ -361,7 +360,7 @@ class DistributedBatchSimpleCache:
         self.head_dim = self.hidden_size // self.config.num_attention_heads
         self.layers = self.config.num_hidden_layers
         self.bsz = bsz
-        self.seq_len = torch.zeros(bsz, dtype=torch.int32).to(self.device)
+        self.seq_len = torch.zeros(bsz, dtype=torch.int32).cuda()
         dtype=torch.float16
         self.key_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
         self.value_cache=torch.zeros([self.layers, bsz, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(self.device)
@@ -392,7 +391,7 @@ class DistributedBatchSimpleCache:
 
     def copy_back_from_buffer(self, kv_buffer, layer_idx:int):
 
-        storage_ids = [torch.arange(start, end) for start, end in zip(self.seq_len, kv_buffer.seq_len)]
+        storage_ids = torch.cat([torch.arange(start, end) for start, end in zip(self.seq_len, kv_buffer.seq_len)]).unsqueeze(0) # bsz==1
         indices_expanded = storage_ids.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, self.num_heads, self.head_dim)
         self.key_cache[layer_idx].scatter_(1, indices_expanded, kv_buffer.key_cache.gather(1, indices_expanded))
         self.value_cache[layer_idx].scatter_(1, indices_expanded, kv_buffer.value_cache.gather(1, indices_expanded))
@@ -413,26 +412,26 @@ class DistributedBatchKVCacheBuffer:
         self.local_rank = config.local_rank
 
         self.num_hidden_layers = config.num_hidden_layers
-        self.num_key_value_heads = config.num_key_value_heads // self.world_size
+        self.num_heads = config.num_key_value_heads // self.world_size
         self.head_dim = config.hidden_size // config.num_attention_heads
 
-        self.key_cache = torch.zeros(bsz, self.max_budget, self.num_key_value_heads, self.head_dim, device=self.device,dtype=self.dtype)
-        self.value_cache = torch.zeros(bsz, self.max_budget, self.num_key_value_heads, self.head_dim, device=self.device,dtype=self.dtype)
+        self.key_cache = torch.zeros(bsz, self.max_budget, self.num_heads, self.head_dim, device=self.device,dtype=self.dtype)
+        self.value_cache = torch.zeros(bsz, self.max_budget, self.num_heads, self.head_dim, device=self.device,dtype=self.dtype)
         self.seq_len = torch.zeros(bsz, dtype=torch.int32).to(self.device)
 
     def copy_kv(self, kv_cache, layer_idx):
-        self.k_cache.copy_(kv_cache.key_cache[layer_idx], non_blocking=True)
-        self.v_cache.copy_(kv_cache.value_cache[layer_idx], non_blocking=True)
+        self.key_cache.copy_(kv_cache.key_cache[layer_idx], non_blocking=True)
+        self.value_cache.copy_(kv_cache.value_cache[layer_idx], non_blocking=True)
         self.seq_len = kv_cache.seq_len.clone()
 
     def update(self, key_states :torch.Tensor, value_states :torch.Tensor, layer_idx :int, storage_ids :torch.Tensor):
         indices_expanded = storage_ids.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, self.num_heads, self.head_dim)
-        self.key_cache[layer_idx].scatter_(1, indices_expanded, key_states)
-        self.value_cache[layer_idx].scatter_(1, indices_expanded, value_states)
+        self.key_cache.scatter_(1, indices_expanded, key_states)
+        self.value_cache.scatter_(1, indices_expanded, value_states)
 
         if layer_idx == 0:
             self.seq_len += key_states.shape[-3]
-        return self.key_cache[layer_idx], self.value_cache[layer_idx]
+        return self.key_cache, self.value_cache
 
 class DistributedBatchRetrievalCache:
 

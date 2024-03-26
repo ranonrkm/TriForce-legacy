@@ -166,7 +166,11 @@ def TP_Attention(
         retrieval_cache.init_graph_cache(kv_buffer, query_states, layer_idx)
 
     if flash_attn:
-        attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_buffer.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
+        if bsz > 1:
+            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_buffer.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
+        else:
+            # print(query_states.shape, key_states.shape, position_ids)
+            attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
     else:
         raise ValueError("Attention mask is required for TP-Attention")
         key_states = repeat_kv(key_states, num_key_value_groups)
