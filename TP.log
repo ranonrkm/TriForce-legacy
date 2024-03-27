@@ -1,0 +1,37 @@
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+>>>> Flash RoPE installed
+Config: prefill=130048, retrieval_budget=4096, tree_size=512, ssl=0, max_width=8
+[Distributed Cache] Initiated for 1/2, cpu: torch.Size([24, 1, 130624, 16, 128]), cuda:0: torch.Size([8, 1, 130624, 16, 128])
+[Distributed Cache Buffer] Initiated for 1/2, torch.Size([1, 130624, 16, 128]) on cuda:0
+[Distributed Cache Buffer] Initiated for 1/2, torch.Size([1, 130624, 16, 128]) on cuda:0
+[Distributed Cache] Initiated for 2/2, cpu: torch.Size([24, 1, 130624, 16, 128]), cuda:1: torch.Size([8, 1, 130624, 16, 128])
+[Distributed Cache Buffer] Initiated for 2/2, torch.Size([1, 130624, 16, 128]) on cuda:1
+[Distributed Cache Buffer] Initiated for 2/2, torch.Size([1, 130624, 16, 128]) on cuda:1
+[Distributed Retrieval Cache] Initiated for 1/2 on cuda:0, shape: torch.Size([32, 1, 4608, 16, 128])
+Rank 1/2 (Device cuda:0) is initializing parameters
+[Distributed Retrieval Cache] Initiated for 2/2 on cuda:1, shape: torch.Size([32, 1, 4608, 16, 128])
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.49it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.22it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.07it/s]
+Rank 2/2 (Device cuda:1) is initializing parameters
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.38it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  2.08it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.93it/s]
+Draft Time (Tree size: 512): 0.02004732847213745
+Verification Time (Tree size: 512): 1.0673996329307556
+>>>> Flash Attention installed
+>>>> Flash Attention installed
+>>>> Flash RoPE installed
+Config: prefill=130048, retrieval_budget=4096, tree_size=640, ssl=0, max_width=8
+>>>> Flash RoPE installed
+[Distributed Cache] Initiated for 1/2, cpu: torch.Size([24, 1, 130752, 16, 128]), cuda:0: torch.Size([8, 1, 130752, 16, 128])
+[Distributed Cache Buffer] Initiated for 1/2, torch.Size([1, 130752, 16, 128]) on cuda:0
+[Distributed Cache Buffer] Initiated for 1/2, torch.Size([1, 130752, 16, 128]) on cuda:0
+[Distributed Cache] Initiated for 2/2, cpu: torch.Size([24, 1, 130752, 16, 128]), cuda:1: torch.Size([8, 1, 130752, 16, 128])
+[Distributed Cache Buffer] Initiated for 2/2, torch.Size([1, 130752, 16, 128]) on cuda:1
+[Distributed Cache Buffer] Initiated for 2/2, torch.Size([1, 130752, 16, 128]) on cuda:1
+[Distributed Retrieval Cache] Initiated for 1/2 on cuda:0, shape: torch.Size([32, 1, 4736, 16, 128])
+Rank 1/2 (Device cuda:0) is initializing parameters
+[Distributed Retrieval Cache] Initiated for 2/2 on cuda:1, shape: torch.Size([32, 1, 4736, 16, 128])
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.48it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.21it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:00<00:00,  2.06it/s]
+Rank 2/2 (Device cuda:1) is initializing parameters
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.32it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.99it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.85it/s]
+Draft Time (Tree size: 640): 0.020129048824310304

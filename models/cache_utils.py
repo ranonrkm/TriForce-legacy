@@ -2354,12 +2354,13 @@ class PartialOffloadingTREESimpleCache(Cache):
 
 ############## Dist Cache for 4090s ###############
 class DistributedSimpleCache(Cache):
-    def __init__(self, config, max_budget=1024, device=None, on_chip_layers=0):
+    def __init__(self, config, max_budget=1024, device=None, on_chip_layers=0, ssl=0):
         self.config = config
         self.world_size = self.config.world_size
         self.local_rank = self.config.local_rank
         self.device  = device
-        
+        self.ssl = ssl
+        self.ssl_cur = 0
         self.max_budget = max_budget
         self.hidden_size = self.config.hidden_size
         self.num_heads = self.config.num_key_value_heads // self.world_size
@@ -2398,11 +2399,26 @@ class DistributedSimpleCache(Cache):
 
     def update(self, key_states: torch.Tensor, value_states: torch.Tensor, layer_idx: int,) -> Tuple[torch.Tensor, torch.Tensor]:
         assert layer_idx + 1 <= self.on_chip_layers, (layer_idx, self.on_chip_layers)
+        # print(self.key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[1]].shape, key_states.shape)
         self.key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[1]] = key_states.clone()
         self.value_cache[layer_idx][:, self.seq_len : self.seq_len + value_states.shape[1]] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :self.seq_len + value_states.shape[1]]
         value = self.value_cache[layer_idx][:, :self.seq_len + value_states.shape[1]]
+
+        return key, value
+
+    def ssl_update(self, key_states: torch.Tensor, value_states: torch.Tensor, layer_idx: int,) -> Tuple[torch.Tensor, torch.Tensor]:
+        assert layer_idx + 1 <= self.ssl, (layer_idx, self.ssl)
+        # print(self.key_cache[layer_idx][:, self.seq_len : self.seq_len + key_states.shape[1]].shape, key_states.shape)
+        self.key_cache[layer_idx][:, self.seq_len+self.ssl_cur : self.seq_len+self.ssl_cur + key_states.shape[1]] = key_states.clone()
+        self.value_cache[layer_idx][:, self.seq_len+self.ssl_cur : self.seq_len+self.ssl_cur + value_states.shape[1]] = value_states.clone()
+
+        key = self.key_cache[layer_idx][:, :self.seq_len+self.ssl_cur + value_states.shape[1]]
+        value = self.value_cache[layer_idx][:, :self.seq_len+self.ssl_cur + value_states.shape[1]]
+
+        if layer_idx == self.ssl - 1:
+            self.ssl_cur += key_states.shape[1]
 
         return key, value
 
@@ -2417,6 +2433,7 @@ class DistributedSimpleCache(Cache):
         self.value_cache[:,:, offset + len(indices):] = 0.0
 
         self.seq_len = offset + len(indices)
+        self.ssl_cur = 0
 
     def copy_back_from_buffer(self, kv_buffer, layer_idx:int):
         self.cpu_key_cache[layer_idx-self.on_chip_layers][:,self.seq_len: kv_buffer.seq_len].copy_(kv_buffer.key_cache[:, self.seq_len: kv_buffer.seq_len], non_blocking=True)
@@ -2424,6 +2441,7 @@ class DistributedSimpleCache(Cache):
 
         if layer_idx == self.layers - 1:
             self.seq_len = kv_buffer.seq_len
+            self.ssl_cur = 0
 
 class DistributedKVCacheBuffer:
     def __init__(self, config, max_budget=1024, device=None) -> None:
@@ -2561,3 +2579,7 @@ class DistributedRetrievalCache:
         self.value_cache.zero_()
         self.init_graph = False
         print(f"[Distributed Retrieval Cache] Reset for {self.local_rank+1}/{self.world_size} on {self.device}, shape: {self.key_cache.shape}")
+
+    def normal_(self):
+        self.key_cache.normal_()
+        self.value_cache.normal_()

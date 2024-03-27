@@ -210,6 +210,54 @@ def TP_Attention(
     
     return hidden_states
 
+def TP_Attention_ssl(
+    hidden_states: torch.FloatTensor,
+    position_ids: torch.LongTensor,
+    layer_idx: int,
+    wq: torch.FloatTensor,
+    wk: torch.FloatTensor,
+    wv: torch.FloatTensor,
+    wo: torch.FloatTensor,
+    sin_cache: torch.FloatTensor,
+    cos_cache: torch.FloatTensor,
+    kv_buffer,
+    hidden_size: int,
+    local_num_heads: int,
+    local_num_key_value_heads: int,
+    num_key_value_groups: int,
+    head_dim: int,
+    attention_mask: torch.FloatTensor=None,
+    flash_attn: bool=True,
+):
+    bsz, q_len, _ = hidden_states.size()
+    query_states = F.linear(hidden_states, wq) #[bsz, q_len, h // tp]
+    key_states = F.linear(hidden_states, wk) #[bsz, q_len, h // tp]
+    value_states = F.linear(hidden_states, wv) #[bsz, q_len, h // tp]
+    query_states = query_states.view(bsz, q_len, local_num_heads, head_dim).transpose(1, 2)
+    #[bsz, local_num_heads, q_len, head_dim]
+    key_states = key_states.view(bsz, q_len, local_num_key_value_heads, head_dim).transpose(1, 2)
+    #[bsz, local_num_kv_heads, q_len, head_dim]
+    value_states = value_states.view(bsz, q_len, local_num_key_value_heads, head_dim)
+    #[bsz, q_len, local_num_kv_heads, head_dim]
+    query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos_cache, sin_cache, position_ids)
+    query_states = query_states.transpose(1, 2)
+    key_states = key_states.transpose(1, 2)
+    key_states, value_states = kv_buffer.ssl_update(key_states, value_states, layer_idx)
+    # print(key_states.shape, value_states.shape, attention_mask.shape, query_states.shape)
+    with torch.backends.cuda.sdp_kernel(enable_math=False):
+        attn_output = F.scaled_dot_product_attention(query_states.transpose(1, 2),key_states.transpose(1, 2),value_states.transpose(1, 2), attn_mask=attention_mask.half())
+        attn_output = attn_output.transpose(1, 2).contiguous()
+
+    attn_output = attn_output.reshape(bsz, q_len, local_num_heads * head_dim)
+    #[bsz, q_len, h // tp]
+    hidden_states = F.linear(attn_output, wo)
+
+    #[bsz, q_len, h]
+    dist.all_reduce(hidden_states, dist.ReduceOp.SUM)
+    
+    return hidden_states
+
+
 def TP_Attention_Tree_Retrieval(
     hidden_states: torch.FloatTensor,
     position_ids: torch.LongTensor,

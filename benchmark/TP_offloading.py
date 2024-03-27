@@ -36,31 +36,34 @@ def create_sampling_callable(num_samples, temperature=0.6):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
-
-    parser.add_argument('--target', type=str, default='llama-7B-128K', help='target model')
-    parser.add_argument('--verbose', action='store_true', help='verbose')
-    parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
+    parser.add_argument('--prefill', type=int, default=130048, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=64, help='generation length')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
-    parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
     parser.add_argument('--budget', type=int,  default=4096)
-    parser.add_argument('--file', type=str, default='')
     parser.add_argument('--tree_size', type=int, default=512)
+    parser.add_argument('--ssl', type=int, default=0)
+    parser.add_argument('--max_width', type=int, default=64)
     args = parser.parse_args()
     
     return args
 
 args = parse_arguments()
 
-prefill = 1024*127
+prefill = args.prefill
 gen_len = args.gen_len
 temperature = args.temp
 top_p = 0.9
 retrieval_budget = args.budget
 tree_size = args.tree_size
+ssl = args.ssl
+max_width = args.max_width
+
+if local_rank == 0:
+    print(f"Config: {prefill=}, {retrieval_budget=}, {tree_size=}, {ssl=}, {max_width=}")
+
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=8, tree_size=args.tree_size)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=8, tree_size=args.tree_size, ssl=ssl)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
@@ -72,34 +75,58 @@ for rank in range(world_size):
 
 T = 100
 with torch.inference_mode():
-    llm.kv_cache.normal_(prefill)
-    depth = torch.arange(0, args.tree_size, device=device, dtype=torch.int32).unsqueeze(0) + prefill
+    llm.kv_cache.seq_len = prefill
+    
+    ######### Draft #########
+    next_token = torch.randint(3, 30000, (1, max_width), device=device)
+    position_ids = torch.tensor([[retrieval_budget for _ in range(max_width)]], dtype=torch.long, device=device)
+    storage_ids = torch.tensor([x for x in range(retrieval_budget, retrieval_budget+max_width)], dtype=torch.long, device=device)
+    attention_mask = torch.cat([torch.zeros(max_width, retrieval_budget, device=device), torch.zeros(max_width, tree_size, device=device)], dim=-1)[None, None, :, :]
+    llm.retrieval_cache.normal_()
+    
+    # warm up
+    for k in range(10):
+        llm.retrieval_tree_inference(input_ids = next_token, position_ids = position_ids, attention_mask=attention_mask, storage_ids=storage_ids)
+        if k % 2 == 0:
+            llm.kv_cache.ssl_cur = 0
+    
+    torch.cuda.synchronize()
+    start = time.time()
+    for k in range(T):
+        llm.retrieval_tree_inference(input_ids = next_token, position_ids = position_ids, attention_mask=attention_mask, storage_ids=storage_ids)
+        if k % 2 == 0:
+            llm.kv_cache.ssl_cur = 0
+    torch.cuda.synchronize()
+    end = time.time()
+    draft_time = (end-start) / T
+    if local_rank == 0:
+        print(f"Draft Time (Tree size: {tree_size}): {draft_time}")
+
+
+
+    # llm.kv_cache.normal_(prefill)
+    llm.kv_cache.seq_len = prefill
+    depth = torch.arange(0, args.tree_size, device=device, dtype=torch.int32).unsqueeze(0)
     tree_mask = torch.zeros(args.tree_size, args.tree_size, device=device)
     sentence = torch.randint(3, 30000, (1, tree_size), device=device)
-    position_ids = (depth + llm.kv_cache.seq_len).unsqueeze(0)
+    position_ids = (depth + llm.kv_cache.seq_len)
     attn_mask = torch.cat([torch.zeros(tree_size, llm.kv_cache.seq_len, device=llm.device), tree_mask], dim=-1)[None, None, :, :]
 
+    # print(sentence, position_ids, attn_mask.shape)
     # warm up
     for _ in range(10):
         llm.inference(input_ids = sentence, position_ids=position_ids, attention_mask=attn_mask)
         llm.kv_cache.seq_len = prefill
+    
+    torch.cuda.synchronize()
     start = time.time()
     for _ in range(T):
         llm.inference(input_ids = sentence, position_ids=position_ids, attention_mask=attn_mask)
         llm.kv_cache.seq_len = prefill
+    torch.cuda.synchronize()
     end = time.time()
-    print(f"Verification Time (Tree size: {tree_size}): {(end-start) / T}")
-
-
-    next_token = torch.randint(3, 30000, (1, 1), device=device)
-    position_ids = torch.LongTensor([[prefill]], device=device)
-    storage_ids = torch.LongTensor([[prefill]], device=device)
-    attention_mask = torch.cat([torch.zeros(1, prefill, device=device), torch.zeros(1, 1, device=device)], dim=-1)[None, None, :, :]
-    
-    # warm up
-    for _ in range(10):
-        llm.retrieval_tree_inference(input_ids = next_token, position_ids = position_ids, attention_mask=attention_mask, storage_ids=storage_ids)
-    for _ in range(T):
-        llm.retrieval_tree_inference(input_ids = next_token, position_ids = position_ids, attention_mask=attention_mask, storage_ids=storage_ids)
-    end = time.time()
-    print(f"Draft Time (Tree size: {tree_size}): {(end-start) / T}")
+    verify_time = (end-start) / T
+    if local_rank == 0:
+        print(f"Verification Time (Tree size: {tree_size}): {verify_time}")
+        with open("benchmark/TP_offloading.txt", "a") as f:
+            f.write(f"{retrieval_budget},{tree_size},{max_width},{ssl},{draft_time},{verify_time}\n")

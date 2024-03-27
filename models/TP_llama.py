@@ -10,7 +10,7 @@ import gc
 from tqdm import tqdm
 
 from .TP_layers import DistributedLlamaLayer, DistributedLlamaLayerBuffer, DistributedOffloadingConfig
-from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval, TP_Attention_Tree_Retrieval
+from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval, TP_Attention_Tree_Retrieval, TP_Attention_ssl
 import torch.distributed as dist
 from .configuration_llama import LlamaConfig
 from .batch_cache import DistributedBatchSimpleCache, DistributedBatchRetrievalCache, DistributedBatchKVCacheBuffer
@@ -42,6 +42,7 @@ class DistributedLlama:
         temperature = 0.6,
         top_p = 0.9,
         tree_size=128,
+        ssl=0,
         flash_attn=True) -> None:
         
         self.device  = torch.device("cuda", local_rank)
@@ -50,11 +51,13 @@ class DistributedLlama:
         self.world_size = world_size
         self.kv_offload = kv_offload
         self.on_chip_layers = on_chip_layers
+        self.ssl = ssl
         self.flash_attn = flash_attn
         model_config: LlamaConfig = LlamaConfig.from_pretrained(model_name_or_path)
         self.config = DistributedOffloadingConfig(model_config, local_rank, world_size)
         self.vocab_size = model_config.vocab_size
-
+        self.prefill_len = prefill
+        self.retrieval_budget = retrieval_budget
         self.temperature = temperature
         self.top_p = top_p
         self.gamma = gamma
@@ -65,7 +68,7 @@ class DistributedLlama:
             assert bsz == 1
             # self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
             # self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
-            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+gen_len+tree_size, device=self.device, on_chip_layers=on_chip_layers)
+            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+gen_len+tree_size, device=self.device, on_chip_layers=on_chip_layers, ssl=ssl)
             self.kv_buffer = [DistributedKVCacheBuffer(self.config, max_budget=prefill+gen_len+tree_size, device=self.device) for _ in range(2)]
             self.retrieval_cache = DistributedRetrievalCache(self.config, max_budget=retrieval_budget, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, tree_size=tree_size)
         else:
@@ -290,7 +293,6 @@ class DistributedLlama:
         hidden_states = residual + hidden_states
         return hidden_states
 
-
     @torch.inference_mode()
     def layer_tree_speculation(self, 
             buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],
@@ -350,11 +352,74 @@ class DistributedLlama:
         return hidden_states
 
     @torch.inference_mode()
+    def layer_compute_ssl(self, 
+            buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],
+            layer_idx :int, 
+            hidden_states: torch.FloatTensor, 
+            position_ids: torch.LongTensor=None, 
+            attention_mask: torch.FloatTensor=None):
+
+        residual = hidden_states
+
+        hidden_states = RMSNorm(
+            hidden_states=hidden_states,
+            layernorm_variance_epsilon=self.layers[layer_idx].input_layernorm_variance_epsilon,
+            layernorm_weight=self.layers[layer_idx].input_layernorm_weight
+        )
+
+        hidden_states = TP_Attention_ssl(
+            hidden_states=hidden_states,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            layer_idx=layer_idx,
+            wq=buffer.wq,
+            wk=buffer.wk,
+            wv=buffer.wv,
+            wo=buffer.wo,
+            sin_cache=self.layers[layer_idx].sin_cache,
+            cos_cache=self.layers[layer_idx].cos_cache,
+            kv_buffer=self.kv_buffer[(layer_idx) % 2] if (layer_idx >= self.on_chip_layers) else self.kv_cache,
+            hidden_size=self.hidden_size,
+            local_num_heads=self.local_num_heads,
+            local_num_key_value_heads=self.local_num_key_value_heads,
+            num_key_value_groups=self.num_key_value_groups,
+            head_dim=self.head_dim,
+            flash_attn=self.flash_attn,
+        )
+
+        hidden_states = residual + hidden_states
+        residual = hidden_states
+
+        hidden_states = RMSNorm(
+            hidden_states=hidden_states,
+            layernorm_variance_epsilon=self.layers[layer_idx].post_attention_layernorm_variance_epsilon,
+            layernorm_weight=self.layers[layer_idx].post_attention_layernorm_weight
+        )
+
+        hidden_states = TP_MLP(
+            hidden_states=hidden_states,
+            up_proj=buffer.up_proj,
+            down_proj=buffer.down_proj,
+            gate_proj=buffer.gate_proj
+        )
+
+        hidden_states = residual + hidden_states
+        return hidden_states
+
+
+    @torch.inference_mode()
     def retrieval_tree_inference(self, input_ids: torch.LongTensor, storage_ids, position_ids, attention_mask):
         hidden_states = F.embedding(input_ids, self.embed_tokens)
 
+        if self.ssl > 0:
+            # print(torch.zeros(1, 1, input_ids.shape[-1], self.kv_cache.seq_len, device=self.device).shape, attention_mask.shape, attention_mask[:,:,:self.kv_cache.ssl_cur + input_ids.shape[-1]].shape)
+            ssl_mask = torch.cat([torch.zeros(1, 1, input_ids.shape[-1], self.kv_cache.seq_len, device=self.device), attention_mask[:,:,:,:self.kv_cache.ssl_cur + input_ids.shape[-1]]], dim=-1)
+
         for idx in range(self.num_layers):
-            hidden_states = self.layer_tree_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=attention_mask, storage_ids=storage_ids, retrieval_cache=self.retrieval_cache)
+            if idx >= self.ssl:
+                hidden_states = self.layer_tree_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=attention_mask, storage_ids=storage_ids, retrieval_cache=self.retrieval_cache)
+            else:
+                hidden_states = self.layer_compute_ssl(self.layers[idx], idx, hidden_states, position_ids, attention_mask=ssl_mask)
 
         hidden_states = RMSNorm(
             hidden_states=hidden_states,
