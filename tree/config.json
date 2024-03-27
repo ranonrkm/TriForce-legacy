@@ -1,5 +1,5 @@
 {
-    "acceptance_rate_vector": "acceptance-rate-vector.pt",
+    "acceptance_rate_vector": "tree/acceptance-rate-vector.pt",
     "max_depth": 16,
     "max_budget": 1024,
     "draft_time": 0.027,

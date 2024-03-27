@@ -6,7 +6,7 @@ import sys
 from copy import deepcopy
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('--config', type=str, default="config.json", help='config')
+parser.add_argument('--config', type=str, default="tree/config.json", help='config')
 args = parser.parse_args()
 print(args)
 with open(args.config, 'r') as f:
