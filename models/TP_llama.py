@@ -10,11 +10,11 @@ import gc
 from tqdm import tqdm
 
 from .TP_layers import DistributedLlamaLayer, DistributedLlamaLayerBuffer, DistributedOffloadingConfig
-from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval
+from .tensor_op import RMSNorm, TP_MLP, TP_Attention, TP_Attention_Retrieval, TP_Attention_Tree_Retrieval
 import torch.distributed as dist
 from .configuration_llama import LlamaConfig
 from .batch_cache import DistributedBatchSimpleCache, DistributedBatchRetrievalCache, DistributedBatchKVCacheBuffer
-from .cache_utils import DistributedKVCacheBuffer, DistributedSimpleCache
+from .cache_utils import DistributedKVCacheBuffer, DistributedSimpleCache, DistributedRetrievalCache
 from utils.sampling import norm_logits
 
 def distributed_init():
@@ -41,6 +41,7 @@ class DistributedLlama:
         gamma = 6,
         temperature = 0.6,
         top_p = 0.9,
+        tree_size=128,
         flash_attn=True) -> None:
         
         self.device  = torch.device("cuda", local_rank)
@@ -64,11 +65,12 @@ class DistributedLlama:
             assert bsz == 1
             # self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device='cpu')
             # self.kv_buffer = DistributedBatchKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
-            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+3*gen_len, device=self.device, on_chip_layers=on_chip_layers)
-            self.kv_buffer = [DistributedKVCacheBuffer(self.config, max_budget=prefill+3*gen_len, device=self.device) for _ in range(2)]
+            self.kv_cache =  DistributedSimpleCache(self.config, max_budget=prefill+gen_len+tree_size, device=self.device, on_chip_layers=on_chip_layers)
+            self.kv_buffer = [DistributedKVCacheBuffer(self.config, max_budget=prefill+gen_len+tree_size, device=self.device) for _ in range(2)]
+            self.retrieval_cache = DistributedRetrievalCache(self.config, max_budget=retrieval_budget, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, tree_size=tree_size)
         else:
             self.kv_cache = DistributedBatchSimpleCache(self.config, max_budget=prefill+3*gen_len, bsz=bsz, device=self.device)
-        self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
+            self.retrieval_cache = DistributedBatchRetrievalCache(self.config, max_budget=retrieval_budget, bsz=bsz, device=self.device, prefill=prefill, chunk_size=retrieval_chunk_size, gamma=gamma)
 
         self.hidden_size = self.config.hidden_size
         self.num_heads = self.config.num_attention_heads
@@ -214,7 +216,7 @@ class DistributedLlama:
             layernorm_weight=self.norm_weight
         )
 
-        logits = F.linear(hidden_states, self.lm_head).float()
+        logits = F.linear(hidden_states, self.lm_head)#.float()
         return logits
 
     @torch.inference_mode()
@@ -288,12 +290,71 @@ class DistributedLlama:
         hidden_states = residual + hidden_states
         return hidden_states
 
+
     @torch.inference_mode()
-    def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
+    def layer_tree_speculation(self, 
+            buffer: Union[DistributedLlamaLayerBuffer, DistributedLlamaLayer],
+            layer_idx :int, 
+            hidden_states: torch.FloatTensor, 
+            position_ids: torch.LongTensor=None, 
+            attention_mask: torch.FloatTensor=None,
+            retrieval_cache=None,
+            storage_ids=None):
+
+        residual = hidden_states
+
+        hidden_states = RMSNorm(
+            hidden_states=hidden_states,
+            layernorm_variance_epsilon=self.layers[layer_idx].input_layernorm_variance_epsilon,
+            layernorm_weight=self.layers[layer_idx].input_layernorm_weight
+        )
+        
+        hidden_states = TP_Attention_Tree_Retrieval(
+            hidden_states=hidden_states,
+            attention_mask=attention_mask,
+            position_ids=position_ids,
+            layer_idx=layer_idx,
+            wq=buffer.wq,
+            wk=buffer.wk,
+            wv=buffer.wv,
+            wo=buffer.wo,
+            sin_cache=self.layers[layer_idx].sin_cache,
+            cos_cache=self.layers[layer_idx].cos_cache,
+            hidden_size=self.hidden_size,
+            local_num_heads=self.local_num_heads,
+            local_num_key_value_heads=self.local_num_key_value_heads,
+            num_key_value_groups=self.num_key_value_groups,
+            head_dim=self.head_dim,
+            flash_attn='sdpa',
+            retrieval_cache=retrieval_cache,
+            storage_ids=storage_ids
+        )
+        
+        hidden_states = residual + hidden_states
+        residual = hidden_states
+
+        hidden_states = RMSNorm(
+            hidden_states=hidden_states,
+            layernorm_variance_epsilon=self.layers[layer_idx].post_attention_layernorm_variance_epsilon,
+            layernorm_weight=self.layers[layer_idx].post_attention_layernorm_weight
+        )
+
+        hidden_states = TP_MLP(
+            hidden_states=hidden_states,
+            up_proj=buffer.up_proj,
+            down_proj=buffer.down_proj,
+            gate_proj=buffer.gate_proj
+        )
+
+        hidden_states = residual + hidden_states
+        return hidden_states
+
+    @torch.inference_mode()
+    def retrieval_tree_inference(self, input_ids: torch.LongTensor, storage_ids, position_ids, attention_mask):
         hidden_states = F.embedding(input_ids, self.embed_tokens)
 
         for idx in range(self.num_layers):
-            hidden_states = self.layer_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=None, retrieval_cache=self.retrieval_cache, gamma_offset=gamma_offset)
+            hidden_states = self.layer_tree_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=attention_mask, storage_ids=storage_ids, retrieval_cache=self.retrieval_cache)
 
         hidden_states = RMSNorm(
             hidden_states=hidden_states,
@@ -301,8 +362,25 @@ class DistributedLlama:
             layernorm_weight=self.norm_weight
         )
 
-        logits = F.linear(hidden_states, self.lm_head).float()
-        return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
+        logits = F.linear(hidden_states, self.lm_head)#.float()
+        return logits
+
+
+    # @torch.inference_mode()
+    # def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
+    #     hidden_states = F.embedding(input_ids, self.embed_tokens)
+
+    #     for idx in range(self.num_layers):
+    #         hidden_states = self.layer_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=None, retrieval_cache=self.retrieval_cache, gamma_offset=gamma_offset)
+
+    #     hidden_states = RMSNorm(
+    #         hidden_states=hidden_states,
+    #         layernorm_variance_epsilon=self.norm_variance_epsilon,
+    #         layernorm_weight=self.norm_weight
+    #     )
+
+    #     logits = F.linear(hidden_states, self.lm_head)#.float()
+    #     return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
 
     @torch.inference_mode()
     def capture_graph_retrieval_inference(self, gamma_offset: int, mempool, n_warmups: int):

@@ -166,25 +166,23 @@ def TP_Attention(
     if retrieval_cache is not None:
         retrieval_cache.init_graph_cache(kv_buffer, query_states, layer_idx)
 
-    if flash_attn:
+    if attention_mask is None:
         if bsz > 1:
             attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, cache_seqlens=kv_buffer.seq_len, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
         else:
             # print(query_states.shape, key_states.shape, position_ids)
             attn_output = flash_attn_with_kvcache(q=query_states, k_cache=key_states, v_cache=value_states, softmax_scale=1/torch.sqrt(torch.tensor(head_dim, dtype=torch.float16)), causal=True)
     else:
-        raise ValueError("Attention mask is required for TP-Attention")
-        key_states = repeat_kv(key_states, num_key_value_groups)
-        value_states = repeat_kv(value_states, num_key_value_groups)
-
+        with torch.backends.cuda.sdp_kernel(enable_math=False):
+            attn_output = F.scaled_dot_product_attention(query_states.transpose(1, 2),key_states.transpose(1, 2),value_states.transpose(1, 2), attn_mask=attention_mask.half())
         # [bsz, local_num_heads, kv_len, head_dim]
-        attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(head_dim)
-        if attention_mask is None:
-            raise ValueError("Attention mask is required for TP-Attention")
-        attn_weights = attn_weights + attention_mask
-        attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+        # attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(head_dim)
+        # if attention_mask is None:
+        #     raise ValueError("Attention mask is required for TP-Attention")
+        # attn_weights = attn_weights + attention_mask
+        # attn_weights = F.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
         
-        attn_output = torch.matmul(attn_weights, value_states)
+        # attn_output = torch.matmul(attn_weights, value_states)
         attn_output = attn_output.transpose(1, 2).contiguous()
 
     attn_output = attn_output.reshape(bsz, q_len, local_num_heads * head_dim)
@@ -211,6 +209,51 @@ def TP_Attention(
     dist.all_reduce(hidden_states, dist.ReduceOp.SUM)
     
     return hidden_states
+
+def TP_Attention_Tree_Retrieval(
+    hidden_states: torch.FloatTensor,
+    position_ids: torch.LongTensor,
+    layer_idx: int,
+    wq: torch.FloatTensor,
+    wk: torch.FloatTensor,
+    wv: torch.FloatTensor,
+    wo: torch.FloatTensor,
+    sin_cache: torch.FloatTensor,
+    cos_cache: torch.FloatTensor,
+    hidden_size: int,
+    local_num_heads: int,
+    local_num_key_value_heads: int,
+    num_key_value_groups: int,
+    head_dim: int,
+    attention_mask: torch.FloatTensor=None,
+    flash_attn: bool=True,
+    retrieval_cache=None,
+    storage_ids=None,
+):
+    bsz, q_len, _ = hidden_states.size()
+
+    query_states = F.linear(hidden_states, wq) #[bsz, q_len, h // tp]
+    key_states = F.linear(hidden_states, wk) #[bsz, q_len, h // tp]
+    value_states = F.linear(hidden_states, wv) #[bsz, q_len, h // tp]
+
+    query_states = query_states.view(bsz, q_len, local_num_heads, head_dim).transpose(1, 2)
+    key_states = key_states.view(bsz, q_len, local_num_key_value_heads, head_dim).transpose(1, 2)
+    value_states = value_states.view(bsz, q_len, local_num_key_value_heads, head_dim)
+    query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos_cache, sin_cache, position_ids)
+
+    query_states = query_states.transpose(1, 2)
+    key_states = key_states.transpose(1, 2)
+    key_states, value_states = retrieval_cache.update(key_states=key_states, value_states=value_states, layer_idx=layer_idx, storage_ids=storage_ids)
+    with torch.backends.cuda.sdp_kernel(enable_math=False):
+        attn_output = F.scaled_dot_product_attention(query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2), attn_mask=attention_mask.half())
+    attn_output = attn_output.transpose(1, 2).contiguous()
+    attn_output = attn_output.reshape(bsz, q_len, local_num_heads * head_dim)
+    #[bsz, q_len, h // tp]
+    hidden_states = F.linear(attn_output, wo)
+    #[bsz, q_len, h]
+    dist.all_reduce(hidden_states, dist.ReduceOp.SUM)
+    return hidden_states
+
 
 
 def TP_Attention_Retrieval(
