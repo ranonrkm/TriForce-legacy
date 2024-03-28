@@ -1,0 +1,4 @@
+streamingllm,4096,0.03
+streamingllm,8192,0.05
+streamingllm,12288,0.1
+streamingllm,16384,0.11

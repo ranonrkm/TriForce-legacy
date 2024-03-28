@@ -51,7 +51,7 @@ from .configuration_llama import LlamaConfig
 from flash_attn import flash_attn_with_kvcache
 import time
 
-from models.cache_utils import EvictStreamLLMCache
+from models.cache_utils import EvictStreamLLMCache, EvictH2OCache
 
 
 # if is_flash_attn_2_available():

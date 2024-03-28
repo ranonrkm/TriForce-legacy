@@ -610,8 +610,8 @@ class EvictStreamLLMCache(Cache):
         incoming = key_states.shape[-2]
 
         assert self.seq_len + incoming <= self.start_size + self.recent_size
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :, :self.seq_len + incoming]
         value = self.value_cache[layer_idx][:, :, :self.seq_len + incoming]
@@ -671,15 +671,15 @@ class EvictH2OCache(Cache):
             mask = mask.scatter(-1, keep_topk, 1)
 
             ##### evict kv cache #####
-            self.key_cache[layer_idx][:, :, :size_keep] = self.key_cache[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim)
-            self.value_cache[layer_idx][:, :, :size_keep] = self.value_cache[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim)
+            self.key_cache[layer_idx][:, :, :size_keep] = self.key_cache[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim).clone()
+            self.value_cache[layer_idx][:, :, :size_keep] = self.value_cache[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1, self.head_dim).clone()
 
-            self.key_cache[layer_idx][:, :, size_keep:-incoming] = self.key_cache[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len]
-            self.value_cache[layer_idx][:, :, size_keep:-incoming] = self.value_cache[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len]
+            self.key_cache[layer_idx][:, :, size_keep:-incoming] = self.key_cache[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len].clone()
+            self.value_cache[layer_idx][:, :, size_keep:-incoming] = self.value_cache[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len].clone()
             
             ##### evict hh score #####
-            self.hh_score[layer_idx][:, :, :size_keep] = self.hh_score[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1)
-            self.hh_score[layer_idx][:, :, size_keep:-incoming] = self.hh_score[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len]
+            self.hh_score[layer_idx][:, :, :size_keep] = self.hh_score[layer_idx][:, :, :self.seq_len-self.recent_size][mask].view(1, self.num_heads, -1).clone()
+            self.hh_score[layer_idx][:, :, size_keep:-incoming] = self.hh_score[layer_idx][:, :, self.seq_len-self.recent_size:self.seq_len].clone()
             self.hh_score[layer_idx][:, :, -incoming:] = 0
 
 
@@ -697,8 +697,8 @@ class EvictH2OCache(Cache):
         incoming = key_states.shape[-2]
 
         assert self.seq_len + incoming <= self.start_size + self.recent_size
-        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = key_states
-        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = value_states
+        self.key_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = key_states.clone()
+        self.value_cache[layer_idx][:, :, self.seq_len : self.seq_len + incoming] = value_states.clone()
 
         key = self.key_cache[layer_idx][:, :, :self.seq_len + incoming]
         value = self.value_cache[layer_idx][:, :, :self.seq_len + incoming]

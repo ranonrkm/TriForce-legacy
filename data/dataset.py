@@ -4,6 +4,7 @@ import secrets
 import random
 import torch
 import json
+import pickle
 
 def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     if dataset_name == "THUDM/LongBench":
@@ -163,6 +164,53 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
 
             tokenized_prompts.append(input_ids)
         return tokenized_prompts
+    
+    elif dataset_name == 'needle_retrieval':
+        tokenized_prompts = []
+        ans = []
+        hope_datalen = datalen
+        n_garbage = int(3.75 * hope_datalen // 1024 * 1024)
+        for i in tqdm(range(10)):
+            n_garbage_prefix = (n_garbage * i) // 10
+            n_garbage_suffix = n_garbage - n_garbage_prefix
 
+            task_description = "You are a helpful assistant. USER: There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
+            garbage = "The grass is green. The sky is blue. The sun is yellow. Here we go. There and back again."
+            garbage_inf = " ".join([garbage] * 15000)
+            assert len(garbage_inf) >= n_garbage
+            garbage_prefix = garbage_inf[:n_garbage_prefix]
+            garbage_suffix = garbage_inf[:n_garbage_suffix]
+            pass_key = secrets.token_urlsafe(256)[:256]
+            ans.append(pass_key)
+            # pass_key = ''.join([str(random.randint(0, 9)) for _ in range(256)])
+            # print(f"pass_key = {pass_key}")
+            information_line = f"The pass key is {pass_key}. Remember it. {pass_key} is the pass key."
+            final_question = "What is the pass key? Don't give information outside the document or repeat your findings. Keep your response short and direct. ASSISTANT: The pass key is"
+            lines = [
+                task_description,
+                garbage_prefix,
+                information_line,
+                garbage_suffix,
+            ]
+            prompt = "\n".join(lines)
+
+            input_ids = tokenizer.encode(prompt, return_tensors="pt")
+            input_ids = input_ids[:, :hope_datalen-tokenizer.encode(final_question, return_tensors="pt", add_special_tokens=False).shape[-1]]
+
+            # extend the input_ids to the desired length (input_ids + final_question)
+            input_ids = torch.cat([input_ids, tokenizer.encode(final_question, return_tensors="pt", add_special_tokens=False)], dim=-1)
+
+            assert input_ids.shape[-1] == hope_datalen, f"Hope to get a len of {hope_datalen}, but got {input_ids.shape[-1]}"
+            # assert only one '1' in the input_ids
+            assert torch.sum(input_ids == 1) == 1, f"Expect only one '1' in the input_ids, but got {torch.sum(input_ids == 1)}"
+
+            tokenized_prompts.append(input_ids)
+        return tokenized_prompts, ans
+    
+    elif dataset_name == 'needle_retrieval_cached':
+        with open('data/needle_retrieval.pkl', 'rb') as f:
+            tokenized_prompts, ans = pickle.load(f)
+        return tokenized_prompts, ans
+    
     else:
         raise Exception("Dataset not found")
