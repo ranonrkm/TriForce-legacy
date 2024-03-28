@@ -2,3 +2,13 @@ streamingllm,4096,0.03
 streamingllm,8192,0.05
 streamingllm,12288,0.1
 streamingllm,16384,0.11
+streamingllm,20480,0.14
+streamingllm,24576,0.14
+h2o,4096,0.0
+-------
+streamingllm,4096,0.03
+streamingllm,8192,0.05
+streamingllm,12288,0.1
+streamingllm,16384,0.11
+streamingllm,20480,0.14
+streamingllm,24576,0.14

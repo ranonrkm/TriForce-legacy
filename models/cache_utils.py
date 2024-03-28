@@ -46,6 +46,9 @@ class SimpleCache(Cache):
     def print_status(self):
         print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
     
+    def evict(self, incoming):
+        return
+
     def reset(self):
         self.seq_len = 0
         for i in range(self.layers):

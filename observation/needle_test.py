@@ -20,6 +20,7 @@ def parse_args():
     parser.add_argument('--budget', type=int, default=4096)
     parser.add_argument('--method', type=str, default='streamingllm')
     parser.add_argument('--dataset', type=str, default='needle_retrieval_cached')
+    parser.add_argument('--datalen', type=int, default=127*1024)
     return parser.parse_args()
 
 args = parse_args()
@@ -38,15 +39,17 @@ top_p = 1
 temperature = 1
 
 from data.dataset import get_dataset
-tokenized_prompts, ans = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=127*1024)
+tokenized_prompts, ans = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.datalen)
 
-prefill = 127*1024
+prefill = args.datalen
 gen_len = 255
 verbose = True
 if args.method == 'streamingllm':
     target_cache = EvictStreamLLMCache(target, start_size=512, recent_size=budget-512)
 elif args.method == 'h2o':
     target_cache = EvictH2OCache(target, start_size=budget//2, recent_size=budget-budget//2)
+elif args.method == 'simple':
+    target_cache = SimpleCache(target, budget)
 all_acceptance_rate = []
 print(colored(f"tokenized_prompts length: {len(tokenized_prompts)}", "green"))
 hit_list = []
@@ -55,7 +58,7 @@ with torch.inference_mode():
     for input_ids, ans_ in zip(tokenized_prompts, ans):
         target_cache.reset()
         ############ Iterative Pre-fill ############
-        if args.method == 'streamingllm':
+        if args.method == 'streamingllm' or args.method == 'simple':
             T = 1024
         else:
             T = 128

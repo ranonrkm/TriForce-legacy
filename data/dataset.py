@@ -170,8 +170,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         ans = []
         hope_datalen = datalen
         n_garbage = int(3.75 * hope_datalen // 1024 * 1024)
-        for i in tqdm(range(10)):
-            n_garbage_prefix = (n_garbage * i) // 10
+        for i in tqdm(range(100)):
+            n_garbage_prefix = (n_garbage * i) // 100
             n_garbage_suffix = n_garbage - n_garbage_prefix
 
             task_description = "You are a helpful assistant. USER: There is an important info hidden inside a lot of irrelevant text. Find it and memorize them. I will quiz you about the important information there."
