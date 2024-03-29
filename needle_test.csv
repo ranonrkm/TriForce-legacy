@@ -18,3 +18,6 @@ streamingllm,36864,0.22
 streamingllm,40960,0.25
 streamingllm,45056,0.23
 streamingllm,49152,0.19
+streamingllm,53248,0.25
+streamingllm,57344,0.27
+streamingllm,61440,0.22
