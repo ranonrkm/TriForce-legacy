@@ -15,17 +15,17 @@ CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 53248
 CUDA_VISIBLE_DEVICES=4,8 python observation/needle_test.py --budget 57344
 
 
-CUDA_VISIBLE_DEVICES=2,3,4,5 python observation/needle_test.py --budget 61440
+CUDA_VISIBLE_DEVICES=2,3 python observation/needle_test.py --budget 61440
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 65536
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 69632
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 73728
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 77824
-# CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 81920
+CUDA_VISIBLE_DEVICES=4,7 python observation/needle_test.py --budget 81920
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 86016
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 90112
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 94208
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 98304
-# CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 102400
+CUDA_VISIBLE_DEVICES=6,7 python observation/needle_test.py --budget 102400
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 106496
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 110592
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 114688

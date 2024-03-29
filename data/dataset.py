@@ -180,7 +180,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
             assert len(garbage_inf) >= n_garbage
             garbage_prefix = garbage_inf[:n_garbage_prefix]
             garbage_suffix = garbage_inf[:n_garbage_suffix]
-            pass_key = secrets.token_urlsafe(256)[:256]
+            pass_key = secrets.token_urlsafe(32)[:32]
             ans.append(pass_key)
             # pass_key = ''.join([str(random.randint(0, 9)) for _ in range(256)])
             # print(f"pass_key = {pass_key}")

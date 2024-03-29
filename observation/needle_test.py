@@ -42,7 +42,7 @@ from data.dataset import get_dataset
 tokenized_prompts, ans = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.datalen)
 
 prefill = args.datalen
-gen_len = 255
+gen_len = 32
 verbose = True
 if args.method == 'streamingllm':
     target_cache = EvictStreamLLMCache(target, start_size=512, recent_size=budget-512)
@@ -86,10 +86,10 @@ with torch.inference_mode():
             # print(tokenizer.decode(next_token[0].tolist()))
             gen_tokens.append(next_token.item())
         
-        print('model ans:', tokenizer.decode(gen_tokens))
+        print('model ans:', tokenizer.decode(gen_tokens)[:32])
         print('ans:', ans_)
-
-        is_correct = (tokenizer.decode(gen_tokens)[:256] == ans_[:256])
+        is_correct = (tokenizer.decode(gen_tokens)[:32] == ans_[:32])
+        print(is_correct)
         hit_list.append(is_correct)
 
     print(f"Hit rate: {sum(hit_list)/len(hit_list)} with budget {budget} for method {args.method}" )
