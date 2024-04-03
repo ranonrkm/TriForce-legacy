@@ -96,6 +96,9 @@ class DistributedLlama:
         self.layers :list[DistributedLlamaLayer] = []
 
         for idx, hf_layer in enumerate(hf_model.model.layers):
+            if idx == 0:
+                self.sin_cache = hf_layer.self_attn.rotary_emb.sin_cached.to(self.device)
+                self.cos_cache = hf_layer.self_attn.rotary_emb.cos_cached.to(self.device)
             layer = DistributedLlamaLayer(idx, self.config)
             layer.init_parameters(hf_layer=hf_layer)
             layer.init_gpu(self.device)
@@ -131,8 +134,8 @@ class DistributedLlama:
             wk=buffer.wk,
             wv=buffer.wv,
             wo=buffer.wo,
-            sin_cache=self.layers[layer_idx].sin_cache,
-            cos_cache=self.layers[layer_idx].cos_cache,
+            sin_cache=self.sin_cache,
+            cos_cache=self.cos_cache,
             kv_buffer=self.kv_buffer[(layer_idx) % 2] if (layer_idx >= self.on_chip_layers) else self.kv_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,
@@ -262,8 +265,8 @@ class DistributedLlama:
             wk=buffer.wk,
             wv=buffer.wv,
             wo=buffer.wo,
-            sin_cache=self.layers[layer_idx].sin_cache,
-            cos_cache=self.layers[layer_idx].cos_cache,
+            sin_cache=self.sin_cache,
+            cos_cache=self.cos_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,
             local_num_key_value_heads=self.local_num_key_value_heads,
@@ -320,8 +323,8 @@ class DistributedLlama:
             wk=buffer.wk,
             wv=buffer.wv,
             wo=buffer.wo,
-            sin_cache=self.layers[layer_idx].sin_cache,
-            cos_cache=self.layers[layer_idx].cos_cache,
+            sin_cache=self.sin_cache,
+            cos_cache=self.cos_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,
             local_num_key_value_heads=self.local_num_key_value_heads,
@@ -376,8 +379,8 @@ class DistributedLlama:
             wk=buffer.wk,
             wv=buffer.wv,
             wo=buffer.wo,
-            sin_cache=self.layers[layer_idx].sin_cache,
-            cos_cache=self.layers[layer_idx].cos_cache,
+            sin_cache=self.sin_cache,
+            cos_cache=self.cos_cache,
             kv_buffer=self.kv_buffer[(layer_idx) % 2] if (layer_idx >= self.on_chip_layers) else self.kv_cache,
             hidden_size=self.hidden_size,
             local_num_heads=self.local_num_heads,

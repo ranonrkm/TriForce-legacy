@@ -43,9 +43,9 @@ def parse_arguments():
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
-    parser.add_argument('--budget', type=int,  default=4096)
+    parser.add_argument('--budget', type=int,  default=5120)
     parser.add_argument('--file', type=str, default='')
-    parser.add_argument('--tree_size', type=int, default=512)
+    parser.add_argument('--tree_size', type=str, default='1024')
     args = parser.parse_args()
     
     return args
@@ -54,31 +54,9 @@ args = parse_arguments()
 
 prefill = args.prefill
 gen_len = args.gen_len
-temperature = args.temp
+temperature = 0.6
 top_p = 0.9
 retrieval_budget = args.budget
-
-tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=8, tree_size=args.tree_size)
-for rank in range(world_size):
-    if local_rank == rank:
-        print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
-        hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
-        llm.init_parameters(hf_model=hf_model)
-        del hf_model
-    dist.barrier()
-
-from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
-input_ids = tokenized_prompts[0][:,:prefill].to(device)
-
-baseline_latency, gen_tokens = Baseline_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
-baseline_latency = baseline_latency/1000
-if local_rank == 0:
-    llm.kv_cache.print_status()
-    print(tokenizer.batch_decode(gen_tokens))
-    print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} s", "red"))
-dist.barrier()
 
 ####### tree #######
 residual_graph = get_residual
@@ -90,14 +68,33 @@ idx_lists = grow_map["roots"]
 branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
+
+tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=8, tree_size=tree_size)
+for rank in range(world_size):
+    if local_rank == rank:
+        print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
+        hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
+        llm.init_parameters(hf_model=hf_model)
+        del hf_model
+    dist.barrier()
+
+from data.dataset import get_dataset
+tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=32768)
+input_ids = tokenized_prompts[0][:,:prefill].to(device)
+
+# baseline_latency, gen_tokens = Baseline_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
+# baseline_latency = baseline_latency/1000
+# if local_rank == 0:
+#     llm.kv_cache.print_status()
+#     print(tokenizer.batch_decode(gen_tokens))
+#     print(colored(f"[Baseline-Autoregressive] average latency: {baseline_latency} s", "red"))
+# dist.barrier()
+baseline_latency = 1
 sampling_callables = {}
 for i in range(draft_step - 1):
     num_samples = max(branch_lists[i])
     sampling_callables[i] = create_sampling_callable(num_samples=num_samples, temperature=temperature)
-# for i in range(draft_step - 1):
-#     idx_len = len(idx_lists[i])
-#     num_samples = max(branch_lists[i])
-#     sampling_callables[i] = cuda_graph_for_sampling_without_replacement(max_length=0, idx_len=idx_len, num_samples=num_samples, temperature=args.temp, tree_size=tree_size)
 
 sample_gather_indices = {}
 for i in range(draft_step - 1):
@@ -116,43 +113,77 @@ if local_rank == 0:
 ######## Our method ########
 all_speed_up = []
 all_acc_list = []
+
+dtype = torch.float16
+max_length = prefill+gen_len
+spectree = SpecTree(engine=llm, temperature=args.temp, top_p=top_p,
+                    max_length=prefill+gen_len, grow_map=grow_map,
+                    residual_graph=residual_graph,
+                    sampling_callables=sampling_callables,
+                    sample_gather_indices=sample_gather_indices,
+                    tokenizer=tokenizer)
+
 for input_ids in tokenized_prompts:
     input_ids = input_ids[0,:args.prefill].to(llm.device)
-    dtype = torch.float16
-    max_length = prefill+gen_len
-    spectree = SpecTree(engine=llm, temperature=args.temp, top_p=top_p,
-                        max_length=prefill+gen_len, grow_map=grow_map,
-                        residual_graph = residual_graph,
-                        sampling_callables=sampling_callables,
-                        sample_gather_indices = sample_gather_indices,
-                        tokenizer=tokenizer)
 
     with torch.inference_mode():
         n=0
+        pos = 0
+        generated_ids = []
+        
         next_token = spectree.prefill(prefix=input_ids)
         acc_count_list = []
+        generated_ids.extend(next_token[0].tolist())
 
         time1 = time.time()
         while n < gen_len:
             spectree.construct_grow_map(next_token=next_token)
-            next_token, acc_count = spectree.verify()
+            next_token, acc_count, print_tokens = spectree.verify()
+            
+            generated_ids.extend(print_tokens[1:].tolist())
+            
+            generated_text = (
+                tokenizer.decode(
+                generated_ids,
+                skip_special_tokens=True,
+                clean_up_tokenization_spaces=True,
+                spaces_between_special_tokens=False,
+            )
+            .strip()
+            .split(" ")
+            )
+
+            if local_rank == 0:
+                now = len(generated_text) - 1
+                if now > pos:
+                    print(" ".join(generated_text[pos:now]), end=" ", flush=True)
+                    pos = now
+
             if next_token is None:
                 break
             next_token = next_token.unsqueeze(0)
             n += acc_count
             acc_count_list.append(acc_count)
+        if local_rank == 0:
+            print(" ".join(generated_text[pos:]), flush=True)
         if n < 64:
             continue
+        torch.cuda.synchronize()
         time2 = time.time()
         method_latency = (time2 - time1)/n
-        print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
-        print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
-        print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))
+        dist.barrier()
+        if local_rank == 0:
+            print(f"[Avg Accepted Tokens]: {np.array(acc_count_list).mean()}")
+            print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} s", "red"))
+        # print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))
 
     all_acc_list.append(np.array(acc_count_list).mean())
     all_speed_up.append(baseline_latency / method_latency)
-print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
+# print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
 print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")
+
+# destory the distributed process
+dist.destroy_process_group()
 
 # acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
 # if local_rank == 0:

@@ -292,6 +292,7 @@ def TP_Attention_Tree_Retrieval(
     query_states = query_states.transpose(1, 2)
     key_states = key_states.transpose(1, 2)
     key_states, value_states = retrieval_cache.update(key_states=key_states, value_states=value_states, layer_idx=layer_idx, storage_ids=storage_ids)
+    # print(key_states.shape, value_states.shape, attention_mask.shape, query_states.shape)
     with torch.backends.cuda.sdp_kernel(enable_math=False):
         attn_output = F.scaled_dot_product_attention(query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2), attn_mask=attention_mask.half())
     attn_output = attn_output.transpose(1, 2).contiguous()

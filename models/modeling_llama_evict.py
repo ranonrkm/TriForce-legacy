@@ -713,6 +713,7 @@ class LlamaAttention(nn.Module):
         kv_seq_len += past_key_value.seq_len
         cos, sin = self.rotary_emb(value_states, seq_len=kv_seq_len)
 
+        # print(query_states.shape, position_ids, cos.shape)
         query_states = apply_rotary_pos_emb_single(query_states, cos, sin, position_ids) # pos should be inside it...
 
         key_states, value_states = past_key_value.update(key_states, value_states, self.layer_idx)
@@ -1043,9 +1044,7 @@ class LlamaModel(LlamaPreTrainedModel):
         else:
             raise ValueError("You have to specify either input_ids or inputs_embeds")
 
-        past_key_values_length = 0
-        if use_cache:
-            past_key_values_length = past_key_values.seq_len if past_key_values is not None else 0
+        past_key_values_length = past_key_values.seq_len if past_key_values is not None else 0
 
         if position_ids is None:
             device = input_ids.device if input_ids is not None else inputs_embeds.device
@@ -1094,6 +1093,7 @@ class LlamaModel(LlamaPreTrainedModel):
         next_decoder_cache = None
 
         for decoder_layer in self.layers:
+            # print('Check', position_ids)
             if output_hidden_states:
                 all_hidden_states += (hidden_states,)
 

@@ -32,8 +32,8 @@ class LlamaLayer:
         self.post_attention_layernorm_weight :torch.Tensor = None
         self.post_attention_layernorm_variance_epsilon :float = 0.0
 
-        self.cos_cache :torch.Tensor = None
-        self.sin_cache :torch.Tensor = None
+        # self.cos_cache :torch.Tensor = None
+        # self.sin_cache :torch.Tensor = None
 
         self.layer_idx = layer_idx
     
@@ -111,9 +111,6 @@ class DistributedLlamaLayer:
         self.post_attention_layernorm_weight :torch.Tensor = None
         self.post_attention_layernorm_variance_epsilon :float = 0.0
 
-        self.cos_cache :torch.Tensor = None
-        self.sin_cache :torch.Tensor = None
-
         self.layer_idx = layer_idx
         self.local_rank = config.local_rank
         self.world_size = config.world_size
@@ -158,16 +155,16 @@ class DistributedLlamaLayer:
         self.post_attention_layernorm_weight = hf_layer.post_attention_layernorm.weight.detach()
         self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
 
-        self.cos_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.cos_cached
-        self.sin_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.sin_cached
+        # self.cos_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.cos_cached
+        # self.sin_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.sin_cached
 
     def init_gpu(self, device:str = 'cuda:0'):
 
         self.input_layernorm_weight = self.input_layernorm_weight.to(device)
         self.post_attention_layernorm_weight = self.post_attention_layernorm_weight.to(device)
 
-        self.cos_cache = self.cos_cache.to(device)
-        self.sin_cache = self.sin_cache.to(device)
+        # self.cos_cache = self.cos_cache.to(device)
+        # self.sin_cache = self.sin_cache.to(device)
 
     def to_gpu(self, device:str = 'cuda:0'):
 
