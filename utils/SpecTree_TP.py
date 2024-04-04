@@ -246,16 +246,10 @@ class SpecTree:
         # print(self.verify_tokens[accept_list])
 
         # print(f"[BEFORE]{self.graph_engine.local_rank}: {next_token}, {self.verify_tokens},{accept_list},{acc_count},{terminal}\n")
-        #!!!
+
         torch.distributed.broadcast(next_token, src=0)
         torch.distributed.broadcast(self.verify_tokens, src=0)
-        torch.distributed.barrier()
-
-        # accept_list = torch.tensor(accept_list, device=self.device)
-        # torch.distributed.broadcast(accept_list, src=0)
-        # accept_list = accept_list.cpu().numpy().tolist()
         # torch.distributed.barrier()
-
 
         acc_count = torch.tensor(acc_count, device=self.device)
         torch.distributed.broadcast(acc_count, src=0)
@@ -272,7 +266,7 @@ class SpecTree:
         terminal = terminal.cpu().item()
         torch.distributed.barrier()
 
-        # print(f"[AFTER]{self.graph_engine.local_rank}: {next_token}, {self.verify_tokens},{accept_list},{acc_count},{terminal}\n")
+        # print(f"[AFTER]{self.graph_engine.local_rank}: {next_token}, {accept_list},{acc_count},{terminal}\n")
         
         if terminal:
             print(f"Terminal: {terminal}, Accept list: {accept_list}, Accept count: {acc_count}")

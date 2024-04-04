@@ -92,13 +92,13 @@ class DistributedLlama:
         self.lm_head = hf_model.lm_head.weight.detach().to(self.device)
 
         self.norm_weight = hf_model.model.norm.weight.detach().to(self.device)
-        self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
-        # if hasattr(hf_model.model.norm, 'variance_epsilon'):
-        #     self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
-        # elif hasattr(hf_model.model.norm, 'eps'):
-        #     self.norm_variance_epsilon = hf_model.model.norm.eps
-        # else:
-        #     print("Error: variance_epsilon not found in layernorm")
+        # self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
+        if hasattr(hf_model.model.norm, 'variance_epsilon'):
+            self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
+        elif hasattr(hf_model.model.norm, 'eps'):
+            self.norm_variance_epsilon = hf_model.model.norm.eps
+        else:
+            print("Error: variance_epsilon not found in layernorm")
         self.layers :list[DistributedLlamaLayer] = []
 
         for idx, hf_layer in enumerate(hf_model.model.layers):

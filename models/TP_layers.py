@@ -151,22 +151,22 @@ class DistributedLlamaLayer:
         self.down_proj :torch.Tensor= self.down_proj.split(self.mlp_slice, dim=1)[self.local_rank].pin_memory()
 
         self.input_layernorm_weight = hf_layer.input_layernorm.weight.detach()
-        self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
-        # if hasattr(hf_layer.input_layernorm, 'variance_epsilon'):
-        #     self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
-        # elif hasattr(hf_layer.input_layernorm, 'eps'):
-        #     self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.eps
-        # else:
-        #     print("Error: variance_epsilon not found in input_layernorm")
+        # self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
+        if hasattr(hf_layer.input_layernorm, 'variance_epsilon'):
+            self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
+        elif hasattr(hf_layer.input_layernorm, 'eps'):
+            self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.eps
+        else:
+            print("Error: variance_epsilon not found in input_layernorm")
 
         self.post_attention_layernorm_weight = hf_layer.post_attention_layernorm.weight.detach()
-        self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
-        # if hasattr(hf_layer.post_attention_layernorm, 'variance_epsilon'):
-        #     self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
-        # elif hasattr(hf_layer.post_attention_layernorm, 'eps'):
-        #     self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.eps
-        # else:
-        #     print("Error: variance_epsilon not found in post_attention_layernorm")
+        # self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
+        if hasattr(hf_layer.post_attention_layernorm, 'variance_epsilon'):
+            self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
+        elif hasattr(hf_layer.post_attention_layernorm, 'eps'):
+            self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.eps
+        else:
+            print("Error: variance_epsilon not found in post_attention_layernorm")
 
         # self.cos_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.cos_cached
         # self.sin_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.sin_cached
