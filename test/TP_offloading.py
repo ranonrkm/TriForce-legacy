@@ -3,6 +3,7 @@ import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
+import torch.distributed
 import torch.multiprocessing as mp
 import torch.distributed as dist
 import torch
@@ -167,6 +168,7 @@ for input_ids in tokenized_prompts:
             next_token = next_token.unsqueeze(0)
             n += acc_count
             acc_count_list.append(acc_count)
+        
         if local_rank == 0:
             print(" ".join(generated_text[pos:]), flush=True)
         if n < 64:

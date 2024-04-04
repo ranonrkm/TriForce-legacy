@@ -1,4 +1,5 @@
 import torch
+import torch.distributed
 from torch.nn.functional import softmax
 import time
 from utils.tree_infer import get_sampling_logits
@@ -198,16 +199,18 @@ class SpecTree:
         accept_list.append(0)
         terminal = False
         while True:
-            
-            if self.graph_engine.local_rank == 0:
-                pos, res = self.accept_step(logits_id=accept_list[-1])
-            else:
-                pos = torch.tensor(-9, device=self.graph_engine.device)
-                res = torch.empty((self.vocab_size), dtype=self.dtype, device=self.device)
+
+            # if self.graph_engine.local_rank == 0:
+            pos, res = self.accept_step(logits_id=accept_list[-1])
+            # else:
+            #     pos = torch.tensor(-9, device=self.graph_engine.device)
+            #     res = torch.empty((self.vocab_size), dtype=self.dtype, device=self.device)
             
             # broadcast
-            torch.distributed.broadcast(pos, src=0)
-            torch.distributed.broadcast(res, src=0)
+            # torch.distributed.broadcast(pos, src=0)
+            # torch.distributed.broadcast(res, src=0)
+
+            # print(f"{self.graph_engine.local_rank}, {res} \n")
 
             if pos > -1:
                 # accept
@@ -235,10 +238,41 @@ class SpecTree:
                     # else:
                     #     spec_stream(next_token[0], self.tokenizer, 'red')
                 acc_count += 1
+
+                # torch.distributed.broadcast(next_token, src=0)
             
         # print(f"Accept list: {accept_list}, Terminal: {terminal}, Accept length: {accept_length}")
         # print(self.verify_tokens)
         # print(self.verify_tokens[accept_list])
+
+        # print(f"[BEFORE]{self.graph_engine.local_rank}: {next_token}, {self.verify_tokens},{accept_list},{acc_count},{terminal}\n")
+        #!!!
+        torch.distributed.broadcast(next_token, src=0)
+        torch.distributed.broadcast(self.verify_tokens, src=0)
+        torch.distributed.barrier()
+
+        # accept_list = torch.tensor(accept_list, device=self.device)
+        # torch.distributed.broadcast(accept_list, src=0)
+        # accept_list = accept_list.cpu().numpy().tolist()
+        # torch.distributed.barrier()
+
+
+        acc_count = torch.tensor(acc_count, device=self.device)
+        torch.distributed.broadcast(acc_count, src=0)
+        acc_count = acc_count.cpu().item()
+        torch.distributed.barrier()
+
+        fake_ac_list = torch.full((24,), -1, dtype=torch.long, device=self.device)
+        fake_ac_list[:len(accept_list)] = torch.tensor(accept_list, device=self.device, dtype=torch.long)
+        torch.distributed.broadcast(fake_ac_list, src=0)
+        accept_list = fake_ac_list.cpu().numpy().tolist()[:acc_count]
+
+        terminal = torch.tensor(terminal, device=self.device)
+        torch.distributed.broadcast(terminal, src=0)
+        terminal = terminal.cpu().item()
+        torch.distributed.barrier()
+
+        # print(f"[AFTER]{self.graph_engine.local_rank}: {next_token}, {self.verify_tokens},{accept_list},{acc_count},{terminal}\n")
         
         if terminal:
             print(f"Terminal: {terminal}, Accept list: {accept_list}, Accept count: {acc_count}")
