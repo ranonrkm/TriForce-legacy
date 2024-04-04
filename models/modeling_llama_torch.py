@@ -779,6 +779,23 @@ class LlamaAttention(nn.Module):
         # with torch.backends.cuda.sdp_kernel(enable_math=False):
         #     attn_output = F.scaled_dot_product_attention(query_states,key_states,value_states, attn_mask=attention_mask)
 
+        if query_states.shape[-2] == 1 and self.layer_idx == 10:
+            # plot!!
+            attn_weights = torch.matmul(query_states, key_states.transpose(2, 3)) / math.sqrt(self.head_dim)
+            attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+
+            exit()
+            if isinstance(past_key_value, H2OCache) and speculation == False:
+                past_key_value.update_hh_score(attn_weights.detach().clone(), self.layer_idx)
+
+            attn_output = torch.matmul(attn_weights, value_states)
+
+            if attn_output.size() != (bsz, self.num_heads, q_len, self.head_dim):
+                raise ValueError(
+                    f"`attn_output` should be of size {(bsz, self.num_heads, q_len, self.head_dim)}, but is"
+                    f" {attn_output.size()}"
+                )
+
         attn_output = attn_output.transpose(1, 2).contiguous()
 
         attn_output = attn_output.reshape(bsz, q_len, self.hidden_size)

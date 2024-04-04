@@ -1,0 +1,955 @@
+added /home/hanshis/workspace/LongContextInfer to sys.path
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:01<00:01,  1.82s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.14s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:02<00:00,  1.25s/it]
+tokenized_prompts length: 100
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: hCyeEvGw-o3WTZ3vwzmni-iDq-yyKJes
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: x.
+There and back again. The gra
+ans: xjgyT4Ia0YDCPlxgrazoB3_pQbpn0vge
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: G5.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: G5zboKmImiTVQNdbMo9WP5dn0nilX23c
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: AWT-rPokEbn2B8Jsbx-kQ0-LS0Jhjs4Y
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the sun.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: coiRDt3MLSkrcB8Vpc6ppkmxRGKvcyWh
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass.
+There and back again.
+ans: Bu4bhlOqIViBdD2c4DOZZtmECO54E5hX
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the sun.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: QwXbyqHemegkMXDn3H747_CZR4SXGLls
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: k1GPfebTKAFxJ9uBAk-4zvSbofxk1T1A
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass.
+There and back again.
+ans: WO3kJCnMsG6_KauL8uHCYsd8tL6mT7CF
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the sun.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: zAYfxs49hQVJ3z5ogsM8Widv_bp0dY3p
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass. The sky is blue. The 
+ans: qYEGWkp6XMMXi0GCjPsDLK9RxAjpZAl_
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: WtS2KedxoVumMP3DxuxpwWTSi9vBKXLU
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: gYwuuTedAzbt2kDBO6TJJkoeiLoHXCzx
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 1234567890.
+The grass is green. 
+ans: iEbwpK0x-4iXL_4CeLgJ_XuxAeBbcyyx
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: o0bRadEre81ch32iGV4PYG2ufQPQak0S
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: A8lsxzss09g7m.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: A8lsxzss0Q_9g7mSQFkgcJxX1OoX95-4
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: hJ2QyK_-PDWmag1BVNEu7uFuTAAOlJPs
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the grass.
+
+
+
+
+
+
+
+
+
+
+
+ans: FcPpnk8BwaQpPVnhnpOXm0JEE-nx4S54
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: ckOChsOPiJSrfUysL6Eua0FZcYYtz32F
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: CviNFZZsFInv6TM-1-nwmZMGgxbaX7rL
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 9.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: 9_4AC4Bx-nypkMfONNxljddCNrOuo370
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the word "The".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: SwBSjf00Q5W_O9WnraZwh2YUu4f3AH3z
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+The grass i
+ans: zKL44HZFK0hjuUSNoeU_mjwDGyaR6dzY
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 0.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: 0Gmwzy5EMpR1jEhHEInk-I8cACfGChUm
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the grass. The grass 
+ans: ByJiIqMIjEU3OY5MEdhahxFKgI7JQq6D
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: sWlxD3aOmMkEyPgeHxcxReAL1GOxvvEX
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the grass.
+
+
+
+
+
+
+
+
+
+
+
+ans: q4fCncYfVnnPDloiv5F90X5Lf7t4H_ve
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 9QF4PUVTGQBBPB.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: 9QF4fpuVtGQBBPBsuCzUV_TQpGo1sHxk
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 6SxzxXgblDGmRaMtAuAuMlAuMlRaMtAu
+ans: 6SxzxXgblDGMiJrAMTATxl4DaCjUMlrj
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: E1IKfBDMzBsSbw7WszCh1QH0WB1Pm0Vg
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: gn0wPN8X4fNSbepuEAqUZzWUs_pSo3-c
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: y31Z5rMktxdo4XRQEMpeSXzrCzLoFztK
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: v19ZrUdm5LceAhcf3QoDE1BebbFQN7rx
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: ukRU4HcOoT9815aBeN5jGX10xsVY9UY5
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+
+
+
+
+
+
+
+
+
+
+
+
+ans: Bb-XBYGT1YbaEo4vXfVFJ6xZMlT3YRnU
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: AHr_cV_a9cJWP1orVOFz7KdqW6AKir9y
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: qhkkZR0UgjlAMxkwVUftyaEHVJYdSRaN
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: a0mqnPZv8-_YSeQkSKL8CjQUnWmLI4Xn
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 6jxgwz.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: 6jxjgwsiuZfhcYDpTgGL3aSAg5BQGsuJ
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: XevWR7ks8r0-T3xHNheHj42ujhluuT7O
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: SU0MVMC8SJ7QvwcRrjGPpLY7_b-wm-ms
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: KAgRwljCIahi7B-gdIV_MyN0L-2AoAzp
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: MQ.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: MQev1aEaqRBDH7gUHHqOfDkWQ7MUVeq_
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: C2FGY2RQ.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: C2fxeu7rq4HgXYddbGyoo_RlburzFCbB
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: x.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: xP_kz5buPYemI_t2Iz7-DzyxVtJWjlhi
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: A95tZPjgZPHfzoVWAS6Ha7Njcr_IiJN3
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: UOq-AuqAU8WrV2Em6PqsKEIEzcbS5w-T
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: alYHzmej8o8TOt7aGJxGEKDcXqzQJ-A1
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: v6bCZgz38cgI9jeEBHg6O-DTINVBHlDr
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: wPsJVQBLUaG08oSMiF47fE82ANiWNPvA
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: k1ahPoJI02eEw72PUCUthv5sF0TQL1en
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: y5MOf7X1U13ZXzXTYtcBEyG6prYhwoyp
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: 25sjiYTaou7qLnhSnI_ifJL4XcIBZuvH
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: VCM_wWpg0C6ICO-GvrJgj_f-6s3uVz7p
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: rbbYCKuAxXZgvSEGyWKdmmqXvazR3hs4
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: WYisegB6nS-WNMREw_r-mArkaqH87kvv
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: qwLlsuBFm2jLby5rCPoiRFTHl-XazdJJ
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: XUEtflshOgzKcnfMpqsBNde0u2fVCm41
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: TdALFMBuuviQ8U_mp0eKW6xnmfnVpH4x
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: jdTwYk4DfQK7SWUJbCUwhGcvR_dKzWMH
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: GSGrEXggPG7r0WP1pFUGHBJQUFQNtWSc
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 4l-ay-l-ay-l-ay-l-ay-l-ay-l-ay-l
+ans: 4l-ayAL4RTehuagYhVOpefEUbeuD9uDC
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+There and back aga
+ans: Oj_3sN642swfhy6CCmfpD0Y6bNMpd3rz
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: js3z8v1Gx1awVTuIAsCu7C2OdMTgJbNX
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: vr4KFyvVpiOaZfe9yFL_O8u5BdO00FL1
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green.
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: wqw7zR0Om_cZOdGCQt7E1hVRrnY7bRtn
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: 4pfgFRtvMPSwGzHt5M0ug0LXQs7zZPEl
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+There and back aga
+ans: a14h0LWYmD8TtGqr1tGKEj7nry_A8yLP
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: KB3PdGQRD182kwW8Gx9IQc7g57wUokGU
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: 2itiPnFqCiajvnjkeNIj72AgYacTnzwb
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: xDvwyPyy-NPvY-TsDixclwOVKikq4Cmo
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: VBkvmwT30DwmhYqUNk4STbdSj5RW-Xv3
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: mD9uQAW2VEyldS4SuLtjMpt3BKo2cWW_
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: 3jEXFxY6cUm0p1DCh_3-phwhl3KeLkKY
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: g1EMeg__SyV83t7dB9ECrX7AZCX0b7Q-
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: 8wLr_cija4qvNJfhHUKjCJc-JE5RzbSc
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: C_uvyD-XiU1bDgbHqUdmtMGSoOV0ZIIW
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+There and back aga
+ans: TGRydxYGDCGGZBQeslbnQaHpiIU8Ce7Q
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: m42h4-3p-c5VwunuTgW98jY03AxSeD7p
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: uHslMjIAZusng9NEwWV2C4StofQmn7DM
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: : The grass is green. The sky is
+ans: vVLR745Cz2oK5arUNDqUwQtnydScRYv8
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the grass is green. The sky is b
+ans: OszuMmOeK97sOAHh5MxKJsA5duLwINtd
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the key to the pass.
+There and b
+ans: DiS1lyd5uVkz_nh3nWpey2VZ4ttVQDIk
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 9.
+There and back again. The gra
+ans: 9Ga4lakOGBKA64JIG7VUWeZtiMvoOmho
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: nTT4HSblXj3-hNI2RJEhfDNh3JBxjRGw
+ans: nTT4HSblXj3-hNI2RJEhfDNh3JBxjRGw
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: cLdEnJ1UHv4aTzNxZuKWs3Ym5ZtrbA0-
+ans: cLdEnJ1UHv4aTzNxZuKWs3Ym5ZtrbA0-
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: JVJBuj8f9PD_ZFG6QAivwvmKee0JV6dP
+ans: JVJBuj8f9PD_ZFG6QAivwvmKee0JV6dP
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: M_YpF2KGsD18p8HXu1Mb5t7ghVrtWMeo
+ans: M_YpF2KGsD18p8HXu1Mb5t7ghVrtWMeo
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: Nbg06X6tvKk9-hnT7BeDVm7KQ5sTPQe_
+ans: Nbg06X6tvKk9-hnT7BeDVm7KQ5sTPQe_
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: fzPTfqlwBeClpDmznHFPaxwZ35UuaHLg
+ans: fzPTfqlwBeClpDmznHFPaxwZ35UuaHLg
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: the pass key.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ans: q_EZmHicnYW6JGoXcTg35mhZhuoGWgOt
+False
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: cUdr547K3EOQxMJhFqt-A62BYDDcaRgr
+ans: cUdr547K3EOQxMJhFqt-A62BYDDcaRgr
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: -54_ZLOjhjPUMrzL4L6_AM9M9-rWLeGR
+ans: -54_ZLOjhjPUMrzL4L6_AM9M9-rWLeGR
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: eZqANa3K2Na4Ly3z5xvIpBR8IPg6vcvp
+ans: eZqANa3K2Na4Ly3z5xvIpBR8IPg6vcvp
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: ul6AQaYg5gtX2OjFPc0NVD0RU10Kukc-
+ans: ul6AQaYg5gtX2OjFPc0NVD0RU10Kukc-
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: 42TTH513D7utxAvS-e90-fME_cGosws3
+ans: 42TTH513D7utxAvS-e90-fME_cGosws3
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: z7I-9RUSo9MXEwx8eaC32BQZGuCiXNYe
+ans: z7I-9RUSo9MXEwx8eaC32BQZGuCiXNYe
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: SkmhWgK5LTft7K5fVXRlYXTxHhhb2wIz
+ans: SkmhWgK5LTft7K5fVXRlYXTxHhhb2wIz
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: jnallOS1SgKg9Z-Qie37wvbSRfberI3P
+ans: jnallOS1SgKg9Z-Qie37wvbSRfberI3P
+True
+Cached Size: 32768 | Start Size: 16384 | Recent Size: 16384
+model ans: Te5PSzEC5M3nJwF79iN4t7Loe4s3-1y-
+ans: Te5PSzEC5M3nJwF79iN4t7Loe4s3-1y-
+True
+Hit rate: 0.15 with budget 32768 for method h2o

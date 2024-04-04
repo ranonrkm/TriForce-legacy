@@ -32,3 +32,15 @@ CUDA_VISIBLE_DEVICES=8,9 nohup python observation/needle_test.py --budget 102400
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 118784
 # CUDA_VISIBLE_DEVICES=8,9 python observation/needle_test.py --budget 122880
 # CUDA_VISIBLE_DEVICES=5,6 python observation/needle_test.py --budget 126976
+
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 102400 --method h2o
+
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 4096 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 8192 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 16384 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 nohup python observation/needle_test.py --budget 32768 --method h2o > h2o1.log &
+CUDA_VISIBLE_DEVICES=4,5 nohup python observation/needle_test.py --budget 48128 --method h2o > h2o2.log &
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 65536 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 81920 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 98304 --method h2o
+CUDA_VISIBLE_DEVICES=0,1 python observation/needle_test.py --budget 114688 --method h2o

@@ -146,9 +146,15 @@ class LlamaAttention(nn.Module):
         key_states = repeat_kv(key_states, self.num_key_value_groups)
         value_states = repeat_kv(value_states, self.num_key_value_groups)
 
-        if query_states.shape[1] == 1:
+        if query_states.shape[1] == 1 and self.layer_idx == 10:
             attn_weights = torch.matmul(query_states.transpose(1, 2), key_states.permute(0,2,3,1)) / math.sqrt(self.head_dim)
             attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
+
+            # save to .npy
+
+            torch.save(attn_weights, f"attn_weights_{self.layer_idx}.pt")
+            exit()
+
             # print(attn_weights.shape, attn_weights)
 
             # if len(kv_cache.scores[self.layer_idx]) == 0:

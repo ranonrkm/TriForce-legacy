@@ -85,8 +85,8 @@ class SimpleCache(Cache):
 
 class FlashSimpleCache(Cache):
     def __init__(self, model, max_budget=1024) -> None:
-        # self.key_cache: List[torch.Tensor] = []
-        # self.value_cache: List[torch.Tensor] = []
+        self.key_cache: List[torch.Tensor] = []
+        self.value_cache: List[torch.Tensor] = []
         self.seq_len = 0
         self.max_budget = max_budget
 
@@ -100,23 +100,23 @@ class FlashSimpleCache(Cache):
 
         dtype = model.model.layers[0].self_attn.q_proj.weight.dtype
 
-        self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
-        self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+        # self.key_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
+        # self.value_cache = torch.zeros([self.layers, 1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(model.device)
 
-        self.scores = []
+        # self.scores = []
 
-        # for i in range(self.layers):
-        #     if hasattr(model, 'gpt_neox'):
-        #         device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
-        #         dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
-        #     else:
-        #         # device = model.model.layers[i].self_attn.q_proj.weight.device
-        #         # dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
-        #         device = model.device
-        #         dtype = torch.float16
-        #     # print(device, dtype)
-        #     self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
-        #     self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+        for i in range(self.layers):
+            if hasattr(model, 'gpt_neox'):
+                device = model.gpt_neox.layers[i].attention.query_key_value.weight.device
+                dtype = model.gpt_neox.layers[i].attention.query_key_value.weight.dtype
+            else:
+                # device = model.model.layers[i].self_attn.q_proj.weight.device
+                # dtype = model.model.layers[i].self_attn.q_proj.weight.dtype
+                device = model.device
+                dtype = torch.float16
+            # print(device, dtype)
+            self.key_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
+            self.value_cache.append(torch.zeros([1, self.max_budget, self.num_heads, self.head_dim], dtype=dtype).to(device))
 
     def print_status(self):
         print("Cached Size:", self.seq_len, "| Max Budget:", self.max_budget)
