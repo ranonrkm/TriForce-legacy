@@ -10,6 +10,7 @@ import argparse
 from termcolor import colored
 from utils.batch_decoding import Baseline_Dist, Retrieval_Spec_Dist
 from models.TP_llama import distributed_init, DistributedLlama
+from transformers import AutoModelForCausalLM
 from models.modeling_llama import LlamaForCausalLM
 from transformers import AutoTokenizer
 import numpy as np
@@ -20,6 +21,7 @@ from utils.SpecTree_TP import SpecTree
 
 local_rank, world_size = distributed_init()
 device = torch.device("cuda", local_rank)
+# model_name_or_path = "OrionStarAI/Orion-14B-LongChat"
 model_name_or_path = "NousResearch/Yarn-Llama-2-7b-128k"
 
 def create_sampling_callable(num_samples, temperature=0.6):
@@ -70,7 +72,7 @@ draft_step = len(grow_map["roots"])
 
 
 tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=8, tree_size=tree_size)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=6, tree_size=tree_size)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
@@ -121,7 +123,7 @@ spectree = SpecTree(engine=llm, temperature=args.temp, top_p=top_p,
                     residual_graph=residual_graph,
                     sampling_callables=sampling_callables,
                     sample_gather_indices=sample_gather_indices,
-                    tokenizer=tokenizer)
+                    tokenizer=tokenizer, vocab_size=llm.config.vocab_size)
 
 for input_ids in tokenized_prompts:
     input_ids = input_ids[0,:args.prefill].to(llm.device)

@@ -51,6 +51,7 @@ class SpecTree:
         # initialize
         self.tree_size = self.grow_map["size"]
         self.tree_mask = tree_mask
+        self.vocab_size = vocab_size
 
         self.tree_mask_step = []
         self.storage_ids_step = []
@@ -69,7 +70,7 @@ class SpecTree:
 
         self.tree_mask_first = torch.cat([torch.zeros(1, self.graph_engine.retrieval_cache.max_budget, device=self.device), tree_mask[0:1]], dim=-1)
 
-        self.draft_logits = torch.zeros((self.tree_size, vocab_size), dtype=self.dtype).to(self.device)
+        self.draft_logits = torch.zeros((self.tree_size, vocab_size), dtype=torch.float32).to(self.device)
         self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
         self.verify_tokens = torch.zeros(self.tree_size, device=self.device).long()
 
@@ -164,7 +165,7 @@ class SpecTree:
             
             if p[token] > r * q[token]:
                 # print(p[token], q[token])
-                return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((32000), dtype=self.dtype, device=self.device))
+                return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((self.vocab_size), dtype=self.dtype, device=self.device))
             else:
                 p = self.residual_graph(p, q)
                 draft_logits[token] = torch.finfo(self.dtype).min
@@ -202,7 +203,7 @@ class SpecTree:
                 pos, res = self.accept_step(logits_id=accept_list[-1])
             else:
                 pos = torch.tensor(-9, device=self.graph_engine.device)
-                res = torch.empty((32000), dtype=self.dtype, device=self.device)
+                res = torch.empty((self.vocab_size), dtype=self.dtype, device=self.device)
             
             # broadcast
             torch.distributed.broadcast(pos, src=0)

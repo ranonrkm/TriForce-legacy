@@ -13,6 +13,7 @@ class DistributedOffloadingConfig:
         self.local_rank = local_rank
         self.world_size = world_size
         self.max_length = config.max_position_embeddings
+        self.vocab_size = config.vocab_size
 
 class LlamaLayer:
     def __init__(self, layer_idx) -> None:
@@ -151,9 +152,21 @@ class DistributedLlamaLayer:
 
         self.input_layernorm_weight = hf_layer.input_layernorm.weight.detach()
         self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
+        # if hasattr(hf_layer.input_layernorm, 'variance_epsilon'):
+        #     self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.variance_epsilon
+        # elif hasattr(hf_layer.input_layernorm, 'eps'):
+        #     self.input_layernorm_variance_epsilon = hf_layer.input_layernorm.eps
+        # else:
+        #     print("Error: variance_epsilon not found in input_layernorm")
 
         self.post_attention_layernorm_weight = hf_layer.post_attention_layernorm.weight.detach()
         self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
+        # if hasattr(hf_layer.post_attention_layernorm, 'variance_epsilon'):
+        #     self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.variance_epsilon
+        # elif hasattr(hf_layer.post_attention_layernorm, 'eps'):
+        #     self.post_attention_layernorm_variance_epsilon = hf_layer.post_attention_layernorm.eps
+        # else:
+        #     print("Error: variance_epsilon not found in post_attention_layernorm")
 
         # self.cos_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.cos_cached
         # self.sin_cache :torch.Tensor= hf_layer.self_attn.rotary_emb.sin_cached

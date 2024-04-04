@@ -6,6 +6,17 @@ import torch
 import json
 import pickle
 
+# build chat input prompt
+def build_chat_input(tokenizer, message):
+    # chat format:
+    # single-turn: <s>Human: Hello!\n\nAssistant: </s>
+
+    prompt = "<s>"
+    prompt += "Human: " + message + "\n\nAssistant: </s>"
+
+    input_tokens = tokenizer.encode(prompt, return_tensors="pt")
+    return input_tokens
+
 def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     if dataset_name == "THUDM/LongBench":
         assert task is not None, "task must be specified for THUDM/LongBench"
@@ -123,6 +134,11 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
         tokenized_prompt = tokenizer.encode(prompt, return_tensors="pt")[:, :148000]
         assert tokenized_prompt.shape[1] > 128*1024, f"tokenized_prompt.shape[1] = {tokenized_prompt.shape[1]}"
         return [tokenized_prompt]
+
+    elif dataset_name == 'orion':
+        dataset = load_dataset("narrativeqa")
+        prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!" + dataset['train'][0]['document']['text'][:1024*400] + "Now you have read it! What is the summary?")
+        return [prompt]
 
     elif dataset_name == 'password':
         tokenized_prompts = []

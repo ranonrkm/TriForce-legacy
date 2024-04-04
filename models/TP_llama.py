@@ -93,6 +93,12 @@ class DistributedLlama:
 
         self.norm_weight = hf_model.model.norm.weight.detach().to(self.device)
         self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
+        # if hasattr(hf_model.model.norm, 'variance_epsilon'):
+        #     self.norm_variance_epsilon = hf_model.model.norm.variance_epsilon
+        # elif hasattr(hf_model.model.norm, 'eps'):
+        #     self.norm_variance_epsilon = hf_model.model.norm.eps
+        # else:
+        #     print("Error: variance_epsilon not found in layernorm")
         self.layers :list[DistributedLlamaLayer] = []
 
         for idx, hf_layer in enumerate(hf_model.model.layers):
@@ -222,7 +228,7 @@ class DistributedLlama:
             layernorm_weight=self.norm_weight
         )
 
-        logits = F.linear(hidden_states, self.lm_head)#.float()
+        logits = F.linear(hidden_states, self.lm_head).float()
         return logits
 
     @torch.inference_mode()
@@ -430,7 +436,7 @@ class DistributedLlama:
             layernorm_weight=self.norm_weight
         )
 
-        logits = F.linear(hidden_states, self.lm_head)#.float()
+        logits = F.linear(hidden_states, self.lm_head).float()
         return logits
 
 
