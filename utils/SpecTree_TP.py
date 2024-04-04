@@ -75,13 +75,16 @@ class SpecTree:
 
     @torch.inference_mode()
     def prefill(self, prefix :torch.LongTensor):
+        self.draft_logits.zero_()
+        self.verify_tokens.zero_()
+        self.rand.uniform_()
         ##### PREFILL #####
         self.graph_engine.reset()
         self.graph_engine.prefill(input_ids=prefix.unsqueeze(0)[:,:-1])
         logits = self.graph_engine.build_retrieval_cache(input_ids=prefix.unsqueeze(0)[:,-1:])
         next_token = sample_dist(norm_logits(logits[:,-1,:], temperature=self.temperature ,top_k=-1, top_p=self.top_p))
-        if self.graph_engine.local_rank == 0:
-            spec_stream(next_token[0], self.tokenizer, 'cyan')
+        # if self.graph_engine.local_rank == 0:
+        #     spec_stream(next_token[0], self.tokenizer, 'cyan')
         return next_token
 
     @torch.inference_mode()
@@ -152,7 +155,7 @@ class SpecTree:
         children = self.Successors[logits_id]
         
         if len(children) == 0:
-            return (-2, p)
+            return (torch.tensor(-2, device=self.graph_engine.device), p)
         
         for pos in children:
             token = self.verify_tokens[pos]
@@ -161,11 +164,11 @@ class SpecTree:
             
             if p[token] > r * q[token]:
                 # print(p[token], q[token])
-                return (pos, None)
+                return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((32000), dtype=self.dtype, device=self.device))
             else:
                 p = self.residual_graph(p, q)
                 draft_logits[token] = torch.finfo(self.dtype).min
-        return (-1, p)
+        return (torch.tensor(-1, device=self.graph_engine.device), p)
 
     @torch.inference_mode()
     def verify(self):
@@ -194,12 +197,22 @@ class SpecTree:
         accept_list.append(0)
         terminal = False
         while True:
-            pos, res = self.accept_step(logits_id=accept_list[-1])
+            
+            if self.graph_engine.local_rank == 0:
+                pos, res = self.accept_step(logits_id=accept_list[-1])
+            else:
+                pos = torch.tensor(-9, device=self.graph_engine.device)
+                res = torch.empty((32000), dtype=self.dtype, device=self.device)
+            
+            # broadcast
+            torch.distributed.broadcast(pos, src=0)
+            torch.distributed.broadcast(res, src=0)
+
             if pos > -1:
                 # accept
-                accept_list.append(pos)
-                if self.graph_engine.local_rank == 0:
-                    spec_stream(self.verify_tokens[pos], self.tokenizer, 'green')
+                accept_list.append(pos.item())
+                # if self.graph_engine.local_rank == 0:
+                #     spec_stream(self.verify_tokens[pos], self.tokenizer, 'green')
                 acc_count += 1
                 # eos
                 if self.verify_tokens[pos] == 0 or self.verify_tokens[pos] == 2:
@@ -215,11 +228,11 @@ class SpecTree:
                 terminal = True
             else:
                 next_token = residual.multinomial(num_samples=1, replacement=True)
-                if self.graph_engine.local_rank == 0:
-                    if pos == -2:
-                        spec_stream(next_token[0], self.tokenizer, 'blue')
-                    else:
-                        spec_stream(next_token[0], self.tokenizer, 'red')
+                # if self.graph_engine.local_rank == 0:
+                    # if pos == -2:
+                    #     spec_stream(next_token[0], self.tokenizer, 'blue')
+                    # else:
+                    #     spec_stream(next_token[0], self.tokenizer, 'red')
                 acc_count += 1
             
         # print(f"Accept list: {accept_list}, Terminal: {terminal}, Accept length: {accept_length}")
@@ -228,9 +241,10 @@ class SpecTree:
         
         if terminal:
             print(f"Terminal: {terminal}, Accept list: {accept_list}, Accept count: {acc_count}")
-            return None, acc_count
+            return None, acc_count, []
 
         # assert len(accept_list) == acc_count, f"Accept list: {accept_list}, Accept count: {acc_count}"
+        # print(accept_list)
         accept_tokens = self.verify_tokens[accept_list]
         accept_tokens = torch.cat([accept_tokens, next_token], dim=-1)
 
@@ -248,4 +262,4 @@ class SpecTree:
         # assert torch.allclose(self.graph_engine.engine.kv_cache.key_cache[:,:,:,:900], self.graph_engine.retrieval_cache.key_cache[:,:,:,:900])
         # exit()
 
-        return next_token, acc_count
+        return next_token, acc_count, accept_tokens
