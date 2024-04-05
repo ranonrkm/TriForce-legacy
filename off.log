@@ -1,0 +1,25 @@
+[2024-04-05 11:18:28,951] torch.distributed.elastic.agent.server.api: [WARNING] Received Signals.SIGHUP death signal, shutting down workers
+[2024-04-05 11:18:28,952] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 692080 closing signal SIGHUP
+[2024-04-05 11:18:28,952] torch.distributed.elastic.multiprocessing.api: [WARNING] Sending process 692081 closing signal SIGHUP
+Traceback (most recent call last):
+  File "/root/software/miniconda3/envs/triforce/bin/torchrun", line 33, in <module>
+    sys.exit(load_entry_point('torch==2.2.1+cu118', 'console_scripts', 'torchrun')())
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 347, in wrapper
+    return f(*args, **kwargs)
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/run.py", line 812, in main
+    run(args)
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/run.py", line 803, in run
+    elastic_launch(
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 135, in __call__
+    return launch_agent(self._config, self._entrypoint, list(args))
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/launcher/api.py", line 259, in launch_agent
+    result = agent.run()
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/elastic/metrics/api.py", line 123, in wrapper
+    result = f(*args, **kwargs)
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 727, in run
+    result = self._invoke_run(role)
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/elastic/agent/server/api.py", line 868, in _invoke_run
+    time.sleep(monitor_interval)
+  File "/root/software/miniconda3/envs/triforce/lib/python3.9/site-packages/torch/distributed/elastic/multiprocessing/api.py", line 62, in _terminate_process_handler
+    raise SignalException(f"Process {os.getpid()} got signal: {sigval}", sigval=sigval)
+torch.distributed.elastic.multiprocessing.api.SignalException: Process 692029 got signal: 1

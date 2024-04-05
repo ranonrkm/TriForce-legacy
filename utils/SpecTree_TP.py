@@ -164,7 +164,7 @@ class SpecTree:
             q = softmax(draft_logits / self.temperature, dim=-1)
             r = torch.rand(1, device=self.graph_engine.device)
             
-            if p[token] >= r * q[token]:
+            if p[token] > r * q[token]:
                 # print(f"{self.graph_engine.local_rank}:{p[token]}, {q[token]}, {r}")
                 return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((self.vocab_size), dtype=torch.float32, device=self.device))
             else:
@@ -218,7 +218,7 @@ class SpecTree:
                 residual = res
                 break
         
-        next_token = torch.zeros((1, 1), dtype=torch.long, device=self.device)
+        next_token = torch.zeros((1,), dtype=torch.long, device=self.device)
         if not terminal:
             if torch.isnan(residual).any():
                 terminal = True

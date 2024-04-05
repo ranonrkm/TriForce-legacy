@@ -21,8 +21,6 @@ from utils.SpecTree_TP import SpecTree
 
 local_rank, world_size = distributed_init()
 device = torch.device("cuda", local_rank)
-# model_name_or_path = "OrionStarAI/Orion-14B-LongChat"
-model_name_or_path = "NousResearch/Yarn-Llama-2-13b-128k"
 
 def create_sampling_callable(num_samples, temperature=0.6):
     def sampling_without_replacement(sampling_logits: torch.Tensor, static_rand):
@@ -39,12 +37,13 @@ def create_sampling_callable(num_samples, temperature=0.6):
 def parse_arguments():
     parser = argparse.ArgumentParser(description='args for main.py')
 
-    parser.add_argument('--target', type=str, default='llama-7B-128K', help='target model')
+    parser.add_argument('--target', type=str, default='llama-13B-128K', help='target model')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--prefill', type=int, default=32768, help='prefill length')
     parser.add_argument('--gen_len', type=int, default=256, help='generation length')
     parser.add_argument('--temp', type=float, default=0.6, help='temperature')
     parser.add_argument('--dataset', type=str, default='benchmark', help='dataset')
+    parser.add_argument('--on_chip', type=int, default=0, help='on chip layers')
     parser.add_argument('--budget', type=int,  default=5120)
     parser.add_argument('--file', type=str, default='')
     parser.add_argument('--tree_size', type=str, default='1024')
@@ -70,23 +69,30 @@ idx_lists = grow_map["roots"]
 branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
+if args.target == 'llama-13B-128K':
+    model_name_or_path = "NousResearch/Yarn-Llama-2-13b-128k"
+elif args.target == 'llama-7B-128K':
+    model_name_or_path = "NousResearch/Yarn-Llama-2-7b-128k"
+elif args.target == 'orion-14B-LongChat':
+    model_name_or_path = "OrionStarAI/Orion-14B-LongChat"
+elif args.target == 'lwm-128K':
+   model_name_or_path = "LargeWorldModel/LWM-Text-Chat-128K"
+elif args.target == 'lwm-128K-base':
+   model_name_or_path = "LargeWorldModel/LWM-Text-128K"
+
 if model_name_or_path == "OrionStarAI/Orion-14B-LongChat":
     tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False, trust_remote_code=True)
-elif model_name_or_path == "NousResearch/Yarn-Llama-2-13b-128k":
-    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
 else:
-    raise ValueError(f"model_name_or_path {model_name_or_path} not supported")
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
 
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=0, tree_size=tree_size)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=args.on_chip, tree_size=tree_size)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
         if model_name_or_path == "OrionStarAI/Orion-14B-LongChat":
             hf_model = AutoModelForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu', trust_remote_code=True)
-        elif model_name_or_path == "NousResearch/Yarn-Llama-2-13b-128k":
-            hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
         else:
-            raise ValueError(f"model_name_or_path {model_name_or_path} not supported")
+            hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
         llm.init_parameters(hf_model=hf_model)
         del hf_model
     dist.barrier()
