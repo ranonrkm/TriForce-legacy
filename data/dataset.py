@@ -136,7 +136,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
 
     elif dataset_name == 'orion':
         dataset = load_dataset("narrativeqa")
-        prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!" + dataset['train'][0]['document']['text'][3:1024*356+527] + "\nNow you have read it! What is the summary?")
+        # prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!" + dataset['train'][0]['document']['text'][3:1024*356+527] + "\nNow you have read it! What is the summary?")
+        prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!\n[start of the book]\n" + dataset['train'][0]['document']['text'][3:1024*356+473] + "\n[end of the book]\n\nNow you have read it! Please summarize it for me!")
         return [prompt]
 
     elif dataset_name == 'password':
