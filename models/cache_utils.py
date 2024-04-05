@@ -2426,14 +2426,26 @@ class DistributedSimpleCache(Cache):
         return key, value
 
     def gather_kv_incremental(self, indices: list[int], offset:int):
-        # print(indices, offset)
         indices = [i + offset for i in indices]
-        self.key_cache[:,:, offset:offset + len(indices)] = self.key_cache[:,:, indices]
-        self.value_cache[:,:, offset:offset + len(indices)] = self.value_cache[:,:, indices]
+        # self.key_cache[:,:, offset:offset + len(indices)] = self.key_cache[:,:, indices].clone()
+        # self.value_cache[:,:, offset:offset + len(indices)] = self.value_cache[:,:, indices].clone()
 
-        #TODO CAN BE DEL
-        self.key_cache[:,:, offset + len(indices):] = 0.0
-        self.value_cache[:,:, offset + len(indices):] = 0.0
+        # self.cpu_key_cache[:, :, offset:offset + len(indices)] = self.cpu_key_cache[:, :, indices].clone()
+        # self.cpu_value_cache[:, :, offset:offset + len(indices)] = self.cpu_value_cache[:, :, indices].clone()
+
+        self.key_cache[:,:, offset:offset + len(indices)].copy_(self.key_cache[:,:, indices].clone(), non_blocking=True)
+        self.value_cache[:,:, offset:offset + len(indices)].copy_(self.value_cache[:,:, indices].clone(), non_blocking=True)
+
+        self.cpu_key_cache[:, :, offset:offset + len(indices)].copy_(self.cpu_key_cache[:, :, indices].clone(), non_blocking=True)
+        self.cpu_value_cache[:, :, offset:offset + len(indices)].copy_(self.cpu_value_cache[:, :, indices].clone(), non_blocking=True)
+
+        # print(offset, indices, self.key_cache[:,:, offset:offset + len(indices)].shape, self.cpu_value_cache[:, :, offset:offset + len(indices)].shape,self.cpu_value_cache[:, :, indices].shape)
+
+        # #TODO CAN BE DEL
+        # self.key_cache[:,:, offset + len(indices):] = 0.0
+        # self.value_cache[:,:, offset + len(indices):] = 0.0
+        # self.cpu_key_cache[:, :, offset + len(indices):] = 0.0
+        # self.cpu_value_cache[:, :, offset + len(indices):] = 0.0
 
         self.seq_len = offset + len(indices)
         self.ssl_cur = 0

@@ -16,13 +16,13 @@ from transformers import AutoTokenizer
 import numpy as np
 import time
 from torch.nn.functional import softmax
-from utils.tree_infer import GraphInferenceEngine, get_sampling_logits, cuda_graph_for_residual, cuda_graph_for_sampling_without_replacement, get_residual
+from utils.tree_infer import get_residual
 from utils.SpecTree_TP import SpecTree
 
 local_rank, world_size = distributed_init()
 device = torch.device("cuda", local_rank)
-model_name_or_path = "OrionStarAI/Orion-14B-LongChat"
-# model_name_or_path = "NousResearch/Yarn-Llama-2-13b-128k"
+# model_name_or_path = "OrionStarAI/Orion-14B-LongChat"
+model_name_or_path = "NousResearch/Yarn-Llama-2-13b-128k"
 
 def create_sampling_callable(num_samples, temperature=0.6):
     def sampling_without_replacement(sampling_logits: torch.Tensor, static_rand):
@@ -70,14 +70,23 @@ idx_lists = grow_map["roots"]
 branch_lists = grow_map['branches']
 draft_step = len(grow_map["roots"])
 
+if model_name_or_path == "OrionStarAI/Orion-14B-LongChat":
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False, trust_remote_code=True)
+elif model_name_or_path == "NousResearch/Yarn-Llama-2-13b-128k":
+    tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False)
+else:
+    raise ValueError(f"model_name_or_path {model_name_or_path} not supported")
 
-tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, use_fast=True, legacy=False, trust_remote_code=True)
-llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=6, tree_size=tree_size)
+llm = DistributedLlama(model_name_or_path=model_name_or_path, local_rank=local_rank, world_size=world_size, prefill=prefill, gen_len=gen_len, temperature=temperature, top_p=top_p, flash_attn=True, retrieval_budget=retrieval_budget, kv_offload=True, on_chip_layers=0, tree_size=tree_size)
 for rank in range(world_size):
     if local_rank == rank:
         print(f"Rank {rank+1}/{world_size} (Device {device}) is initializing parameters")
-        # hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
-        hf_model = AutoModelForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu', trust_remote_code=True)
+        if model_name_or_path == "OrionStarAI/Orion-14B-LongChat":
+            hf_model = AutoModelForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu', trust_remote_code=True)
+        elif model_name_or_path == "NousResearch/Yarn-Llama-2-13b-128k":
+            hf_model = LlamaForCausalLM.from_pretrained(model_name_or_path, torch_dtype=torch.float16, device_map='cpu')
+        else:
+            raise ValueError(f"model_name_or_path {model_name_or_path} not supported")
         llm.init_parameters(hf_model=hf_model)
         del hf_model
     dist.barrier()
@@ -85,6 +94,9 @@ for rank in range(world_size):
 from data.dataset import get_dataset
 tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=32768)
 input_ids = tokenized_prompts[0][:,:prefill].to(device)
+
+if local_rank == 0:
+    print(tokenizer.decode(input_ids[0,-100:].cpu().numpy().tolist()))
 
 # baseline_latency, gen_tokens = Baseline_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
 # baseline_latency = baseline_latency/1000
@@ -119,7 +131,7 @@ all_acc_list = []
 
 dtype = torch.float16
 max_length = prefill+gen_len
-spectree = SpecTree(engine=llm, temperature=args.temp, top_p=top_p,
+spectree = SpecTree(engine=llm, temperature=temperature, top_p=top_p,
                     max_length=prefill+gen_len, grow_map=grow_map,
                     residual_graph=residual_graph,
                     sampling_callables=sampling_callables,

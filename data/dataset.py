@@ -11,8 +11,7 @@ def build_chat_input(tokenizer, message):
     # chat format:
     # single-turn: <s>Human: Hello!\n\nAssistant: </s>
 
-    prompt = "<s>"
-    prompt += "Human: " + message + "\n\nAssistant: </s>"
+    prompt = "Human: " + message + "\n\nAssistant:"
 
     input_tokens = tokenizer.encode(prompt, return_tensors="pt")
     return input_tokens
@@ -137,7 +136,7 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
 
     elif dataset_name == 'orion':
         dataset = load_dataset("narrativeqa")
-        prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!" + dataset['train'][0]['document']['text'][:1024*400] + "Now you have read it! What is the summary?")
+        prompt = build_chat_input(tokenizer, "Please read a part of the book below, and then give me the summary!" + dataset['train'][0]['document']['text'][3:1024*356+527] + "\nNow you have read it! What is the summary?")
         return [prompt]
 
     elif dataset_name == 'password':

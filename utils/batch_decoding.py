@@ -487,6 +487,10 @@ def Baseline_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top
     gen_tokens = torch.zeros((input_ids.size(0), max_len), dtype=torch.long, device=input_ids.device)
 
     n = 0
+    pos = 0
+    generated_ids = []
+    generated_ids.extend(next_token[0].tolist())
+    
     torch.cuda.synchronize()
     time1 = time.time()
     while n < max_len:
@@ -494,6 +498,25 @@ def Baseline_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-1, top
         
         next_token = sample_dist(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p), bsz, tokens=1)
         
+        generated_ids.extend(next_token[0].tolist())
+
+        generated_text = (
+            tokenizer.decode(
+            generated_ids,
+            skip_special_tokens=True,
+            clean_up_tokenization_spaces=True,
+            spaces_between_special_tokens=False,
+        )
+        .strip()
+        .split(" ")
+        )
+
+        if local_rank == 0:
+            now = len(generated_text) - 1
+            if now > pos:
+                print(" ".join(generated_text[pos:now]), end=" ", flush=True)
+                pos = now
+
         gen_tokens[:, n] = next_token.squeeze()
         n += 1
         if verbose:

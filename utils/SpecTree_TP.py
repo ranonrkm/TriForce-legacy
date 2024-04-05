@@ -164,12 +164,12 @@ class SpecTree:
             q = softmax(draft_logits / self.temperature, dim=-1)
             r = torch.rand(1, device=self.graph_engine.device)
             
-            if p[token] > r * q[token]:
-                # print(p[token], q[token])
-                return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((self.vocab_size), dtype=self.dtype, device=self.device))
+            if p[token] >= r * q[token]:
+                # print(f"{self.graph_engine.local_rank}:{p[token]}, {q[token]}, {r}")
+                return (torch.tensor(pos, device=self.graph_engine.device), torch.empty((self.vocab_size), dtype=torch.float32, device=self.device))
             else:
                 p = self.residual_graph(p, q)
-                draft_logits[token] = torch.finfo(self.dtype).min
+                draft_logits[token] = torch.finfo(torch.float32).min
         return (torch.tensor(-1, device=self.graph_engine.device), p)
 
     @torch.inference_mode()
@@ -182,18 +182,9 @@ class SpecTree:
 
         offset = self.graph_engine.kv_cache.seq_len
         self.target_logits = self.graph_engine.inference(input_ids = self.verify_tokens.unsqueeze(0), position_ids=position_ids, attention_mask=attn_mask)[0]
-        # print(f"Target logits: {self.target_logits.shape}")
-
-        # self.graph_engine.kv_stats()
-        # for i in range(10240, 10240+60):
-        #     assert torch.allclose(self.graph_engine.engine.kv_cache.key_cache[:,:,:,i], self.graph_engine.retrieval_cache.key_cache[:,:,:,i]), f"Key cache not equal at {i}"
-
-        # exit()
-
         self.target_logits = get_sampling_logits(logits=self.target_logits, top_p=self.top_p, T=self.temperature, replicate=False)
         self.target_logits = softmax(self.target_logits / self.temperature, dim=-1)
         
-        # print(f"Target logits: {self.target_logits.shape}, Draft logits: {self.draft_logits.shape}")
         acc_count = 0
         accept_list = []
         accept_list.append(0)
@@ -227,6 +218,7 @@ class SpecTree:
                 residual = res
                 break
         
+        next_token = torch.zeros((1, 1), dtype=torch.long, device=self.device)
         if not terminal:
             if torch.isnan(residual).any():
                 terminal = True
@@ -245,26 +237,28 @@ class SpecTree:
         # print(self.verify_tokens)
         # print(self.verify_tokens[accept_list])
 
-        # print(f"[BEFORE]{self.graph_engine.local_rank}: {next_token}, {self.verify_tokens},{accept_list},{acc_count},{terminal}\n")
+        # print(f"[BEFORE]{self.graph_engine.local_rank}: {next_token}, {accept_list},{acc_count},{terminal}\n")
 
+        torch.distributed.barrier()
         torch.distributed.broadcast(next_token, src=0)
         torch.distributed.broadcast(self.verify_tokens, src=0)
-        # torch.distributed.barrier()
+        torch.distributed.barrier()
 
         acc_count = torch.tensor(acc_count, device=self.device)
         torch.distributed.broadcast(acc_count, src=0)
-        acc_count = acc_count.cpu().item()
         torch.distributed.barrier()
+        acc_count = acc_count.cpu().item()
 
         fake_ac_list = torch.full((24,), -1, dtype=torch.long, device=self.device)
         fake_ac_list[:len(accept_list)] = torch.tensor(accept_list, device=self.device, dtype=torch.long)
         torch.distributed.broadcast(fake_ac_list, src=0)
+        torch.distributed.barrier()
         accept_list = fake_ac_list.cpu().numpy().tolist()[:acc_count]
 
         terminal = torch.tensor(terminal, device=self.device)
         torch.distributed.broadcast(terminal, src=0)
-        terminal = terminal.cpu().item()
         torch.distributed.barrier()
+        terminal = terminal.cpu().item()
 
         # print(f"[AFTER]{self.graph_engine.local_rank}: {next_token}, {accept_list},{acc_count},{terminal}\n")
         
@@ -290,5 +284,7 @@ class SpecTree:
         # self.rand = torch.empty((self.tree_size, self.draft_logits.shape[1]), dtype=self.dtype).uniform_().to(self.device)
         # assert torch.allclose(self.graph_engine.engine.kv_cache.key_cache[:,:,:,:900], self.graph_engine.retrieval_cache.key_cache[:,:,:,:900])
         # exit()
+
+        # print(f"\n[YEAH]{self.graph_engine.local_rank}: {next_token}, {acc_count}, {accept_tokens},{self.graph_engine.kv_cache.seq_len}\n")
 
         return next_token, acc_count, accept_tokens
