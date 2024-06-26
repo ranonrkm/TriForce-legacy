@@ -440,21 +440,21 @@ class DistributedLlama:
         return logits
 
 
-    # @torch.inference_mode()
-    # def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
-    #     hidden_states = F.embedding(input_ids, self.embed_tokens)
+    @torch.inference_mode()
+    def retrieval_inference(self, input_ids: torch.LongTensor, gamma_offset: int, position_ids: torch.LongTensor):
+        hidden_states = F.embedding(input_ids, self.embed_tokens)
 
-    #     for idx in range(self.num_layers):
-    #         hidden_states = self.layer_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=None, retrieval_cache=self.retrieval_cache, gamma_offset=gamma_offset)
+        for idx in range(self.num_layers):
+            hidden_states = self.layer_speculation(self.layers[idx], idx, hidden_states, position_ids, attention_mask=None, retrieval_cache=self.retrieval_cache, gamma_offset=gamma_offset)
 
-    #     hidden_states = RMSNorm(
-    #         hidden_states=hidden_states,
-    #         layernorm_variance_epsilon=self.norm_variance_epsilon,
-    #         layernorm_weight=self.norm_weight
-    #     )
+        hidden_states = RMSNorm(
+            hidden_states=hidden_states,
+            layernorm_variance_epsilon=self.norm_variance_epsilon,
+            layernorm_weight=self.norm_weight
+        )
 
-    #     logits = F.linear(hidden_states, self.lm_head)#.float()
-    #     return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
+        logits = F.linear(hidden_states, self.lm_head)#.float()
+        return norm_logits(logits[:,-1,:], temperature=self.temperature, top_k=-1, top_p=self.top_p)
 
     @torch.inference_mode()
     def capture_graph_retrieval_inference(self, gamma_offset: int, mempool, n_warmups: int):

@@ -607,7 +607,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                     # pred_token_idx = resample[j, i].unsqueeze(0)
                     
                     #!!! NEED REVISE
-                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=bsz, tokens=1)
+                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=1, tokens=1).view(1)
                     
                     if verbose:
                         if local_rank == 0:
@@ -621,14 +621,14 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
             if accepted_count_list[j] == gamma:
                 bonus_count += 1
                 n[j] += 1
-                pred_token_idx = sample_dist(verify_probs[j, -1], bsz=bsz, tokens=1)
+                pred_token_idx = sample_dist(verify_probs[j, -1], bsz=1, tokens=1).view(1)
 
                 if verbose:
                     if local_rank == 0:
                         spec_stream(pred_token_idx, tokenizer, 'blue')
                     gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
 
-            next_token[j] = pred_token_idx.unsqueeze(0)
+            next_token[j] = pred_token_idx.unsqueeze(0)                
             # if verbose:
             #     print()
         
@@ -640,6 +640,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         accepted_count_list.zero_()
 
     time2 = time.time()
+    print("rank: ", local_rank)
     # collect stats
     total_count = accepted_count + resample_count + bonus_count
     avg_tokens = total_count / (draft_count/gamma)
