@@ -7,8 +7,8 @@ import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 
-from utils.misc import batch_spec_stream, spec_stream
-from utils.sampling import sample, norm_logits, max_fn
+from misc import batch_spec_stream, spec_stream
+from sampling import sample, norm_logits, max_fn
 
 def get_residual(p: torch.Tensor, q:torch.Tensor):
     residual = (p - q).relu_()

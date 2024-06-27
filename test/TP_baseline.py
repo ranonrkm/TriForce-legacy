@@ -2,13 +2,14 @@ import os
 import sys
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
+sys.path.append(os.path.join(root_dir, 'utils'))
 
 import torch.multiprocessing as mp
 import torch.distributed as dist
 import torch
 import argparse
 from termcolor import colored
-from utils.batch_decoding import Baseline_Dist, Retrieval_Spec_Dist
+from batch_decoding import Baseline_Dist, Retrieval_Spec_Dist
 from models.TP_llama import distributed_init, DistributedLlama
 from models.modeling_llama import LlamaForCausalLM
 from transformers import AutoTokenizer
