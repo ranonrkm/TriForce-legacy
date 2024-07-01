@@ -88,6 +88,7 @@ else:
 chunk_size = args.chunk_size
 max_budget = args.budget
 file_path = None
+text_path = f"results/prefill_{args.prefill}_gen_{args.gen_len}_gamma_{args.gamma}_budget_{args.budget}_bsz_{args.bsz}.txt"
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Batch Spec (Retrieval)", spec_args={'budget': args.budget, 'chunk_size': chunk_size}, dataset=args.dataset)
 
 ####### cache init #######
@@ -140,6 +141,12 @@ for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     all_latency.append(latency)
 
 method_latency = (sum(all_latency) / len(all_latency))
+with open(text_path, "w") as f:
+    f.write(f"baseline: {baseline_latency} ms\n")
+    f.write(f"method: {method_latency} ms\n")
+    f.write(f"speedup: {baseline_latency / method_latency}\n")
+    f.write(f"acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}\n")
+    
 print(colored(f"average acceptance rate: {sum(all_acceptance_rate) / len(all_acceptance_rate)}", "red"))
 print(colored(f"[Ours-Chain_Retrieval] average latency: {method_latency} ms", "red"))
 print(colored(f"[E2E Speedup]: {baseline_latency / method_latency}", "red"))

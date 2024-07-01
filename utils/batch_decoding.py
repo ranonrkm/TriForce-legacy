@@ -94,6 +94,8 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
         # accept step
         next_token = torch.zeros((bsz,1), dtype=torch.long, device=input_ids.device)
         for j in range(bsz): # bsz
+            if n[j] >= max_len:
+                continue
             for i in range(gamma):
                 token = generated_ids[j, i]
                 spec_prob = speculation_probs[j, i, token]
@@ -140,6 +142,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
 
         # rollback kv cache
         graph_engine.engine.kv_cache.seq_len -= (gamma - accepted_count_list)
+        graph_engine.engine.kv_cache.seq_len = torch.clamp(graph_engine.engine.kv_cache.seq_len, max=prefill+max_len) # edit: rsadhukh
         graph_engine.update_graph_cache()
         accepted_count_list.zero_()
 
@@ -636,6 +639,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
 
         # rollback kv cache
         graph_engine.kv_cache.seq_len -= (gamma - accepted_count_list)
+        graph_engine.kv_cache.seq_len = torch.clamp(graph_engine.kv_cache.seq_len, max=prefill+max_len) # edit: rsadhukh
         graph_engine.retrieval_cache.update_graph_cache(graph_engine.kv_cache)
         accepted_count_list.zero_()
 

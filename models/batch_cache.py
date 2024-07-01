@@ -60,6 +60,7 @@ class BatchSimpleCache:
         # if layer_idx == 0:
         #     print(storage_ids, key_states.shape, value_states.shape)
         #     print("Max Budget:", self.max_budget, f"| bsz: {self.bsz}", f"| Cached: {self.seq_len}")
+        assert storage_ids.max() < self.max_budget, f"storage_ids.max() should be less than max_budget, got {storage_ids.max()} >= {self.max_budget}"
         indices_expanded = storage_ids.unsqueeze(-1).unsqueeze(-1).expand(-1, -1, self.num_heads, self.head_dim)
         self.key_cache[layer_idx].scatter_(1, indices_expanded, key_states)
         self.value_cache[layer_idx].scatter_(1, indices_expanded, value_states)
