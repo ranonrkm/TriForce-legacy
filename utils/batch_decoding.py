@@ -78,7 +78,7 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
             speculation_probs[:, gamma_offset] = probs
             generated_ids[:, gamma_offset] = pred_token_idx.squeeze()
 
-            draft_count += bsz
+            # draft_count += bsz  # edit: rsadhukh
 
         # verification
         verify_tokens = torch.cat([next_token, generated_ids], dim=1)
@@ -96,11 +96,13 @@ def Retrieval_Spec(tokenizer, graph_engine, input_ids, gamma=6, max_len=256, top
         for j in range(bsz): # bsz
             if n[j] >= max_len:
                 continue
+
             for i in range(gamma):
+                draft_count += 1    # edit: rsadhukh, for the sequences that have not terminated yet, we'll keep on count draft_count
                 token = generated_ids[j, i]
                 spec_prob = speculation_probs[j, i, token]
                 verify_prob = verify_probs[j, i, token]
-            
+                
                 r = torch.rand(1, device = graph_engine.engine.model.device)
                 if r < torch.min(torch.tensor([1], device=r.device), (verify_prob / spec_prob)):
                     accepted_count_list[j] += 1
