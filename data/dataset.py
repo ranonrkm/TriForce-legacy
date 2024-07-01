@@ -45,7 +45,8 @@ def get_dataset(dataset_name, tokenizer=None, datalen=None, task=None):
     elif dataset_name == 'c4':
         dataset = load_dataset("c4", 'en', split='train', streaming=True)
         dataset_head = list(dataset.take(60000))
-        c4_idx = json.load(open(f"data/json/c4.json", "r"))['4096']
+        c4_idx = json.load(open(f"data/json/c4.json", "r"))['8192']
+        # ['4096']
         tokenized_prompts = []
         for i in tqdm(c4_idx):
             prompt = dataset_head[i]['text']
