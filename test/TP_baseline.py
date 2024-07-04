@@ -9,12 +9,15 @@ import torch
 import argparse
 from termcolor import colored
 from utils.batch_decoding import Baseline_Dist, Retrieval_Spec_Dist
+from utils.misc import setup_seed
 from models.TP_llama import distributed_init, DistributedLlama
 from models.modeling_llama import LlamaForCausalLM
 from transformers import AutoTokenizer
 import numpy as np
 
 local_rank, world_size = distributed_init()
+setup_seed(42)
+
 device = torch.device("cuda", local_rank)
 model_name_or_path = "NousResearch/Yarn-Llama-2-7b-128k"
 
@@ -80,8 +83,11 @@ if local_rank == 0:
             f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
 dist.barrier()
 
-acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
-dist.barrier()
+if local_rank == 0:
+    acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, gamma=gamma, local_rank=local_rank)
+else:
+    Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, gamma=gamma, local_rank=local_rank)
+
 if local_rank == 0:
     # print(tokenizer.batch_decode(gen_tokens))
     llm.kv_cache.print_status()
@@ -90,5 +96,5 @@ if local_rank == 0:
     all_acc_list.append(acceptance_rate)
     print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
     print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")
-
-dist.destroy_process_group()
+print(f"finished {local_rank}")
+# dist.destroy_process_group()

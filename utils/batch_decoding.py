@@ -548,7 +548,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
     
     next_token = sample_dist(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p), bsz, tokens=1)
 
-    n = torch.zeros((bsz,), dtype=torch.long)
+    n = torch.zeros((bsz,), dtype=torch.long, device=input_ids.device)
     finished = torch.zeros((bsz,), dtype=torch.bool)
 
     resample_count = 0
@@ -591,85 +591,95 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         # resample = sample(residual.view(-1, 32000)).view(bsz, gamma)
 
         # accept step
-        next_token = torch.zeros((bsz,1), dtype=torch.long, device=input_ids.device)
-        for j in range(bsz): # bsz
-            if finished[j]:
-                continue
-            for i in range(gamma):
-                token = generated_ids[j, i]
-                spec_prob = speculation_probs[j, i, token]
-                verify_prob = verify_probs[j, i, token]
-            
-                draft_count += 1
-                r = torch.rand(1, device = verify_prob.device)
-                if r < torch.min(torch.tensor([1], device=r.device), (verify_prob / spec_prob)):
-                    accepted_count_list[j] += 1
-                    accepted_count += 1
-                    n[j] += 1
-                    pred_token_idx = token
+        if local_rank == 0:
+            next_token = torch.zeros((bsz,1), dtype=torch.long, device=input_ids.device)
+            for j in range(bsz): # bsz
+                if finished[j]:
+                    continue
+                for i in range(gamma):
+                    token = generated_ids[j, i]
+                    spec_prob = speculation_probs[j, i, token]
+                    verify_prob = verify_probs[j, i, token]
+                
+                    draft_count += 1
+                    r = torch.rand(1, device = verify_prob.device)
+                    if r < torch.min(torch.tensor([1], device=r.device), (verify_prob / spec_prob)):
+                        accepted_count_list[j] += 1
+                        accepted_count += 1
+                        n[j] += 1
+                        pred_token_idx = token
 
-                    if verbose:
-                        if local_rank == 0:
-                            spec_stream(pred_token_idx, tokenizer, 'green')
-                        gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
-                    # if eos
-                    if tokenizer.eos_token_id == token.item():
+                        if verbose:
+                            if local_rank == 0:
+                                spec_stream(pred_token_idx, tokenizer, 'green')
+                            gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+                        # if eos
+                        if tokenizer.eos_token_id == token.item():
+                            break
+                    else:
+                        resample_count += 1
+                        n[j] += 1
+                        # pred_token_idx = resample[j, i].unsqueeze(0)
+                        
+                        #!!! NEED REVISE
+                        # pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=1, tokens=1).view(1)
+                        pred_token_idx = sample(get_residual(verify_probs[j, i],speculation_probs[j, i])).view(1)
+                        
+                        if verbose:
+                            if local_rank == 0:
+                                spec_stream(pred_token_idx, tokenizer, 'red')
+                            gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
                         break
-                else:
-                    resample_count += 1
-                    n[j] += 1
-                    # pred_token_idx = resample[j, i].unsqueeze(0)
-                    
-                    #!!! NEED REVISE
-                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=1, tokens=1).view(1)
-                    
-                    if verbose:
-                        if local_rank == 0:
-                            spec_stream(pred_token_idx, tokenizer, 'red')
-                        gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+
+                # if last accepted or resampled token was eos, then do not generate a bonus token
+                if tokenizer.eos_token_id == pred_token_idx.item():
+                    finished[j] = True
+                    next_token[j] = pred_token_idx.unsqueeze(0) # probably not useful
                     break
 
-            # if last accepted or resampled token was eos, then do not generate a bonus token
-            if tokenizer.eos_token_id == pred_token_idx.item():
-                finished[j] = True
-                next_token[j] = pred_token_idx.unsqueeze(0) # probably not useful
-                break
+                if accepted_count_list[j] == gamma:
+                    bonus_count += 1
+                    n[j] += 1
+                    # pred_token_idx = sample_dist(verify_probs[j, -1], bsz=1, tokens=1).view(1)
+                    pred_token_idx = sample(verify_probs[j, -1]).view(1)
 
-            if accepted_count_list[j] == gamma:
-                bonus_count += 1
-                n[j] += 1
-                pred_token_idx = sample_dist(verify_probs[j, -1], bsz=1, tokens=1).view(1)
+                    if verbose:
+                        if local_rank == 0:
+                            spec_stream(pred_token_idx, tokenizer, 'blue')
+                        gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
 
-                if verbose:
-                    if local_rank == 0:
-                        spec_stream(pred_token_idx, tokenizer, 'blue')
-                    gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
+                next_token[j] = pred_token_idx.unsqueeze(0)
+                # if verbose:
+                #     print()
+            temp = torch.stack([next_token.squeeze(-1), n, accepted_count_list], dim=0)
+        else:
+            temp = torch.zeros((3, bsz), dtype=torch.long, device=input_ids.device)
 
-            next_token[j] = pred_token_idx.unsqueeze(0)
-            # if verbose:
-            #     print()
-        
-        # print(accepted_count_list, n, next_token)
+        torch.distributed.broadcast(temp, src=0)
+        next_token = temp[0].unsqueeze(-1)
+        n = temp[1]
+        accepted_count_list = temp[2]
 
         # rollback kv cache
         graph_engine.kv_cache.seq_len -= (gamma - accepted_count_list)
         graph_engine.retrieval_cache.update_graph_cache(graph_engine.kv_cache)
         accepted_count_list.zero_()
-
-        # print("rank: ", local_rank, "\n")
-
+        
+        # print(f"rank: {local_rank} length: {n[0]}")
+        
     time2 = time.time()
-    # print("finished rank: ", local_rank, "\n")
+    print("finished rank: ", local_rank, "\n")
     # collect stats
-    total_count = accepted_count + resample_count + bonus_count
-    avg_tokens = total_count / (draft_count/gamma)
-    acceptance_rate = accepted_count / draft_count
-    # assert round(acceptance_rate*gamma +1,2)  == round(avg_tokens,2), f"{acceptance_rate*gamma +1} != {avg_tokens}"
-    assert total_count == n.sum().item(), f"{total_count} != {n.sum().item()}"
-    latency = (time2 - time1) / (total_count / bsz) * 1000
-    graph_engine.kv_cache.print_status()
-    print(f"acceptance rate: {acceptance_rate:.4f} | avg tokens: {avg_tokens:.4f} | latency: {latency:.4f} ms")
-    if verbose:
-        return acceptance_rate, avg_tokens, latency, gen_tokens
-    else:
-        return acceptance_rate, avg_tokens, latency, None
+    if local_rank == 0:
+        total_count = accepted_count + resample_count + bonus_count
+        avg_tokens = total_count / (draft_count/gamma)
+        acceptance_rate = accepted_count / draft_count
+        # assert round(acceptance_rate*gamma +1,2)  == round(avg_tokens,2), f"{acceptance_rate*gamma +1} != {avg_tokens}"
+        assert total_count == n.sum().item(), f"{total_count} != {n.sum().item()}"
+        latency = (time2 - time1) / (total_count / bsz) * 1000
+        graph_engine.kv_cache.print_status()
+        print(f"acceptance rate: {acceptance_rate:.4f} | avg tokens: {avg_tokens:.4f} | latency: {latency:.4f} ms")
+        if verbose:
+            return acceptance_rate, avg_tokens, latency, gen_tokens
+        else:
+            return acceptance_rate, avg_tokens, latency, None
