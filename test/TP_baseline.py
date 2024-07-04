@@ -60,7 +60,7 @@ for rank in range(world_size):
 llm.initialize_cuda_graph()
 
 from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name='benchmark', tokenizer=tokenizer, datalen=32768)
+tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=32768)
 input_ids = tokenized_prompts[0][:,:prefill].repeat(bsz, 1).to(device)
 
 # prompts = "Speculative decoding is a technique that allows the model to generate multiple tokens in parallel."
@@ -80,14 +80,15 @@ if local_rank == 0:
             f.write(f"{bsz},{prefill},{baseline_latency},{gen_len}\n")
 dist.barrier()
 
-# acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
-# if local_rank == 0:
-#     # print(tokenizer.batch_decode(gen_tokens))
-#     llm.kv_cache.print_status()
-#     print(colored(f"[Retrieval-Speculative-Decoding] average latency: {retrieval_latency} ms", "red"))
-#     all_speed_up.append(baseline_latency / retrieval_latency)
-#     all_acc_list.append(acceptance_rate)
-# dist.barrier()
+acceptance_rate, avg_tokens, retrieval_latency, gen_tokens = Retrieval_Spec_Dist(tokenizer, llm, input_ids, max_len=gen_len, temperature=temperature, top_p=top_p, local_rank=local_rank)
+dist.barrier()
+if local_rank == 0:
+    # print(tokenizer.batch_decode(gen_tokens))
+    llm.kv_cache.print_status()
+    print(colored(f"[Retrieval-Speculative-Decoding] average latency: {retrieval_latency} ms", "red"))
+    all_speed_up.append(baseline_latency / retrieval_latency)
+    all_acc_list.append(acceptance_rate)
+    print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
+    print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")
 
-# print(f"[Overall Speedup]: {np.array(all_speed_up).mean()}")
-# print(f"[Overall Avg Accepted Tokens]: {np.array(all_acc_list).mean()}")
+dist.destroy_process_group()

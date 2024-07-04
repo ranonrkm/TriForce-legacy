@@ -549,7 +549,8 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
     next_token = sample_dist(norm_logits(logits[:,-1,:], temperature=temperature ,top_k=top_k, top_p=top_p), bsz, tokens=1)
 
     n = torch.zeros((bsz,), dtype=torch.long)
-    
+    finished = torch.zeros((bsz,), dtype=torch.bool)
+
     resample_count = 0
     bonus_count = 0
     accepted_count = 0
@@ -575,8 +576,6 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
             speculation_probs[:, gamma_offset] = probs
             generated_ids[:, gamma_offset] = pred_token_idx.squeeze()
 
-            draft_count += bsz
-
             dist.barrier()
         # exit()
 
@@ -594,11 +593,14 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         # accept step
         next_token = torch.zeros((bsz,1), dtype=torch.long, device=input_ids.device)
         for j in range(bsz): # bsz
+            if finished[j]:
+                continue
             for i in range(gamma):
                 token = generated_ids[j, i]
                 spec_prob = speculation_probs[j, i, token]
                 verify_prob = verify_probs[j, i, token]
             
+                draft_count += 1
                 r = torch.rand(1, device = verify_prob.device)
                 if r < torch.min(torch.tensor([1], device=r.device), (verify_prob / spec_prob)):
                     accepted_count_list[j] += 1
@@ -619,7 +621,7 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                     # pred_token_idx = resample[j, i].unsqueeze(0)
                     
                     #!!! NEED REVISE
-                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=bsz, tokens=1)
+                    pred_token_idx = sample_dist(get_residual(verify_probs[j, i],speculation_probs[j, i]), bsz=1, tokens=1).view(1)
                     
                     if verbose:
                         if local_rank == 0:
@@ -627,13 +629,16 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
                         gen_tokens[j, n[j]-1] = pred_token_idx.squeeze()
                     break
 
-                if tokenizer.eos_token_id == pred_token_idx.item():
-                    break
+            # if last accepted or resampled token was eos, then do not generate a bonus token
+            if tokenizer.eos_token_id == pred_token_idx.item():
+                finished[j] = True
+                next_token[j] = pred_token_idx.unsqueeze(0) # probably not useful
+                break
 
             if accepted_count_list[j] == gamma:
                 bonus_count += 1
                 n[j] += 1
-                pred_token_idx = sample_dist(verify_probs[j, -1], bsz=bsz, tokens=1)
+                pred_token_idx = sample_dist(verify_probs[j, -1], bsz=1, tokens=1).view(1)
 
                 if verbose:
                     if local_rank == 0:
@@ -651,7 +656,10 @@ def Retrieval_Spec_Dist(tokenizer, graph_engine, input_ids, max_len=256, top_k=-
         graph_engine.retrieval_cache.update_graph_cache(graph_engine.kv_cache)
         accepted_count_list.zero_()
 
+        # print("rank: ", local_rank, "\n")
+
     time2 = time.time()
+    # print("finished rank: ", local_rank, "\n")
     # collect stats
     total_count = accepted_count + resample_count + bonus_count
     avg_tokens = total_count / (draft_count/gamma)

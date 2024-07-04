@@ -160,8 +160,8 @@ def TP_Attention(
     query_states = query_states.transpose(1, 2)
     key_states = key_states.transpose(1, 2)
 
-    # key_states, value_states = kv_buffer.update(key_states, value_states, layer_idx, storage_ids=position_ids)
-    key_states, value_states = kv_buffer.update(key_states, value_states, layer_idx)
+    key_states, value_states = kv_buffer.update(key_states, value_states, layer_idx, storage_ids=position_ids)
+    # key_states, value_states = kv_buffer.update(key_states, value_states, layer_idx)
 
     if retrieval_cache is not None:
         retrieval_cache.init_graph_cache(kv_buffer, query_states, layer_idx)
