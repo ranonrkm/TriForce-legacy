@@ -60,9 +60,24 @@ draft = LlamaForCausalLM_68M.from_pretrained("JackFram/llama-68m", torch_dtype=t
 ######## data initialization ########
 bsz = args.bsz
 from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
-tokenized_prompts = [i[:,:args.prefill] for i in tokenized_prompts]
-tokenized_prompts = [torch.cat(tokenized_prompts[i:i+bsz], dim=0) for i in range(0, len(tokenized_prompts), bsz)]
+ds_tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
+# tokenized_prompts = [i[:,:args.prefill] for i in tokenized_prompts]
+# tokenized_prompts = [torch.cat(tokenized_prompts[i:i+bsz], dim=0) for i in range(0, len(tokenized_prompts), bsz)]
+tokenized_prompts = []
+doc_id = 0
+i = 0
+for _ in range(10):
+    cur_batch = []
+    for _ in range(args.bsz):
+        if i + args.prefill > ds_tokenized_prompts[doc_id].size(1):
+            i = 0
+            doc_id += 1
+        assert doc_id < len(ds_tokenized_prompts)
+        cur_batch.append(ds_tokenized_prompts[doc_id][:, i : i + args.prefill])
+        i += args.prefill
+    cur_batch = torch.cat(cur_batch, dim=0)
+    tokenized_prompts.append(cur_batch)
+
 
 ######## sampling parameters ########
 top_k = -1
@@ -75,21 +90,22 @@ gamma = args.gamma
 verbose = args.verbose
 
 
-if 'lovelace' in host:
-    file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_Ablation_graph_chain_retrieval.csv"
-else:
-    file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_graph_chain_retrieval.csv"
+# if 'lovelace' in host:
+#     file_path = "/home/hanshis/workspace/LongContextInfer/test/report/L40_Ablation_graph_chain_retrieval.csv"
+# else:
+#     file_path = "/data/home/beidic/hanshi/LongContextInfer/test/report/A100_Ablation_graph_chain_retrieval.csv"
 
-if 'lovelace' in host:
-    align_ckpt = "/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125"
-else:
-    align_ckpt = "/fsx-storygen/beidic/hanshi/ckpts/Base-128K-256/step_11696"
+# if 'lovelace' in host:
+#     align_ckpt = "/home/hanshis/workspace/LongContextInfer/archive/ckpts/512/step_125"
+# else:
+#     align_ckpt = "/fsx-storygen/beidic/hanshi/ckpts/Base-128K-256/step_11696"
 
+file_path = None
 print_config(target, target, prefill, gen_len, gamma, top_k, top_p, temperature, file_path=file_path, method="Batch Baseline (68M Eviction)", dataset=args.dataset)
 
 ####### cache init #######
 cache = BatchSimpleCache(target, int(prefill+gen_len*2), bsz=bsz)
-draft_cache=BatchStreamEvictionCache(draft, start_size=16, recent_size=args.budget-20-gamma, gamma=gamma, bsz=bsz)
+draft_cache=BatchStreamEvictionCache(draft, start_size=16, recent_size=args.budget-16-gamma, gamma=gamma, bsz=bsz)  # NOTE: recent_size=args.budget-20-gamma??
 graph_engine = GraphInferenceEngine(target, cache, draft=draft, draft_cache=draft_cache, bsz=bsz)
 graph_engine.initialize_cuda_graph(gamma, probs=True, temperature=temperature, top_p=top_p)
 cache.print_status()
@@ -105,7 +121,7 @@ for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
 
 with torch.no_grad():
     all_latency = []
-    for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
+    for input_ids in tqdm(tokenized_prompts, desc="Baseline Test"):
         input_ids = input_ids.to(target.device)[:,:prefill]
         latency, gen_tokens = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
         all_latency.append(latency)

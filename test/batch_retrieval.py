@@ -60,9 +60,23 @@ target = target.eval()
 ######## data initialization ########
 bsz = args.bsz
 from data.dataset import get_dataset
-tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
-tokenized_prompts = [i[:,:args.prefill] for i in tokenized_prompts]
-tokenized_prompts = [torch.cat(tokenized_prompts[i:i+bsz], dim=0) for i in range(0, len(tokenized_prompts), bsz)]
+ds_tokenized_prompts = get_dataset(dataset_name=args.dataset, tokenizer=tokenizer, datalen=args.prefill)
+tokenized_prompts = []
+doc_id = 0
+i = 0
+for _ in range(10):
+    cur_batch = []
+    for _ in range(args.bsz):
+        if i + args.prefill > ds_tokenized_prompts[doc_id].size(1):
+            i = 0
+            doc_id += 1
+        assert doc_id < len(ds_tokenized_prompts)
+        cur_batch.append(ds_tokenized_prompts[doc_id][:, i : i + args.prefill])
+        i += args.prefill
+    cur_batch = torch.cat(cur_batch, dim=0)
+    tokenized_prompts.append(cur_batch)
+
+# tokenized_prompts = [torch.cat(tokenized_prompts[i:i+bsz], dim=0) for i in range(0, len(tokenized_prompts), bsz)]
 
 ######## sampling parameters ########
 top_k = -1
@@ -109,7 +123,7 @@ for i in tqdm(range(n_warmups), desc="Baseline Warmup"):
 
 with torch.no_grad():
     all_latency = []
-    for input_ids in tqdm(tokenized_prompts[:1], desc="Baseline Test"):
+    for input_ids in tqdm(tokenized_prompts, desc="Baseline Test"):
         input_ids = input_ids.to(target.device)[:,:prefill]
         # print(tokenizer.batch_decode(input_ids))
         latency, gen_tokens = Baseline(tokenizer, graph_engine, input_ids, max_len=gen_len, top_k=top_k, top_p=top_p, temperature=temperature, verbose=False)
@@ -131,6 +145,7 @@ for i in tqdm(range(n_warmups), desc="Graph Chain Spec Warmup"):
 print(tokenizer.batch_decode(gen_tokens))
 all_acceptance_rate = []
 all_latency = []
+
 for input_ids in tqdm(tokenized_prompts, desc="Graph Chain Spec Test"):
     input_ids = input_ids.to(target.device)[:,:prefill]
     if input_ids.size(0) != bsz:
